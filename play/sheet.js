@@ -51,7 +51,10 @@
   // ---- persisted state ----
   var st = { strife:0, fatigue:0, "void":(S.trackers&&S.trackers["void"]&&S.trackers["void"].start)||0,
              stance:S.stance||"void", ring:"earth", skill:null,
-             inConflict:false, conflictType:"skirmish", oppTable:"general" };
+             inConflict:false, conflictType:"skirmish", oppTable:"general",
+             conditions:[], techUses:{},
+             honor:(S.social?S.social.honor:0), glory:(S.social?S.social.glory:0), status:(S.social?S.social.status:0) };
+  var CONDITIONS = ["Afflicted","Bleeding","Burning","Compromised","Dazed","Disoriented","Enraged","Exhausted","Immobilized","Intoxicated","Prone","Silenced","Unconscious"];
   var L5RD = window.L5R || {stances:{},conflicts:{},opportunities:{},oppTables:[],techniqueOpportunities:[]};
   try { var saved = JSON.parse(localStorage.getItem(LSKEY)); if (saved) Object.assign(st, saved); } catch(e){}
   function save(){ if(RO) return; try { localStorage.setItem(LSKEY, JSON.stringify(st)); } catch(e){} }
@@ -62,6 +65,13 @@
   var rollLog = []; try { rollLog = JSON.parse(localStorage.getItem(LOGKEY)) || []; } catch(e){}
   function saveLog(){ try { localStorage.setItem(LOGKEY, JSON.stringify(rollLog)); } catch(e){} }
   function nowStr(){ try { return new Date().toLocaleString(); } catch(e){ return ""; } }
+  function logEvent(cat, desc, extra){
+    if(RO) return;
+    rollLog.unshift(Object.assign({ kind:"event", cat:cat, desc:desc, when:nowStr() }, extra||{}));
+    saveLog(); updateLogCount(); renderLog();
+  }
+  function socialVal(attr){ if(RO) return (S.social&&S.social[attr])||0; return st[attr]!=null?st[attr]:((S.social&&S.social[attr])||0); }
+  function ringIcon(r){ return "<img class='ring-ico' src='../assets/rings/"+r+".svg' alt='"+cap(r)+"' title='"+cap(r)+"'>"; }
 
   function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
   function el(tag, cls, html){ var e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; }
@@ -82,7 +92,9 @@
       .replace(/\(su\)/g,"<span class='sym su'>❁</span>")
       .replace(/\(ex\)/g,"<span class='sym ex'>❉</span>")
       .replace(/\(st\)/g,"<span class='sym st'>▲</span>")
-      .replace(/\(ring\)/g,"<span class='sym ring'>⬢</span>");
+      .replace(/\(ring\)/g,"<span class='sym ring'>⬢</span>")
+      .replace(/\((air|earth|fire|water|void)\)/gi,function(m,r){ return ringIcon(r.toLowerCase()); })
+      .replace(/\[(Air|Earth|Fire|Water|Void)\]/g,function(m,r){ return ringIcon(r.toLowerCase()); });
   }
 
   // ---- build the sheet ----
@@ -97,11 +109,6 @@
     id.appendChild(el("h1",null,S.name));
     id.appendChild(el("div","sub", S.clan+" Clan · "+S.family+" family"));
     id.appendChild(el("div","sub2", S.school+" · Rank "+S.rank+" "+S.role));
-    var hgs = el("div","hgs");
-    [["Honor",S.social.honor],["Glory",S.social.glory],["Status",S.social.status]].forEach(function(p){
-      hgs.appendChild(el("div","stat","<span class='lab'>"+p[0]+"</span><span class='val'>"+p[1]+"</span>"));
-    });
-    id.appendChild(hgs);
     head.appendChild(id);
     var mon=el("img","sh-mon"); mon.src="../assets/mon/"+S.clan.toLowerCase()+".svg"; mon.alt=S.clan+" mon"; head.appendChild(mon);
     root.appendChild(head);
@@ -115,6 +122,9 @@
     }
 
     var grid = el("div","sh-grid");
+
+    // --- Conflict (spans the full width, above rings/condition) ---
+    if(!RO) grid.appendChild(buildConflict());
 
     // --- Rings + derived ---
     var cRings = el("div","sh-card");
@@ -142,10 +152,11 @@
     cTrk.appendChild(tracker("strife","Strife",S.trackers.strife.max,S.derived.composure,"Compromised at "+S.derived.composure));
     cTrk.appendChild(tracker("fatigue","Fatigue",S.trackers.fatigue.max,S.derived.endurance,"Incapacitated at "+S.derived.endurance));
     cTrk.appendChild(tracker("void","Void Points",S.trackers["void"].max,null,null));
+    cTrk.appendChild(buildConditions());
     grid.appendChild(cTrk);
 
-    // --- Conflict (stances hidden until a conflict begins) ---
-    if(!RO) grid.appendChild(buildConflict());
+    // --- Social (Honor / Glory / Status) ---
+    grid.appendChild(buildSocial());
 
     // --- Skills ---
     var cSk = el("div","sh-card");
@@ -167,11 +178,12 @@
     });
     grid.appendChild(cSk);
 
-    // --- Techniques ---
+    // --- Techniques (beside Skills) ---
     var cTech = el("div","sh-card");
     cTech.appendChild(el("h2",null,"Techniques"));
-    S.techniques.forEach(function(t){ cTech.appendChild(entry(t.name,t.tag,t.ring,t.text)); });
+    var techBody=el("div"); techBody.id="techBody"; cTech.appendChild(techBody);
     grid.appendChild(cTech);
+    setTimeout(renderTechniques,0);
 
     // --- Peculiarities ---
     var cPec = el("div","sh-card span2");
@@ -212,7 +224,14 @@
     var wrap=el("div","trk"); wrap.setAttribute("data-key",key);
     wrap.innerHTML="<div class='trk-top'><span class='trk-name'>"+name+" <span class='warn' data-warn></span></span><span class='trk-val'></span></div>";
     var pips=el("div","pips");
-    for(var i=1;i<=max;i++){ (function(n){ var p=el("div","pip"); p.addEventListener("click",function(){ if(RO) return; st[key]=(st[key]===n?n-1:n); save(); syncTracker(key); }); pips.appendChild(p); })(i); }
+    var TNAMES={strife:"Strife",fatigue:"Fatigue","void":"Void points"};
+    for(var i=1;i<=max;i++){ (function(n){ var p=el("div","pip"); p.addEventListener("click",function(){
+      if(RO) return;
+      var from=st[key]||0, to=(from===n?n-1:n);
+      if(to===from) return;
+      st[key]=to; save(); syncTracker(key);
+      logEvent(key,(TNAMES[key]||key)+" "+from+" → "+to+((key==="void"&&to<from)?" (spent)":""),{attr:key,from:from,to:to,delta:to-from});
+    }); pips.appendChild(p); })(i); }
     wrap.appendChild(pips);
     if(warnAt) wrap.appendChild(el("p","trk-note",warnAt));
     setTimeout(function(){ syncTracker(key); },0);
@@ -240,9 +259,105 @@
   function syncSkill(){ root.querySelectorAll(".skrow").forEach(function(r){ r.classList.toggle("sel", r.getAttribute("data-skill")===st.skill); }); }
   function syncStance(){ root.querySelectorAll(".stbtn").forEach(function(b){ b.classList.toggle("sel", b.getAttribute("data-stance")===st.stance); }); }
 
+  // ===================== CONDITIONS =====================
+  function buildConditions(){
+    var wrap=el("div","conditions-wrap");
+    wrap.appendChild(el("h2",null,"Conditions"));
+    var chips=el("div","cond-chips");
+    CONDITIONS.forEach(function(c){
+      var b=el("button","cond-chip"+(st.conditions.indexOf(c)>=0?" on":""),c);
+      b.addEventListener("click",function(){
+        if(RO) return;
+        var i=st.conditions.indexOf(c);
+        if(i>=0){ st.conditions.splice(i,1); logEvent("condition","Removed condition: "+c,{attr:c,delta:"removed"}); }
+        else { st.conditions.push(c); logEvent("condition","Applied condition: "+c,{attr:c,delta:"applied"}); }
+        save(); b.classList.toggle("on");
+      });
+      chips.appendChild(b);
+    });
+    wrap.appendChild(chips);
+    return wrap;
+  }
+
+  // ===================== SOCIAL STANDING =====================
+  function buildSocial(){
+    var c=el("div","sh-card span2 social-card");
+    c.appendChild(el("h2",null,"Social Standing"));
+    var row=el("div","social-row");
+    [["honor","Honor"],["glory","Glory"],["status","Status"]].forEach(function(p){ row.appendChild(socialAttr(p[0],p[1])); });
+    c.appendChild(row);
+    c.appendChild(el("p","trk-note","Adjust with − / +, or stake a set amount to wager it. Every change is written to the roll log."));
+    return c;
+  }
+  function socialAttr(attr,label){
+    var box=el("div","soc-attr"); box.setAttribute("data-attr",attr);
+    box.innerHTML="<div class='soc-lab'>"+label+"</div>"
+      +"<div class='soc-main'><button class='soc-adj' data-d='-1'>&minus;</button><span class='soc-val'>"+socialVal(attr)+"</span><button class='soc-adj' data-d='1'>+</button></div>"
+      +"<div class='soc-stake'><input type='number' class='soc-stake-in' min='1' placeholder='stake'><button class='soc-stake-btn'>Stake</button></div>";
+    if(RO){ box.querySelectorAll("button,input").forEach(function(x){ x.disabled=true; }); return box; }
+    var valEl=box.querySelector(".soc-val");
+    box.querySelectorAll(".soc-adj").forEach(function(b){
+      b.addEventListener("click",function(){
+        var d=parseInt(b.getAttribute("data-d"),10);
+        var from=socialVal(attr), to=Math.max(0,from+d);
+        if(to===from) return;
+        st[attr]=to; save(); valEl.textContent=to;
+        logEvent("social",label+" "+from+" → "+to+" ("+(d>0?"+":"")+d+")",{attr:attr,from:from,to:to,delta:d});
+      });
+    });
+    box.querySelector(".soc-stake-btn").addEventListener("click",function(){
+      var inp=box.querySelector(".soc-stake-in"), amt=Math.max(0,parseInt(inp.value||"0",10));
+      if(!amt) return;
+      logEvent("stake","Staked "+amt+" "+label+" (holding "+socialVal(attr)+")",{attr:attr,amount:amt});
+      inp.value="";
+    });
+    return box;
+  }
+
+  // ===================== TECHNIQUES =====================
+  function renderTechniques(){
+    var body=document.getElementById("techBody"); if(!body) return;
+    body.innerHTML="";
+    S.techniques.forEach(function(t){ body.appendChild(techEntry(t)); });
+  }
+  function wireMore(body,btn){ btn.addEventListener("click",function(){ var c=body.classList.toggle("collapsed"); btn.textContent=c?"Read more":"Show less"; }); }
+  function techEntry(t){
+    var e=el("div","entry tech-entry");
+    if(t.kind==="school"){   // Blood of the Kami — special collapsed view
+      e.innerHTML="<div class='et-head'><span class='et-name'>"+t.name+"</span><span class='et-tag'>"+t.tag+"</span>"+ringIcon(t.ring)+"</div>"
+        +"<div class='tech-blood'>Active — empowers <b>"+t.linkedKiho+"</b> (the "+t.motif+" tattoo): on a successful activation, add bonus successes equal to your school rank ("+(S.rank||1)+").</div>"
+        +"<p class='et-text collapsed'>"+syms(t.text)+"</p><button class='more'>Read more</button>";
+      wireMore(e.querySelector(".et-text"), e.querySelector(".more"));
+      return e;
+    }
+    var usage = t.uses ? "<span class='tech-uses'>"+(st.techUses[t.name]||0)+"/"+t.uses.max+" per "+t.uses.per+"</span>" : "";
+    e.innerHTML="<div class='et-head'><span class='et-name'>"+t.name+"</span><span class='et-tag'>"+t.tag+"</span>"+ringIcon(t.ring)+usage+"</div>";
+    if(t.activation){
+      var a=t.activation;
+      var maxed = t.uses && (st.techUses[t.name]||0)>=t.uses.max;
+      var btn=el("button","tech-activate"+(maxed?" spent":""), a.actionType+a.punct+" TN "+a.tn+" "+(SKILL_NAMES[a.skill]||cap(a.skill))+" "+ringIcon(a.ring));
+      btn.addEventListener("click",function(){ if(RO) return; activateTechnique(t); });
+      e.appendChild(btn);
+    }
+    var body=el("p","et-text collapsed"); body.innerHTML=syms(t.text); e.appendChild(body);
+    var more=el("button","more","Read more"); e.appendChild(more); wireMore(body,more);
+    return e;
+  }
+  function activateTechnique(t){
+    var a=t.activation; if(!a) return;
+    st.ring=a.ring; st.skill=a.skill; save(); syncRing(); syncSkill();
+    var rc=document.getElementById("rollerCard"); if(rc) rc.classList.remove("collapsed");
+    var tn=document.getElementById("rTN"); if(tn) tn.value=a.tn;
+    var note=document.getElementById("rNote"); if(note && !note.value) note.value=t.name;
+    rollCtx={ source:t.name, activation:a.actionType+a.punct, bloodOfKami:!!t.bloodOfKami, schoolRank:(S.rank||1) };
+    if(t.uses){ st.techUses[t.name]=(st.techUses[t.name]||0)+1; save(); renderTechniques(); }
+    syncRoller(); doRoll();
+    if(rc) rc.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+
   // ===================== CONFLICT =====================
   function buildConflict(){
-    var c=el("div","sh-card conflict-card");
+    var c=el("div","sh-card span2 conflict-card");
     c.appendChild(el("h2",null,"Conflict"));
     var body=el("div","conflict-body");
     c.appendChild(body);
@@ -315,6 +430,7 @@
   var curKeep=0;     // keep limit locked in at roll time
   var rollLogged=false;
   var rollMeta=null; // full provenance of the current roll (for the log)
+  var rollCtx=null;  // technique-activation context (source, Blood of the Kami, etc.)
   var cfg={ assistSkill:0, assistRing:0, voidSpend:false };
 
   function buildRoller(){
@@ -365,7 +481,7 @@
       });
       buildStepper(c.querySelector("[data-cfg='assistSkill']"),"assistSkill");
       buildStepper(c.querySelector("[data-cfg='assistRing']"),"assistRing");
-      c.querySelector("#rRoll").addEventListener("click",doRoll);
+      c.querySelector("#rRoll").addEventListener("click",function(){ rollCtx=null; doRoll(); });
       c.querySelector("#rClear").addEventListener("click",clearRoll);
       c.querySelector("#rVoid").addEventListener("change",function(){ cfg.voidSpend=this.checked; });
       c.querySelector("#rTN").addEventListener("input",function(){ if(pool.length) tally(); });
@@ -454,6 +570,9 @@
       keepLimit: curKeep,
       initial: pool.map(function(d){ return { type:d.type, key:d.key }; }),
       events: [],
+      source: rollCtx ? rollCtx.source : null,
+      activation: rollCtx ? rollCtx.activation : null,
+      bloodOfKami: rollCtx ? !!rollCtx.bloodOfKami : false,
       inConflict: !!st.inConflict, stance: st.inConflict ? st.stance : null,
       conflictType: st.inConflict ? st.conflictType : null
     };
@@ -515,6 +634,8 @@
     var tn=parseInt(document.getElementById("rTN").value||"0",10);
     var res=document.getElementById("rResult");
     var pass=su>=tn;
+    var bok = (rollCtx && rollCtx.bloodOfKami && pass) ? (rollCtx.schoolRank||0) : 0;
+    var totalSu = su + bok;
     var voidStance = st.inConflict && st.stance==="void";
     var strifeApplied = voidStance ? 0 : stf;
     res.className="r-result show";
@@ -530,18 +651,20 @@
         +"</div>";
     }
     res.innerHTML=""
-      +"<div class='verdict "+(pass?"pass":"fail")+"'>"+(pass?"Success":"Failure")+" &mdash; "+su+" vs TN "+tn+"</div>"
-      +"<div class='tallies'><span>Kept <b>"+keptBase()+"/"+curKeep+"</b>"+(bonusKept?" <em>+"+bonusKept+" bonus</em>":"")+"</span><span>Successes <b class='sym su' style='color:#3f8f5a'>"+su+"</b></span><span>Opportunity <b class='sym op' style='color:#c08a1e'>"+op+"</b></span><span>Strife <b class='sym st' style='color:#b0642a'>"+stf+"</b></span></div>"
+      +"<div class='verdict "+(pass?"pass":"fail")+"'>"+(pass?"Success":"Failure")+" &mdash; "+totalSu+" vs TN "+tn+"</div>"
+      +(rollCtx&&rollCtx.source?"<div class='r-source'>via "+rollCtx.source+(rollCtx.activation?" — "+rollCtx.activation:"")+"</div>":"")
+      +(bok?"<div class='r-bok'>+"+bok+" bonus success from <b>Blood of the Kami</b></div>":"")
+      +"<div class='tallies'><span>Kept <b>"+keptBase()+"/"+curKeep+"</b>"+(bonusKept?" <em>+"+bonusKept+" bonus die</em>":"")+"</span><span>Successes <b class='sym su' style='color:#3f8f5a'>"+totalSu+"</b>"+(bok?" <em>(incl +"+bok+")</em>":"")+"</span><span>Opportunity <b class='sym op' style='color:#c08a1e'>"+op+"</b></span><span>Strife <b class='sym st' style='color:#b0642a'>"+stf+"</b></span></div>"
       +applyBar;
     if(!rollLogged){
       document.getElementById("rKeep").addEventListener("click",function(){
         var amt=Math.max(0,Math.min(stf,parseInt(document.getElementById("rStrife").value||"0",10)));
-        keepResults(amt, su, op, stf, tn, pass);
+        keepResults(amt, totalSu, op, stf, tn, pass, bok);
       });
     }
   }
 
-  function keepResults(strifeAmt, su, op, stfRolled, tn, pass){
+  function keepResults(strifeAmt, su, op, stfRolled, tn, pass, bokBonus){
     if(RO) return;
     st.strife=Math.min(S.trackers.strife.max, (st.strife||0)+strifeAmt); save(); syncTracker("strife");
     var kept=pool.filter(function(d){ return d.kept; });
@@ -561,6 +684,7 @@
       keptBaseCount: keptBaseCount, bonusKept: bonusKept,
       keptFewer: keptBaseCount < (m.keepLimit!=null?m.keepLimit:curKeep),
       initial: m.initial||[], events: m.events||[],
+      source: m.source||null, activation: m.activation||null, bokBonus: bokBonus||0,
       tn: tn, su: su, op: op, strifeRolled: stfRolled, strifeApplied: strifeAmt, pass: pass,
       inConflict: !!m.inConflict, stance: m.stance||null, conflictType: m.conflictType||null,
       kept: kept.map(function(d){ return { type:d.type, key:d.key, bonus:!!d.bonus }; }),
@@ -574,7 +698,7 @@
 
   // Clear the Roll & Keep interface for the next roll.
   function resetRoll(){
-    pool=[]; rollMeta=null; rollLogged=false;
+    pool=[]; rollMeta=null; rollCtx=null; rollLogged=false;
     cfg={ assistSkill:0, assistRing:0, voidSpend:false };
     var dice=document.getElementById("rDice"); if(dice) dice.innerHTML="";
     var res=document.getElementById("rResult"); if(res){ res.classList.remove("show"); res.innerHTML=""; }
@@ -593,7 +717,15 @@
     var host=document.getElementById("rLog"); if(!host) return;
     if(!rollLog.length){ host.innerHTML="<p class='r-hint'>No rolls kept yet. Roll, then <b>Keep Results</b> to record one here.</p>"; return; }
     host.innerHTML="<div class='log-actions'><span class='r-summary'>"+rollLog.length+" recorded</span><button class='link-btn' id='logClear'>Clear log</button></div>";
+    var EVICON={condition:"☷",social:"❖",stake:"⚑",strife:"▲",fatigue:"✦",voidp:"◇","void":"◇",technique:"❁"};
     rollLog.forEach(function(e){
+      if(e.kind==="event"){
+        var ev=el("div","log-event cat-"+(e.cat||"misc"));
+        ev.innerHTML="<span class='le-cat'>"+(EVICON[e.cat]||"·")+" "+cap(e.cat||"event")+"</span>"
+          +"<span class='le-desc'>"+escapeHTML(e.desc||"")+"</span>"
+          +(e.when?"<span class='log-when'>"+e.when+"</span>":"");
+        host.appendChild(ev); return;
+      }
       var d=el("div","log-entry "+(e.pass?"pass":"fail"));
 
       // config chips: keep, assist, void
@@ -619,6 +751,7 @@
         +"<div class='log-head'><span class='log-verdict'>"+(e.pass?"Success":"Failure")+"</span>"
         +"<span class='log-approach'>"+cap(e.ring)+" "+e.ringN+(e.skillLabel?" · "+e.skillLabel+(e.skillN!=null?" "+e.skillN:""):"")+(e.stance?" · "+cap(e.stance)+" stance":"")+"</span>"
         +(e.when?"<span class='log-when'>"+e.when+"</span>":"")+"</div>"
+        +(e.source?"<div class='log-source'>via "+e.source+(e.activation?" — "+e.activation:"")+(e.bokBonus?" · +"+e.bokBonus+" Blood of the Kami":"")+"</div>":"")
         +(e.note?"<div class='log-note'>"+escapeHTML(e.note)+"</div>":"")
         +(chips.length?"<div class='log-chips'>"+chips.join("")+"</div>":"")
         +(e.initial&&e.initial.length?"<div class='log-line'><span class='log-lbl'>Rolled</span><span class='log-dice'>"+diceRow(e.initial)+"</span></div>":"")

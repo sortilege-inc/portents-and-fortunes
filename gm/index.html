@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <title>Behind the Veil — Portents &amp; Fortunes</title>
 <meta name="description" content="The Game Master's working notes for the Togashi Norikage chronicle. Spoilers within.">
 <meta name="robots" content="noindex">
@@ -12,7 +13,16 @@
 </head>
 <body>
 <nav class="topnav"><span class="brand">Portents &amp; Fortunes</span><a href="../index.html">Home</a><a href="../character/index.html">Character</a><a href="../chronicle/index.html">Chronicle</a><a href="../dramatis-personae/index.html">Dramatis Personae</a><a href="../map/index.html">Atlas</a><a href="../lore/index.html">Lore</a><a href="index.html" class="gm active">Behind the Veil</a></nav>
-<div class="wrap">
+<div class="veil-gate" id="veilGate">
+  <span class="vg-seal">&#9719;</span>
+  <div class="vg-title">Behind the Veil</div>
+  <p class="vg-sub">Beyond lie the Master's papers — the premise, the subplots, the shape of the prophecy. To read them is to know what Norikage does not. Bow to enter, or retreat and keep the mystery.</p>
+  <div class="vg-btns">
+    <button class="vg-btn bow" id="vgBow">Bow &amp; Enter</button>
+    <a class="vg-btn retreat" href="../index.html">Retreat</a>
+  </div>
+</div>
+<div class="wrap veiled" id="veilContent">
 <p class="crumb"><a href="../index.html">Home</a><span class="sep">&#8250;</span>Behind the Veil</p>
 <header class="masthead gm-mast"><div class="eyebrow">For the Game Master</div>
 <h1>Behind the Veil</h1>
@@ -165,5 +175,15 @@
 </div>
 </div>
 <footer class="foot"><span class="mark">&#10070;</span>Behind the Veil &middot; Portents &amp; Fortunes &middot; Legend of the Five Rings</footer>
+<script>
+(function(){
+  var gate=document.getElementById("veilGate"), content=document.getElementById("veilContent");
+  document.getElementById("vgBow").addEventListener("click",function(){
+    content.classList.remove("veiled");
+    gate.classList.add("lifted");
+    setTimeout(function(){ gate.style.display="none"; },600);
+  });
+})();
+</script>
 </body>
 </html>

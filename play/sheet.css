@@ -283,3 +283,49 @@
 .logdie.ring{ background:#241a12; } .logdie.skill{ background:#f4ecd8; border:1px solid var(--edge); }
 .logdie.bonus{ box-shadow:0 0 0 2px var(--gold-lit); }
 .log-tally{ font-size:0.86rem; color:var(--ink-2); margin-top:0.3rem; }
+.log-source{ font-family:var(--disp); font-style:italic; font-size:0.98rem; color:var(--crimson); margin:0.15rem 0; }
+
+/* log event entries (state changes) */
+.log-event{ display:flex; align-items:baseline; gap:0.7rem; flex-wrap:wrap; padding:0.4rem 0.6rem; margin-bottom:0.4rem; border-left:3px solid var(--gold-soft); background:rgba(154,123,63,0.06); border-radius:3px; }
+.le-cat{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.66rem; color:var(--gold); min-width:6rem; }
+.le-desc{ font-size:0.92rem; color:var(--ink); margin-right:auto; }
+.log-event.cat-condition{ border-left-color:var(--crimson); } .log-event.cat-condition .le-cat{ color:var(--crimson); }
+.log-event.cat-stake{ border-left-color:#8a5a1e; } .log-event.cat-void{ border-left-color:#5a4a6e; }
+
+/* ring element icon (in techniques, activation buttons) */
+.ring-ico{ width:1.05em; height:1.05em; vertical-align:-0.18em; }
+
+/* social standing */
+.social-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:0.9rem; }
+@media (max-width:620px){ .social-row{ grid-template-columns:1fr; } }
+.soc-attr{ text-align:center; border:1px solid var(--edge); border-radius:6px; padding:0.6rem 0.5rem; background:var(--paper); }
+.soc-lab{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.12em; font-size:0.72rem; color:var(--crimson); }
+.soc-main{ display:flex; align-items:center; justify-content:center; gap:0.6rem; margin:0.3rem 0; }
+.soc-val{ font-family:var(--disp); font-weight:700; font-size:1.9rem; color:var(--sumi); min-width:2.4ch; }
+.soc-adj{ width:1.9rem; height:1.9rem; border:1px solid var(--edge); background:var(--paper-2); color:var(--crimson); border-radius:5px; font-size:1.1rem; line-height:1; cursor:pointer; }
+.soc-adj:hover{ background:#fff; border-color:var(--crimson); }
+.soc-stake{ display:flex; gap:0.3rem; justify-content:center; }
+.soc-stake-in{ width:4.2rem; font-family:var(--disp); font-size:0.95rem; text-align:center; border:1px solid var(--edge); border-radius:4px; padding:0.2rem; background:var(--paper-2); }
+.soc-stake-btn{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.68rem; font-weight:600; color:var(--ink); background:var(--paper-2); border:1px solid var(--gold-soft); border-radius:4px; padding:0.2rem 0.5rem; cursor:pointer; }
+.soc-stake-btn:hover{ background:var(--crimson); color:#fff; border-color:var(--crimson-deep); }
+
+/* conditions */
+.conditions-wrap{ margin-top:0.9rem; }
+.conditions-wrap h2{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.14em; font-size:0.9rem; color:var(--crimson); margin:0 0 0.6rem; padding-bottom:0.4rem; border-bottom:1px solid var(--gold-soft); }
+.cond-chips{ display:flex; flex-wrap:wrap; gap:0.35rem; }
+.cond-chip{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.05em; font-size:0.7rem; color:var(--ink-soft); background:var(--paper); border:1px solid var(--edge); border-radius:12px; padding:0.14rem 0.6rem; cursor:pointer; transition:.12s; }
+.cond-chip:hover{ border-color:var(--crimson); color:var(--ink); }
+.cond-chip.on{ background:var(--crimson); color:#fff; border-color:var(--crimson-deep); }
+
+/* technique activation button + usage */
+.tech-uses{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.68rem; color:var(--gold); margin-left:auto; }
+.tech-activate{ display:inline-flex; align-items:center; gap:0.3rem; margin:0.4rem 0 0.2rem; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.8rem; font-weight:600; color:#fff; background:linear-gradient(180deg,var(--crimson),var(--crimson-deep)); border:1px solid var(--crimson-deep); border-radius:5px; padding:0.4rem 0.8rem; cursor:pointer; }
+.tech-activate:hover{ filter:brightness(1.08); }
+.tech-activate.spent{ background:var(--paper-3); color:var(--ink-soft); border-color:var(--edge); }
+.tech-activate .ring-ico{ width:1.15em; height:1.15em; }
+.tech-blood{ font-size:0.92rem; color:var(--ink-2); background:rgba(90,74,110,0.1); border-left:3px solid #6a4f8c; border-radius:3px; padding:0.4rem 0.6rem; margin:0.3rem 0; }
+.et-head .ring-ico{ margin-left:0.1rem; }
+
+/* roll result technique source / blood of the kami */
+.r-source{ font-family:var(--disp); font-style:italic; color:var(--crimson); font-size:1rem; margin-top:0.2rem; }
+.r-bok{ font-size:0.9rem; color:#5a4a6e; margin-top:0.15rem; }

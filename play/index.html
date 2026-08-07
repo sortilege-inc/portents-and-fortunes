@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <title>Togashi Norikage — Character Sheet — Portents &amp; Fortunes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Cormorant:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
@@ -46,18 +47,25 @@
       "name": "Blood of the Kami",
       "tag": "School Ability",
       "ring": "void",
+      "kind": "school",
+      "linkedKiho": "Earth Needs No Eyes",
+      "motif": "spider",
       "text": "You have one mystical tattoo that empowers your kihō, and gain more as your school rank increases. When you make a check to activate a kihō linked to one of your mystical tattoos, if you succeed, add additional bonus successes equal to your school rank.\n\nSelect a natural motif for your first tattoo and choose one kihō for which you meet the prerequisites that are linked to the tattoo. If you have not learned it, you learn that kihō (without paying its XP cost). You cannot choose the same kihō multiple times this way.\n\nEach time your school rank increases, you gain one additional tattoo this way."
     },
     {
       "name": "Earth Needs No Eyes",
       "tag": "Kihō",
       "ring": "earth",
+      "activation": { "actionType": "Support", "punct": ".", "tn": 1, "skill": "meditation", "ring": "earth" },
+      "bloodOfKami": true,
       "text": "The monk who waits and listens sees much, even without eyes. Sending out waves of their own energy and letting the ki of the life around them flow back into their body through the ground, the monk feels the reverberations of everything moving nearby, from the thunderous breaths of a warrior in battle to the footsteps of the tiniest ants.\n\nActivation: As a Support action, you may activate this kihō. When you do so, you may make a TN 1 Meditation (earth) check to gain an awareness of your surroundings.\n\nEnhancement Effect: If you succeed, this kihō activates. While this kihō is active, you can use vibrations through the earth to “see” a number of range bands in all directions equal to your Earth Ring. While this kihō is active, increase your vigilance by your Earth Ring.\n\nBurst Effect: If you succeed with three or more bonus successes, you instantly become aware of all living creatures and objects touching the ground within a number of range bands equal to your Earth Ring plus your bonus successes."
     },
     {
       "name": "Lord Togashi’s Insight",
       "tag": "Shūji",
       "ring": "void",
+      "activation": { "actionType": "Action", "punct": ":", "tn": 2, "skill": "meditation", "ring": "void" },
+      "uses": { "max": 1, "per": "Session" },
       "text": "The enigmatic Kami Togashi was said to have the ability to see the future, by which provenance he excused himself from the Tournament of the Kami. Occasionally he appears to his descendants, the members of the Dragon Clan, in flashes of visions or sudden, unexplained bursts of insight. Whether those who hear the voice of Togashi himself are truly in contact with their progenitor, channeling his essence across the ages, or are letting their imaginations run a bit too wild is a topic of discussion among the Dragon’s scholars.\n\nActivation: Once per game session as an action, you may make a TN 2 Meditation (void) check to seek cosmic wisdom regarding a quandary in front of you.\n\nEffects: If you succeed, you receive a brief vision or hear the voice of Togashi providing a hint regarding one way you might proceed (which the GM should furnish). This hint should not be the full answer, but it should help you move forward toward a solution or at least formulate a plan of action.\n\nNew Opportunities (void): Reduce the TN of your first check to overcome the problem you are facing by your school rank (to a minimum of 1)."
     }
   ],
