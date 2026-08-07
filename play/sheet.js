@@ -170,7 +170,7 @@
         row.setAttribute("data-skill",k);
         var dots="";
         for(var i=1;i<=5;i++) dots+="<i class='"+(i<=rank?"on":"")+"'></i>";
-        row.innerHTML="<span class='skn'>"+(SKILL_NAMES[k]||cap(k))+"</span><span class='skdots'>"+dots+"</span><span class='skv'>"+rank+"</span>";
+        row.innerHTML="<span class='skvals'><span class='skdots'>"+dots+"</span><span class='skv'>"+rank+"</span></span><span class='skn'>"+(SKILL_NAMES[k]||cap(k))+"</span>";
         row.addEventListener("click",function(){ st.skill=(st.skill===k?null:k); save(); syncSkill(); syncRoller(); });
         wrap.appendChild(row);
       });
@@ -321,12 +321,19 @@
     S.techniques.forEach(function(t){ body.appendChild(techEntry(t)); });
   }
   function wireMore(body,btn){ btn.addEventListener("click",function(){ var c=body.classList.toggle("collapsed"); btn.textContent=c?"Read more":"Show less"; }); }
+  // Bold the L5R technique-block labels for readability.
+  function boldLabels(t){
+    return String(t).replace(/(Activation|Enhancement Effect|Burst Effect|Effects|New Opportunities)(\s*\([^)]*\))?:/g,function(m){ return "<b>"+m+"</b>"; });
+  }
+  function bloodCallout(t){
+    return "<div class='tech-blood'>Empowered by <b>Blood of the Kami</b> (the spider tattoo): on a successful activation, add bonus successes equal to your school rank ("+(S.rank||1)+").</div>";
+  }
   function techEntry(t){
     var e=el("div","entry tech-entry");
     if(t.kind==="school"){   // Blood of the Kami — special collapsed view
       e.innerHTML="<div class='et-head'><span class='et-name'>"+t.name+"</span><span class='et-tag'>"+t.tag+"</span>"+ringIcon(t.ring)+"</div>"
         +"<div class='tech-blood'>Active — empowers <b>"+t.linkedKiho+"</b> (the "+t.motif+" tattoo): on a successful activation, add bonus successes equal to your school rank ("+(S.rank||1)+").</div>"
-        +"<p class='et-text collapsed'>"+syms(t.text)+"</p><button class='more'>Read more</button>";
+        +"<p class='et-text collapsed'>"+syms(boldLabels(t.text))+"</p><button class='more'>Read more</button>";
       wireMore(e.querySelector(".et-text"), e.querySelector(".more"));
       return e;
     }
@@ -339,7 +346,8 @@
       btn.addEventListener("click",function(){ if(RO) return; activateTechnique(t); });
       e.appendChild(btn);
     }
-    var body=el("p","et-text collapsed"); body.innerHTML=syms(t.text); e.appendChild(body);
+    if(t.bloodOfKami){ var bc=el("div"); bc.innerHTML=bloodCallout(t); e.appendChild(bc.firstChild); }
+    var body=el("p","et-text collapsed"); body.innerHTML=syms(boldLabels(t.text)); e.appendChild(body);
     var more=el("button","more","Read more"); e.appendChild(more); wireMore(body,more);
     return e;
   }

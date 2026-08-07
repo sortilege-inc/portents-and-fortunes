@@ -98,16 +98,20 @@
 
 /* skills */
 .skgroup{ margin-bottom:0.6rem; }
-.skgroup h3{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em; font-size:0.74rem; color:var(--gold); margin:0.5rem 0 0.25rem; }
-.skrow{ display:flex; align-items:center; gap:0.5rem; padding:0.14rem 0; cursor:pointer; border-radius:3px; }
+.skgroup h3{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em; font-size:0.74rem; color:var(--gold); margin:0.5rem 0 0.25rem; padding-left:calc(4.8rem + 0.6rem); }
+.skrow{ display:grid; grid-template-columns:4.8rem 1fr; align-items:center; gap:0.6rem; padding:0.14rem 0.3rem; cursor:pointer; border-radius:3px; }
 .skrow:hover{ background:rgba(154,123,63,0.1); }
 .skrow.sel{ background:var(--crimson-soft); box-shadow:inset 2px 0 0 var(--crimson); }
-.skrow .skn{ flex:1; font-size:0.94rem; }
-.skrow.ranked .skn{ font-weight:600; color:var(--sumi); }
-.skrow .skv{ font-family:var(--disp); font-weight:700; font-size:1.05rem; min-width:1.4rem; text-align:center; color:var(--ink); }
+.skrow .skvals{ display:flex; align-items:center; justify-content:flex-end; gap:0.45rem; }
+.skrow .skn{ font-size:0.94rem; text-align:left; color:var(--ink); }
+.skrow .skv{ font-family:var(--disp); font-weight:700; font-size:1.05rem; min-width:1ch; text-align:right; color:var(--ink); }
+.skrow:not(.ranked) .skv{ color:var(--ink-soft); }
 .skrow .skdots{ display:flex; gap:2px; }
 .skrow .skdots i{ width:8px; height:8px; border-radius:50%; background:var(--edge-hair); }
 .skrow .skdots i.on{ background:var(--crimson); }
+
+/* technique descriptions stay hidden until expanded */
+.entry.tech-entry .et-text.collapsed{ display:none; }
 
 /* techniques / peculiarities */
 .entry{ border-bottom:1px solid var(--edge-soft); padding:0.7rem 0; }
@@ -322,7 +326,7 @@
 .tech-activate{ display:inline-flex; align-items:center; gap:0.3rem; margin:0.4rem 0 0.2rem; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.8rem; font-weight:600; color:#fff; background:linear-gradient(180deg,var(--crimson),var(--crimson-deep)); border:1px solid var(--crimson-deep); border-radius:5px; padding:0.4rem 0.8rem; cursor:pointer; }
 .tech-activate:hover{ filter:brightness(1.08); }
 .tech-activate.spent{ background:var(--paper-3); color:var(--ink-soft); border-color:var(--edge); }
-.tech-activate .ring-ico{ width:1.15em; height:1.15em; }
+.tech-activate .ring-ico{ width:1.15em; height:1.15em; background:#fff; border-radius:50%; padding:1px; box-shadow:0 0 0 1px rgba(255,255,255,0.9); }
 .tech-blood{ font-size:0.92rem; color:var(--ink-2); background:rgba(90,74,110,0.1); border-left:3px solid #6a4f8c; border-radius:3px; padding:0.4rem 0.6rem; margin:0.3rem 0; }
 .et-head .ring-ico{ margin-left:0.1rem; }
 
