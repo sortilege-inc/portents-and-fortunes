@@ -52,7 +52,7 @@
   var st = { strife:0, fatigue:0, "void":(S.trackers&&S.trackers["void"]&&S.trackers["void"].start)||0,
              stance:S.stance||"void", ring:"earth", skill:null,
              inConflict:false, conflictType:"skirmish", conflictName:"", oppTable:"general",
-             conditions:[], techUses:{},
+             conditions:[], techUses:{}, sceneVoidClaims:{},
              honor:(S.social?S.social.honor:0), glory:(S.social?S.social.glory:0), status:(S.social?S.social.status:0) };
   var CONDITIONS = ["Afflicted","Bleeding","Burning","Compromised","Dazed","Disoriented","Enraged","Exhausted","Immobilized","Intoxicated","Prone","Silenced","Unconscious"];
   var L5RD = window.L5R || {stances:{},conflicts:{},opportunities:{},oppTables:[],techniqueOpportunities:[]};
@@ -182,6 +182,12 @@
       der.appendChild(el("div","d","<span class='dl'>"+d[0]+"</span><span class='dv'>"+d[1]+"</span>"));
     });
     cRings.appendChild(der);
+    if(!RO){
+      var sr=el("button","scene-reset","&#10227; Scene Reset");
+      sr.title="End of scene: reduce strife to half Composure and fatigue to half Endurance (rounded up, RAW; suppressed while Exhausted), recharge per-scene abilities, reset per-scene Void triggers, and end any active conflict.";
+      sr.addEventListener("click",sceneReset);
+      cRings.appendChild(sr);
+    }
     grid.appendChild(cRings);
 
     // --- Trackers ---
@@ -315,10 +321,59 @@
         var from=st.strife||0, to=Math.max(0, from+d);   // no upper clamp — strife may exceed maximum
         st.strife=to; save(); syncTracker("strife");
         logEvent("strife", p.name+": Strife "+from+" → "+to, {attr:"strife", from:from, to:to, delta:to-from, source:p.name});
+        // Anxiety: the first time per scene it causes strife to increase, gain 1 Void point.
+        if(p.tag==="Anxiety" && d>0){
+          if(!st.sceneVoidClaims) st.sceneVoidClaims={};
+          if(!st.sceneVoidClaims[p.name]){
+            st.sceneVoidClaims[p.name]=true;
+            var vf=st["void"]||0, vmax=voidMax();
+            if(vf<vmax){
+              st["void"]=vf+1; save(); syncTracker("void"); syncRoller();
+              logEvent("void", p.name+" (anxiety) — first trigger this scene: Void "+vf+" → "+(vf+1)+" (gained)", {attr:"void", from:vf, to:vf+1, delta:1});
+            } else {
+              save();
+              logEvent("void", p.name+" (anxiety) — first trigger this scene (already at maximum Void, no point gained)", {attr:"void", from:vf, to:vf, delta:0});
+            }
+          }
+        }
       });
       wrap.appendChild(b);
     });
     return wrap;
+  }
+
+  // ===================== SCENE RESET =====================
+  // Resets everything scoped to a single scene: strife/fatigue "catch your breath"
+  // reduction (RAW: to half Composure / half Endurance, rounded up, only if over
+  // that threshold; suppressed by Exhausted), per-scene ability uses, per-scene
+  // Void-grant triggers, and any active conflict.
+  function sceneReset(){
+    if(RO) return;
+    if(!st.sceneVoidClaims) st.sceneVoidClaims={};
+    var changes=[];
+    var exhausted=(st.conditions||[]).indexOf("Exhausted")>=0;
+    if(exhausted){
+      changes.push("Exhausted — strife & fatigue not reduced");
+    } else {
+      var compHalf=Math.ceil((S.derived.composure||0)/2);
+      var endHalf=Math.ceil((S.derived.endurance||0)/2);
+      if((st.strife||0)>compHalf){ changes.push("Strife "+(st.strife||0)+" → "+compHalf); st.strife=compHalf; }
+      if((st.fatigue||0)>endHalf){ changes.push("Fatigue "+(st.fatigue||0)+" → "+endHalf); st.fatigue=endHalf; }
+    }
+    var techReset=[];
+    (S.techniques||[]).forEach(function(t){
+      if(t.uses && /scene/i.test(t.uses.per) && (st.techUses[t.name]||0)>0){ techReset.push(t.name); st.techUses[t.name]=0; }
+    });
+    if(techReset.length) changes.push("Recharged: "+techReset.join(", "));
+    var claimed=Object.keys(st.sceneVoidClaims);
+    if(claimed.length) changes.push("Per-scene Void triggers reset ("+claimed.join(", ")+")");
+    st.sceneVoidClaims={};
+    if(st.inConflict){ changes.push("Conflict ended"); st.inConflict=false; st.conflictName=""; }
+    save();
+    logEvent("scene","Scene Reset — "+(changes.length?changes.join("; "):"nothing to reset"));
+    syncTracker("strife"); syncTracker("fatigue"); syncTracker("void"); syncRoller();
+    renderTechniques();
+    var cb=root.querySelector(".conflict-body"); if(cb) renderConflict(cb);
   }
 
   // ===================== CONDITIONS =====================
@@ -478,10 +533,24 @@
     initWrap.appendChild(initBtn);
     initWrap.appendChild(el("span","conf-note","TN 1 · "+conf.initSkill+" · any ring — order by bonus successes, ties: lowest honor first"));
     body.appendChild(confRow("Initiative",initWrap));
-    // actions
+    // actions — each a button that declares the action to the log and, where the
+    // action involves a check, tees up (but does not make) the appropriate roll.
+    // The ⓘ affordance toggles the verbatim rules text without logging anything.
     var actWrap=el("div","conf-choices actions");
-    conf.actions.forEach(function(a){ actWrap.appendChild(el("span","conf-action",a)); });
+    var actDetail=el("div","conf-action-detail"); actDetail.hidden=true;
+    (conf.actions||[]).forEach(function(a){
+      var hint = a.check ? (a.check.tn!=null?("TN "+a.check.tn):"check")+(a.check.skill?" · "+(SKILL_NAMES[a.check.skill]||cap(a.check.skill)):"")+(a.check.opt?" (optional)":"") : "";
+      var b=el("button","conf-action-btn");
+      b.innerHTML="<span class='ca-name'>"+a.name+"</span>"
+        +"<span class='ca-cats'>"+a.cats+"</span>"
+        +(hint?"<span class='ca-hint'>"+(a.check?"⚄ tees up "+hint:hint)+"</span>":"")
+        +"<span class='ca-info' title='Show rules text' aria-label='Show rules text'>ⓘ</span>";
+      b.addEventListener("click",function(){ declareAction(conf,a); });
+      b.querySelector(".ca-info").addEventListener("click",function(e){ e.stopPropagation(); toggleActionDetail(actDetail,a); });
+      actWrap.appendChild(b);
+    });
     body.appendChild(confRow("Actions",actWrap));
+    body.appendChild(actDetail);
     // end
     var end=el("button","roll-btn ghost conf-end","End Conflict");
     end.addEventListener("click",function(){ st.inConflict=false; save(); renderConflict(body); syncRoller(); });
@@ -496,6 +565,41 @@
     if(rc) rc.scrollIntoView({behavior:"smooth",block:"start"});
   }
 
+  // Declare a conflict action: record it to the log, and if it involves a check,
+  // tee up the roller (skill + TN where fixed) without rolling — the player rolls.
+  function declareAction(conf,a){
+    if(RO) return;
+    var typeName=(conf.name||cap(st.conflictType));
+    var teed="";
+    if(a.check){
+      var parts=[];
+      if(a.check.tn!=null) parts.push("TN "+a.check.tn);
+      if(a.check.skill) parts.push(SKILL_NAMES[a.check.skill]||cap(a.check.skill));
+      teed = " — teed up "+(a.check.opt?"optional ":"")+"check"+(parts.length?" ("+parts.join(", ")+")":"");
+      teeUpRoll(a.check, a.name);
+    }
+    logEvent("action", a.name+" ("+a.cats+")"+teed, {conflict:typeName, stance:st.stance});
+  }
+  function toggleActionDetail(host,a){
+    if(host.getAttribute("data-for")===a.name && !host.hidden){ host.hidden=true; host.removeAttribute("data-for"); return; }
+    host.setAttribute("data-for",a.name);
+    host.innerHTML="<div class='cad-head'>"+a.name+" <span class='cad-cats'>"+a.cats+"</span></div>"
+      +"<p class='cad-desc'>"+syms(a.desc)+"</p>"
+      +"<p><b>Activation:</b> "+syms(a.activation)+"</p>"
+      +"<p><b>Effects:</b> "+syms(a.effects)+"</p>"
+      +(a.newOpp?"<p><b>New Opportunities:</b> "+syms(a.newOpp)+"</p>":"");
+    host.hidden=false;
+  }
+  // Open the roller and pre-fill skill/TN for an action or effect, WITHOUT rolling.
+  function teeUpRoll(check,label){
+    if(check.skill){ st.skill=check.skill; save(); syncSkill(); }
+    var rc=document.getElementById("rollerCard"); if(rc) rc.classList.remove("collapsed");
+    var tn=document.getElementById("rTN"); if(tn && check.tn!=null) tn.value=check.tn;
+    var note=document.getElementById("rNote"); if(note && label && !note.value) note.value=label;
+    syncRoller();
+    if(rc) rc.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+
   // ===================== ROLLER =====================
   // Roll & Keep, played by the rules: the player keeps dice (nothing is kept
   // automatically), chooses whether to explode kept (ex) dice, may reroll dice
@@ -506,7 +610,26 @@
   var rollMeta=null; // full provenance of the current roll (for the log)
   var rollCtx=null;  // technique-activation context (source, Blood of the Kami, etc.)
   var rrMode=null;   // active reroll mode (advantage/disadvantage/free) while marking dice
-  var cfg={ assistSkill:0, assistRing:0, voidSpend:false };
+  var cfg={ assistSkill:0, assistRing:0, voidSpend:false, unknownTN:false, unknownTNGranted:false };
+  function voidMax(){ return (S.trackers&&S.trackers["void"]&&S.trackers["void"].max)||0; }
+  // "Gain 1 when GM conceals TN of a check" — claim a Void point (capped at the
+  // Void ring maximum) the moment the player marks a check's TN as unknown.
+  function claimUnknownTN(chk){
+    if(RO){ chk.checked=false; return; }
+    if(!chk.checked){ cfg.unknownTN=false; return; }
+    cfg.unknownTN=true;
+    if(rollMeta){ rollMeta.unknownTN=true; if(pool.length) tally(); }   // reflect on an assembled roll
+    if(cfg.unknownTNGranted) return;      // already claimed for this roll setup
+    cfg.unknownTNGranted=true;
+    chk.disabled=true;                    // lock so the point can't be re-claimed
+    var from=st["void"]||0, max=voidMax();
+    if(from<max){
+      st["void"]=from+1; save(); syncTracker("void"); syncRoller();
+      logEvent("void","Unknown TN — GM concealed the TN: Void "+from+" → "+(from+1)+" (gained)",{attr:"void",from:from,to:from+1,delta:1});
+    } else {
+      logEvent("void","Unknown TN — GM concealed the TN (already at maximum Void, no point gained)",{attr:"void",from:from,to:from,delta:0});
+    }
+  }
   var RRADV=(S.peculiarities||[]).filter(function(p){ return p.reroll; }).map(function(p){
     return { id:p.name, label:p.name, approach:p.reroll.approach, max:p.reroll.max||2, successOnly:!!p.reroll.successOnly, mustMax:!!p.reroll.mustMax };
   });
@@ -526,6 +649,7 @@
       +"      <div class='r-field'><label>Ring</label><span class='r-pick' id='rRing'></span></div>"
       +"      <div class='r-field'><label>Skill</label><span class='r-pick' id='rSkill'></span></div>"
       +"      <div class='r-field r-tn'><label>TN</label><input id='rTN' type='number' min='0' value='2'></div>"
+      +"      <div class='r-field r-unktn'><label>Difficulty</label><label class='vchk' title='If the GM does not reveal the TN, gain 1 Void point (to a maximum of your Void ring).'><input type='checkbox' id='rUnknownTN'> Unknown TN <span class='vgrant'>+1 Void</span></label></div>"
       +"      <div class='r-field'><label>Assist &mdash; skilled</label><span class='stepper' data-cfg='assistSkill'></span></div>"
       +"      <div class='r-field'><label>Assist &mdash; unskilled</label><span class='stepper' data-cfg='assistRing'></span></div>"
       +"      <div class='r-field'><label>Void <span id='rVoidHave' class='vhave'></span></label><label class='vchk'><input type='checkbox' id='rVoid'> Seize the Moment</label></div>"
@@ -563,6 +687,7 @@
       c.querySelector("#rRoll").addEventListener("click",function(){ rollCtx=null; doRoll(); });
       c.querySelector("#rClear").addEventListener("click",clearRoll);
       c.querySelector("#rVoid").addEventListener("change",function(){ cfg.voidSpend=this.checked; });
+      c.querySelector("#rUnknownTN").addEventListener("change",function(){ claimUnknownTN(this); });
       c.querySelector("#rTN").addEventListener("input",function(){ if(pool.length) tally(); });
       c.querySelector("#oppToggle").addEventListener("click",function(){ document.getElementById("oppPanel").classList.toggle("collapsed"); });
       syncRoller();
@@ -646,6 +771,7 @@
       ring: st.ring, ringN: ringN(),
       skillLabel: st.skill ? (SKILL_NAMES[st.skill]||cap(st.skill)) : null, skillN: skillN(),
       assistSkill: cfg.assistSkill, assistRing: cfg.assistRing, voidSpent: spendVoid,
+      unknownTN: !!cfg.unknownTN, disUsed: null, disClaimed: false,
       keepLimit: curKeep,
       initial: pool.map(function(d){ return { type:d.type, key:d.key }; }),
       events: [],
@@ -710,6 +836,9 @@
   function executeReroll(){
     var marked=markedDice(); if(!marked.length) return;
     var via=rrMode?rrMode.label:"Reroll";
+    // An Adversity (a "success-only" reroll, e.g. Elemental Deficiency) grants a
+    // Void point if the check ultimately fails — offered to claim once resolved.
+    if(rollMeta && rrMode && rrMode.successOnly) rollMeta.disUsed=rrMode.label;
     marked.forEach(function(d){
       var from=d.key, f=rollFace(d.type);
       d.key=f.key; d.su=f.su; d.ex=f.ex; d.op=f.op; d.st=f.st; d.explodedDone=false; d.markedReroll=false;
@@ -783,8 +912,22 @@
         +(voidStance&&stf>0?"<span class='r-summary'>Void stance: ▲ on kept dice give no strife</span>":"")
         +"</div>";
     }
+    var m0=rollMeta||{};
+    var disRow="";
+    if(m0.disUsed && !pass){
+      var scClaimed = st.sceneVoidClaims && st.sceneVoidClaims[m0.disUsed];
+      disRow = "<div class='dis-void-row'>"
+        +(m0.disClaimed
+           ? "<span class='kept-tag'>✓ +1 Void claimed — "+escapeHTML(m0.disUsed)+"</span>"
+           : scClaimed
+             ? "<span class='of-max'>"+escapeHTML(m0.disUsed)+" — already claimed this scene</span>"
+             : "<button class='roll-btn ghost dis-void' id='rDisVoid'>+1 Void — "+escapeHTML(m0.disUsed)+" (failed check)</button>")
+        +(m0.disClaimed||scClaimed?"":"<span class='of-max'>once per scene, per disadvantage</span>")
+        +"</div>";
+    }
     res.innerHTML=""
-      +"<div class='verdict "+(pass?"pass":"fail")+"'>"+(pass?"Success":"Failure")+" &mdash; "+totalSu+" vs TN "+tn+"</div>"
+      +"<div class='verdict "+(pass?"pass":"fail")+"'>"+(pass?"Success":"Failure")+" &mdash; "+totalSu+" vs TN "+tn+(m0.unknownTN?" <span class='unk-tn'>(TN was unknown)</span>":"")+"</div>"
+      +disRow
       +(rollCtx&&rollCtx.source?"<div class='r-source'>via "+rollCtx.source+(rollCtx.activation?" — "+rollCtx.activation:"")+"</div>":"")
       +(bok?"<div class='r-bok'>+"+bok+" bonus success from <b>Blood of the Kami</b></div>":"")
       +"<div class='tallies'><span>Kept <b>"+keptBase()+"/"+curKeep+"</b>"+(bonusKept?" <em>+"+bonusKept+" bonus die</em>":"")+"</span><span>Successes <b class='sym su' style='color:#3f8f5a'>"+totalSu+"</b>"+(bok?" <em>(incl +"+bok+")</em>":"")+"</span><span>Opportunity <b class='sym op' style='color:#c08a1e'>"+op+"</b></span><span>Strife <b class='sym st' style='color:#b0642a'>"+stf+"</b></span></div>"
@@ -795,6 +938,26 @@
         keepResults(amt, totalSu, op, stf, tn, pass, bok);
       });
     }
+    var dv=document.getElementById("rDisVoid");
+    if(dv) dv.addEventListener("click",claimDisVoid);
+  }
+  // Claim the Void point an Adversity grants on a failed check (player-driven so the
+  // "once per scene, per disadvantage" limit stays in the player's hands).
+  function claimDisVoid(){
+    if(RO || !rollMeta || rollMeta.disClaimed) return;
+    if(!st.sceneVoidClaims) st.sceneVoidClaims={};
+    if(st.sceneVoidClaims[rollMeta.disUsed]) return;   // already claimed this scene
+    rollMeta.disClaimed=true;
+    st.sceneVoidClaims[rollMeta.disUsed]=true;
+    var from=st["void"]||0, max=voidMax();
+    if(from<max){
+      st["void"]=from+1; save(); syncTracker("void"); syncRoller();
+      logEvent("void",escapeHTML(rollMeta.disUsed)+" — failed check: Void "+from+" → "+(from+1)+" (gained)",{attr:"void",from:from,to:from+1,delta:1});
+    } else {
+      save();
+      logEvent("void",escapeHTML(rollMeta.disUsed)+" — failed check (already at maximum Void, no point gained)",{attr:"void",from:from,to:from,delta:0});
+    }
+    tally();
   }
 
   function keepResults(strifeAmt, su, op, stfRolled, tn, pass, bokBonus){
@@ -813,6 +976,7 @@
       skillLabel: m.skillLabel!==undefined ? m.skillLabel : (st.skill?(SKILL_NAMES[st.skill]||cap(st.skill)):null),
       skillN: m.skillN,
       assistSkill: m.assistSkill||0, assistRing: m.assistRing||0, voidSpent: !!m.voidSpent,
+      unknownTN: !!m.unknownTN,
       keepLimit: (m.keepLimit!=null?m.keepLimit:curKeep),
       keptBaseCount: keptBaseCount, bonusKept: bonusKept,
       keptFewer: keptBaseCount < (m.keepLimit!=null?m.keepLimit:curKeep),
@@ -832,11 +996,12 @@
   // Clear the Roll & Keep interface for the next roll.
   function resetRoll(){
     pool=[]; rollMeta=null; rollCtx=null; rrMode=null; rollLogged=false;
-    cfg={ assistSkill:0, assistRing:0, voidSpend:false };
+    cfg={ assistSkill:0, assistRing:0, voidSpend:false, unknownTN:false, unknownTNGranted:false };
     var dice=document.getElementById("rDice"); if(dice) dice.innerHTML="";
     var res=document.getElementById("rResult"); if(res){ res.classList.remove("show"); res.innerHTML=""; }
     var note=document.getElementById("rNote"); if(note) note.value="";
     var vc=document.getElementById("rVoid"); if(vc) vc.checked=false;
+    var utn=document.getElementById("rUnknownTN"); if(utn){ utn.checked=false; utn.disabled=false; }
     var tn=document.getElementById("rTN"); if(tn) tn.value="2";
     document.querySelectorAll(".roller .stepper .st-val").forEach(function(v){ v.textContent="0"; });
     syncRoller();
@@ -850,7 +1015,7 @@
     var host=document.getElementById("rLog"); if(!host) return;
     if(!rollLog.length){ host.innerHTML="<p class='r-hint'>No rolls kept yet. Roll, then <b>Keep Results</b> to record one here.</p>"; return; }
     host.innerHTML="<div class='log-actions'><span class='r-summary'>"+rollLog.length+" recorded</span><button class='link-btn' id='logClear'>Clear log</button></div>";
-    var EVICON={condition:"☷",social:"❖",stake:"⚑",strife:"▲",fatigue:"✦",voidp:"◇","void":"◇",technique:"❁"};
+    var EVICON={condition:"☷",social:"❖",stake:"⚑",strife:"▲",fatigue:"✦",voidp:"◇","void":"◇",technique:"❁",action:"⚔",scene:"⟳"};
     rollLog.forEach(function(e){
       if(e.kind==="event"){
         var ev=el("div","log-event cat-"+(e.cat||"misc"));
@@ -871,6 +1036,7 @@
       if(e.assistSkill) chips.push("<span class='logchip'>Assist +"+e.assistSkill+" skilled</span>");
       if(e.assistRing) chips.push("<span class='logchip'>Assist +"+e.assistRing+" unskilled</span>");
       if(e.voidSpent) chips.push("<span class='logchip void'>Void point spent</span>");
+      if(e.unknownTN) chips.push("<span class='logchip'>Unknown TN</span>");
       if(e.conflictType) chips.push("<span class='logchip'>"+cap(e.conflictType)+"</span>");
 
       // reroll / explode events

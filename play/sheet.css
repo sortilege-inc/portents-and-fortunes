@@ -83,6 +83,8 @@
 .derived .d{ text-align:center; border:1px dashed var(--gold-soft); border-radius:5px; padding:0.4rem 0.2rem; }
 .derived .d .dl{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.62rem; color:var(--ink-soft); display:block; }
 .derived .d .dv{ font-family:var(--disp); font-weight:700; font-size:1.4rem; color:var(--sumi); }
+.scene-reset{ display:block; width:100%; margin-top:0.7rem; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.12em; font-weight:600; font-size:0.78rem; color:var(--crimson); background:var(--paper); border:1px solid var(--gold-soft); border-radius:5px; padding:0.5rem; cursor:pointer; transition:.15s; }
+.scene-reset:hover{ border-color:var(--crimson); background:rgba(182,36,50,0.06); }
 
 /* trackers */
 .trackers .trk{ margin-bottom:0.85rem; }
@@ -230,6 +232,11 @@
 .r-actions{ display:flex; flex-wrap:wrap; gap:0.6rem; align-items:center; margin:0.2rem 0 0.4rem; }
 .vchk{ display:inline-flex; align-items:center; gap:0.35rem; font-family:var(--serif); font-size:0.92rem; color:var(--ink); text-transform:none; letter-spacing:normal; cursor:pointer; }
 .vhave{ font-family:var(--disp); color:var(--ink-soft); font-style:italic; }
+.vgrant{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.05em; font-size:0.66rem; color:var(--crimson); }
+.r-unktn input:disabled + span, .vchk input:disabled ~ *{ opacity:0.6; }
+.unk-tn{ font-family:var(--serif); font-style:italic; font-size:0.82rem; color:var(--ink-soft); font-weight:400; }
+.dis-void-row{ display:flex; flex-wrap:wrap; align-items:center; gap:0.6rem; margin:0.35rem 0; }
+.dis-void{ border-color:var(--crimson) !important; color:var(--crimson) !important; }
 
 /* ---- steppers ---- */
 .stepper{ display:inline-flex; align-items:center; gap:0.35rem; }
@@ -255,7 +262,20 @@
 .conf-choice{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.78rem; font-weight:600; color:var(--ink); background:var(--paper); border:1px solid var(--edge); border-radius:4px; padding:0.28rem 0.6rem; cursor:pointer; }
 .conf-choice:hover{ border-color:var(--crimson); }
 .conf-choice.sel{ background:var(--crimson); color:#fff; border-color:var(--crimson-deep); }
-.conf-action{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.05em; font-size:0.74rem; color:var(--ink-2); background:rgba(154,123,63,0.14); border:1px solid var(--gold-soft); border-radius:3px; padding:0.16rem 0.5rem; }
+/* conflict action buttons — declare to the log + tee up the roll */
+.conf-choices.actions{ gap:0.5rem; }
+.conf-action-btn{ position:relative; display:flex; flex-direction:column; align-items:flex-start; gap:0.1rem; text-align:left; min-width:8.5rem; background:rgba(154,123,63,0.10); border:1px solid var(--gold-soft); border-radius:5px; padding:0.34rem 1.5rem 0.36rem 0.6rem; cursor:pointer; transition:.15s; }
+.conf-action-btn:hover{ border-color:var(--crimson); background:rgba(182,36,50,0.06); }
+.conf-action-btn .ca-name{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.05em; font-size:0.82rem; font-weight:600; color:var(--ink); }
+.conf-action-btn .ca-cats{ font-family:var(--serif); font-size:0.72rem; font-style:italic; color:var(--ink-soft); }
+.conf-action-btn .ca-hint{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.04em; font-size:0.64rem; color:var(--crimson); }
+.conf-action-btn .ca-info{ position:absolute; top:0.28rem; right:0.34rem; font-size:0.82rem; color:var(--gold); line-height:1; opacity:0.7; }
+.conf-action-btn .ca-info:hover{ opacity:1; color:var(--crimson); }
+.conf-action-detail{ margin:0.5rem 0 0.2rem; padding:0.6rem 0.75rem; background:rgba(154,123,63,0.10); border-left:3px solid var(--gold); border-radius:3px; font-size:0.9rem; color:var(--ink); }
+.conf-action-detail .cad-head{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-weight:600; color:var(--crimson); margin-bottom:0.3rem; }
+.conf-action-detail .cad-cats{ font-family:var(--serif); text-transform:none; letter-spacing:normal; font-style:italic; font-weight:400; color:var(--ink-soft); }
+.conf-action-detail p{ margin:0.25rem 0; }
+.conf-action-detail .cad-desc{ font-style:italic; color:var(--ink-2); }
 .stance-detail{ margin:0.5rem 0 0.2rem; padding:0.55rem 0.7rem; background:var(--crimson-soft); border-left:3px solid var(--crimson); border-radius:3px; font-size:0.92rem; color:var(--ink); }
 .conf-init{ display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem; }
 .conf-note{ font-size:0.8rem; color:var(--ink-soft); font-style:italic; }
