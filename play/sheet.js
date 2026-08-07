@@ -52,7 +52,7 @@
   var st = { strife:0, fatigue:0, "void":(S.trackers&&S.trackers["void"]&&S.trackers["void"].start)||0,
              stance:S.stance||"void", ring:"earth", skill:null,
              inConflict:false, conflictType:"skirmish", conflictName:"", oppTable:"general",
-             conditions:[], techUses:{}, sceneVoidClaims:{},
+             conditions:[], techUses:{}, sceneVoidClaims:{}, equipWeapon:null, equipArmor:null,
              honor:(S.social?S.social.honor:0), glory:(S.social?S.social.glory:0), status:(S.social?S.social.status:0) };
   var CONDITIONS = ["Afflicted","Bleeding","Burning","Compromised","Dazed","Disoriented","Enraged","Exhausted","Immobilized","Intoxicated","Prone","Silenced","Unconscious"];
   var L5RD = window.L5R || {stances:{},conflicts:{},opportunities:{},oppTables:[],techniqueOpportunities:[]};
@@ -241,16 +241,7 @@
     grid.appendChild(cPec);
 
     // --- Gear ---
-    var cGear = el("div","sh-card gear");
-    cGear.appendChild(el("h2",null,"Weapons, Armour &amp; Possessions"));
-    S.gear.forEach(function(g){
-      var e=el("div","entry");
-      var meta=[]; if(g.category)meta.push(g.category); if(g.damage!=null)meta.push("Damage "+g.damage); if(g.deadliness!=null)meta.push("Deadliness "+g.deadliness); if(g.rarity!=null)meta.push("Rarity "+g.rarity);
-      e.innerHTML="<div class='et-head'><span class='et-name'>"+g.name+"</span>"+(g.kind?"<span class='et-tag ring'>"+g.kind+"</span>":"")+"</div>"+(meta.length?"<div class='gearmeta'>"+meta.join(" · ")+"</div>":"")+(g.text?"<p class='et-text'>"+g.text+"</p>":"");
-      cGear.appendChild(e);
-    });
-    if (S.money) cGear.appendChild(el("p","gearmeta","Wealth: "+S.money));
-    grid.appendChild(cGear);
+    grid.appendChild(buildGearCard());
 
     // --- Bushido / motivations ---
     var cMot = el("div","sh-card");
@@ -598,6 +589,132 @@
     var note=document.getElementById("rNote"); if(note && label && !note.value) note.value=label;
     syncRoller();
     if(rc) rc.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+
+  // ===================== GEAR · EQUIP · COMBAT =====================
+  // Kept dice keys that carry a strife (▲) result (for Fire Stance's bonus).
+  var STRIFE_KEYS = { ring_ot:1, ring_st:1, ring_et:1, skill_st:1, skill_et:1 };
+  function isWeaponKind(k){ return /weapon/i.test(k||""); }
+  function isArmorKind(k){ return /armou?r/i.test(k||""); }
+  function lastRollEntry(){ for(var i=0;i<rollLog.length;i++){ if(rollLog[i].kind!=="event") return rollLog[i]; } return null; }
+  function keptStrifeCount(entry){ return (entry&&entry.kept)?entry.kept.filter(function(k){ return STRIFE_KEYS[k.key]; }).length:0; }
+  function severityTier(n){
+    var t=(L5RD.criticalStrike&&L5RD.criticalStrike.table)||[];
+    for(var i=0;i<t.length;i++){ if(n>=t[i].min && (t[i].max==null || n<=t[i].max)) return t[i]; }
+    return null;
+  }
+
+  function buildGearCard(){
+    var cGear=el("div","sh-card gear");
+    cGear.appendChild(el("h2",null,"Weapons, Armour &amp; Possessions"));
+    (S.gear||[]).forEach(function(g){
+      var weapon=isWeaponKind(g.kind), armor=isArmorKind(g.kind);
+      var equipped = weapon ? (st.equipWeapon===g.name) : armor ? (st.equipArmor===g.name) : false;
+      var e=el("div","entry gear-item"+(equipped?" equipped":""));
+      var meta=[];
+      if(g.category)meta.push(g.category);
+      if(g.skill)meta.push(SKILL_NAMES[g.skill]||cap(g.skill));
+      if(g.range!=null)meta.push("Range "+g.range);
+      if(g.damage!=null)meta.push("Damage "+g.damage);
+      if(g.deadliness!=null)meta.push("Deadliness "+g.deadliness);
+      if(g.physical!=null)meta.push("Physical "+g.physical);
+      if(g.supernatural)meta.push("Supernatural "+g.supernatural);
+      if(g.grips)meta.push(g.grips);
+      if(g.qualities&&g.qualities.length)meta.push(g.qualities.join(", "));
+      if(g.rarity!=null)meta.push("Rarity "+g.rarity);
+      e.innerHTML="<div class='et-head'><span class='et-name'>"+g.name+"</span>"
+        +(g.kind?"<span class='et-tag ring'>"+g.kind+"</span>":"")
+        +(equipped?"<span class='et-tag equip-badge'>&#9679; Active</span>":"")
+        +"</div>"
+        +(meta.length?"<div class='gearmeta'>"+meta.join(" · ")+"</div>":"")
+        +(g.text?"<p class='et-text'>"+g.text+"</p>":"");
+      if((weapon||armor) && !RO){
+        var eq=el("button","equip-btn"+(equipped?" on":""), equipped?"Unequip":"Equip");
+        eq.addEventListener("click",function(){ toggleEquip(g,weapon); });
+        e.querySelector(".et-head").appendChild(eq);
+      }
+      cGear.appendChild(e);
+      if(weapon && equipped && !RO) cGear.appendChild(combatPanel(g));
+    });
+    if (S.money) cGear.appendChild(el("p","gearmeta","Wealth: "+S.money));
+    return cGear;
+  }
+  function toggleEquip(g,weapon){
+    if(RO) return;
+    var verb;
+    if(weapon){ var was=st.equipWeapon===g.name; st.equipWeapon=was?null:g.name; verb=was?"Sheathed":"Readied"; }
+    else { var wasA=st.equipArmor===g.name; st.equipArmor=wasA?null:g.name; verb=wasA?"Removed":"Donned"; }
+    save();
+    logEvent("gear",verb+" "+g.name,{attr:"equip"});
+    var old=root.querySelector(".sh-card.gear"); if(old) old.replaceWith(buildGearCard());
+  }
+
+  // Damage + Critical Strike calculators for the readied weapon. The player
+  // rolls in the roller; these turn the result into damage / a critical strike.
+  function combatPanel(w){
+    var CS=L5RD.criticalStrike||{}, SK=L5RD.strike||{};
+    var last=lastRollEntry();
+    var baseBonus = last ? Math.max(0,(last.su||0)-(last.tn||0)) : 0;
+    var fireOn = st.inConflict && st.stance==="fire";
+    var fireBonus = fireOn ? keptStrifeCount(last) : 0;
+    var wrap=el("div","combat-panel");
+    wrap.innerHTML="<div class='cp-title'>&#9876; Strike with "+w.name+"<span class='cp-sub'>Damage "+w.damage+" &middot; Deadliness "+w.deadliness+(w.range?" &middot; Range "+w.range:"")+"</span></div>";
+
+    var dmg=el("div","cp-block");
+    dmg.innerHTML="<div class='cp-h'>Damage</div>"
+      +"<p class='cp-rule'>"+syms(SK.effect||"")+"</p>"
+      +"<div class='cp-row'>"
+      +"<label class='cp-f'>Base<b>"+w.damage+"</b></label>"
+      +"<label class='cp-f'>Bonus successes<input type='number' min='0' class='cp-in' id='cpBonus' value='"+baseBonus+"'></label>"
+      +(fireOn?"<label class='cp-f cp-fire' title=\""+String(SK.fireStance||"").replace(/"/g,"&quot;")+"\">Fire Stance (kept &#9650;)<input type='number' min='0' class='cp-in' id='cpFire' value='"+fireBonus+"'></label>":"")
+      +"</div>"
+      +"<div class='cp-actions'><button class='roll-btn' id='cpDealBtn'>Calculate Damage</button>"
+      +(last?"<button class='roll-btn ghost cp-sync' id='cpSync' title='Pull bonus successes from your last kept roll'>&#8635; from last roll</button>":"")
+      +"<span class='cp-out' id='cpDmgOut'></span></div>";
+    wrap.appendChild(dmg);
+
+    var crit=el("div","cp-block");
+    crit.innerHTML="<div class='cp-h'>Critical Strike</div>"
+      +"<p class='cp-rule'>"+syms(SK.critOpportunity||"")+"</p>"
+      +"<div class='cp-row'>"
+      +"<label class='cp-f'>Severity before reductions<input type='number' min='0' class='cp-in' id='cpSev' value='"+w.deadliness+"'><span class='cp-tag'>= deadliness</span></label>"
+      +"<label class='cp-f'>Reduced by<input type='number' min='0' class='cp-in' id='cpRed' value='0'></label>"
+      +"</div>"
+      +"<p class='cp-rule cp-fine'>"+syms(CS.resist||"")+"</p>"
+      +"<div class='cp-actions'><button class='roll-btn' id='cpCritBtn'>Resolve Critical Strike</button></div>"
+      +"<div class='cp-crit-out' id='cpCritOut'></div>";
+    wrap.appendChild(crit);
+
+    setTimeout(function(){ wireCombat(wrap,w); },0);
+    return wrap;
+  }
+  function wireCombat(wrap,w){
+    function num(id){ var e=wrap.querySelector("#"+id); return e?Math.max(0,parseInt(e.value||"0",10)||0):0; }
+    var out=wrap.querySelector("#cpDmgOut");
+    function calcDamage(logIt){
+      var bonus=num("cpBonus"), fire=wrap.querySelector("#cpFire")?num("cpFire"):0;
+      var total=(w.damage||0)+bonus+fire;
+      var breakdown=w.damage+" base"+(bonus?" + "+bonus+" bonus":"")+(fire?" + "+fire+" Fire Stance":"");
+      out.innerHTML="<b>"+total+"</b> physical damage <span class='cp-break'>("+breakdown+")</span>";
+      if(logIt) logEvent("damage","Strike with "+w.name+" — "+total+" physical damage ("+breakdown+")",{attr:"damage",total:total});
+      return total;
+    }
+    wrap.querySelector("#cpDealBtn").addEventListener("click",function(){ calcDamage(true); });
+    var sync=wrap.querySelector("#cpSync");
+    if(sync) sync.addEventListener("click",function(){
+      var last=lastRollEntry(); if(!last) return;
+      wrap.querySelector("#cpBonus").value=Math.max(0,(last.su||0)-(last.tn||0));
+      var f=wrap.querySelector("#cpFire"); if(f) f.value=keptStrifeCount(last);
+      calcDamage(false);
+    });
+    var cout=wrap.querySelector("#cpCritOut");
+    wrap.querySelector("#cpCritBtn").addEventListener("click",function(){
+      var before=num("cpSev"), red=num("cpRed"), final=Math.max(0,before-red);
+      var tier=severityTier(final);
+      cout.innerHTML="<div class='cp-sev'>Severity <b>"+final+"</b> <span class='cp-break'>("+before+" before &minus; "+red+" reduced)</span></div>"
+        +(tier?"<div class='cp-tier'><span class='cp-tier-name'>"+tier.label+" &middot; "+tier.min+(tier.max!=null?"&ndash;"+tier.max:"+")+"</span><p class='cp-tier-desc'>"+escapeHTML(tier.desc)+"</p><p class='cp-tier-eff'>"+syms(tier.effect)+"</p></div>":"");
+      logEvent("critical","Critical Strike with "+w.name+" — severity "+final+" ("+before+" − "+red+" reduced): "+(tier?tier.label:"?"),{attr:"critical",severity:final});
+    });
   }
 
   // ===================== ROLLER =====================
@@ -1015,7 +1132,7 @@
     var host=document.getElementById("rLog"); if(!host) return;
     if(!rollLog.length){ host.innerHTML="<p class='r-hint'>No rolls kept yet. Roll, then <b>Keep Results</b> to record one here.</p>"; return; }
     host.innerHTML="<div class='log-actions'><span class='r-summary'>"+rollLog.length+" recorded</span><button class='link-btn' id='logClear'>Clear log</button></div>";
-    var EVICON={condition:"☷",social:"❖",stake:"⚑",strife:"▲",fatigue:"✦",voidp:"◇","void":"◇",technique:"❁",action:"⚔",scene:"⟳"};
+    var EVICON={condition:"☷",social:"❖",stake:"⚑",strife:"▲",fatigue:"✦",voidp:"◇","void":"◇",technique:"❁",action:"⚔",scene:"⟳",gear:"⚒",damage:"⚔",critical:"✖"};
     rollLog.forEach(function(e){
       if(e.kind==="event"){
         var ev=el("div","log-event cat-"+(e.cat||"misc"));

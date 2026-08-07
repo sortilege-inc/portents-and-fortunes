@@ -263,6 +263,30 @@ window.L5R = {
     ["social","Social"], ["scholar","Scholar"], ["artisan","Artisan"], ["trade","Trade"], ["downtime","Downtime"]
   ],
 
+  // --- Strike / damage + Critical Strike (verbatim from the L5R5e core) ---
+  strike: {
+    activation: "As an Attack action using one readied weapon, make a TN 2 Martial Arts check using the appropriate skill for the weapon, targeting one character within the weapon's range.",
+    effect: "If you succeed, deal physical damage to the target equal to the weapon's base damage plus your bonus successes.",
+    critOpportunity: "(op): If you succeed, you inflict a Critical Strike on your target with severity equal to your weapon's deadliness.",
+    fireStance: "Fire Stance: When you make an Attack or Scheme action check, gain a bonus success for each kept die showing a strife (st) result."
+  },
+  criticalStrike: {
+    // How severity is inflicted, then mitigated by the target.
+    inflict: "After failing to defend against damage: severity = deadliness of the source of damage. From a direct effect: severity is specified by the effect.",
+    resist: "The target must make a TN 1 Fitness check (using a ring of their choice in narrative, or the ring their Stance dictates in conflict). If they succeed, reduce severity by 1 plus bonus successes (minimum 0). Then consult the severity table.",
+    // Severity table — verbatim descriptions and effects.
+    table: [
+      { min:0,  max:2,    label:"Close Call",       desc:"The hit slices the character's hair or clothes but fails to draw blood.", effect:"If the character is wearing armor, the armor gains the Damaged quality." },
+      { min:3,  max:4,    label:"Flesh Wound",      desc:"The hit sinks into the character's flesh, slicing shallowly or creating a vicious contusion.", effect:"The character suffers Lightly Wounded for the ring used for their check to resist. If the attack had the Razor-Edged quality, also suffers Bleeding." },
+      { min:5,  max:6,    label:"Debilitating Gash", desc:"The hit is agonizing, cutting a deep furrow in the flesh or splitting muscle and fracturing bone. The character will likely need time to recover fully.", effect:"The character suffers Severely Wounded for the ring used for their check to resist. If the attack had the Razor-Edged quality, also suffers Bleeding." },
+      { min:7,  max:8,    label:"Permanent Injury", desc:"The strike leaves the character permanently injured, bearing a scar that will impact them the rest of their life.", effect:"The character suffers Bleeding, then chooses one scar disadvantage for the ring used for their check to resist: Air (Maimed Visage or Nerve Damage), Earth (Damaged Organ or Fractured Spine), Fire (Lost Fingers or Maimed Arm), Water (Lost Eye or Lost Foot), Void (Lost Memories)." },
+      { min:9,  max:11,   label:"Maiming Blow",     desc:"The character is gravely hurt by the strike and might never fully recover from it.", effect:"The character suffers Bleeding, then chooses one scar disadvantage for the ring used for their check to resist: Air (Deafness or Muteness), Earth (Damaged Heart or Damaged Organ), Fire (Lost Arm or Lost Hand), Water (Blindness or Lost Leg), Void (Cognitive Lapses)." },
+      { min:12, max:13,   label:"Agonizing Death",  desc:"The blow is mortal, and the character knows it.", effect:"The character suffers Severely Wounded for the ring used for their check to resist, as well as Bleeding and Dying (3 rounds)." },
+      { min:14, max:15,   label:"Swift Death",      desc:"The character lives just long enough to realize their demise.", effect:"The character suffers Severely Wounded for the ring used for their check to resist, as well as Bleeding and Dying (1 round)." },
+      { min:16, max:null, label:"Instant Death",    desc:"The character dies without even a last word.", effect:"The character dies immediately." }
+    ]
+  },
+
   // Opportunities granted by this character's own techniques
   techniqueOpportunities: [
     { name:"Lord Togashi’s Insight", ring:"void", text:"(op): Reduce the TN of your first check to overcome the problem you are facing by your school rank (to a minimum of 1)." }

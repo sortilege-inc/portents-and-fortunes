@@ -152,6 +152,42 @@
 /* gear */
 .gear .entry .et-name{ font-size:1.05rem; }
 .gearmeta{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.7rem; color:var(--ink-soft); }
+.gear .et-head{ align-items:center; }
+.equip-btn{ margin-left:auto; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.08em; font-size:0.66rem; color:var(--crimson); background:var(--paper); border:1px solid var(--gold-soft); border-radius:4px; padding:0.2rem 0.6rem; cursor:pointer; transition:.15s; }
+.equip-btn:hover{ border-color:var(--crimson); background:rgba(182,36,50,0.06); }
+.equip-btn.on{ color:#fff; background:var(--crimson); border-color:var(--crimson-deep); }
+.et-tag.equip-badge{ background:#2f7d4a; color:#fff; }
+.gear-item.equipped{ background:rgba(47,125,74,0.05); box-shadow:inset 2px 0 0 #2f7d4a; border-radius:4px; }
+
+/* combat calculators (readied weapon) */
+.combat-panel{ border:1px solid var(--gold-soft); border-radius:6px; background:var(--paper); margin:0.2rem 0 0.9rem; padding:0.7rem 0.9rem 0.9rem; }
+.cp-title{ font-family:var(--disp); font-weight:700; font-size:1.15rem; color:var(--sumi); display:flex; align-items:baseline; gap:0.6rem; flex-wrap:wrap; }
+.cp-title .cp-sub{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.66rem; color:var(--ink-soft); }
+.cp-block{ margin-top:0.7rem; padding-top:0.6rem; border-top:1px dashed var(--edge-soft); }
+.cp-block:first-of-type{ border-top:0; }
+.cp-h{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.12em; font-size:0.74rem; color:var(--crimson); margin-bottom:0.35rem; }
+.cp-rule{ font-size:0.86rem; color:var(--ink-2); margin:0 0 0.55rem; line-height:1.45; }
+.cp-rule.cp-fine{ font-size:0.78rem; color:var(--ink-soft); margin-top:0.5rem; }
+.cp-row{ display:flex; flex-wrap:wrap; gap:0.7rem 1rem; align-items:flex-end; }
+.cp-f{ display:flex; flex-direction:column; gap:0.2rem; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.64rem; color:var(--ink-soft); }
+.cp-f b{ font-family:var(--disp); font-size:1.4rem; color:var(--sumi); line-height:1; }
+.cp-f .cp-in{ width:4.2rem; font-family:var(--disp); font-size:1.15rem; text-align:center; padding:0.25rem; border:1px solid var(--edge); border-radius:4px; background:#fff; color:var(--sumi); }
+.cp-f .cp-in:focus{ outline:none; border-color:var(--crimson); }
+.cp-f.cp-fire b, .cp-f.cp-fire{ color:#b0642a; }
+.cp-tag{ font-size:0.6rem; color:var(--ink-soft); }
+.cp-actions{ display:flex; flex-wrap:wrap; align-items:center; gap:0.6rem; margin-top:0.7rem; }
+.cp-actions .roll-btn{ padding:0.4rem 0.9rem; font-size:0.78rem; }
+.cp-out{ font-family:var(--disp); font-size:1.05rem; color:var(--sumi); }
+.cp-out b{ color:#2f7d4a; font-size:1.35rem; }
+.cp-break{ font-family:var(--body); font-size:0.78rem; color:var(--ink-soft); }
+.cp-crit-out{ margin-top:0.6rem; }
+.cp-crit-out:empty{ display:none; }
+.cp-sev{ font-family:var(--disp); font-size:1.1rem; color:var(--sumi); }
+.cp-sev b{ color:var(--crimson); font-size:1.5rem; }
+.cp-tier{ margin-top:0.4rem; border:1px solid var(--gold-soft); border-left:3px solid var(--crimson); border-radius:4px; padding:0.5rem 0.7rem; background:var(--paper-2); }
+.cp-tier-name{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em; font-size:0.72rem; color:var(--crimson); }
+.cp-tier-desc{ font-size:0.9rem; font-style:italic; color:var(--ink-2); margin:0.3rem 0 0.35rem; }
+.cp-tier-eff{ font-size:0.9rem; color:var(--ink); margin:0; line-height:1.45; }
 
 /* ===================== dice roller ===================== */
 .roller .r-controls{ display:flex; flex-wrap:wrap; gap:0.7rem; align-items:flex-end; margin-bottom:0.9rem; }
