@@ -339,5 +339,12 @@ blockquote{
 .tablewrap th{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:var(--crimson); background:rgba(154,123,63,0.1); padding:0.5rem 0.7rem; text-align:left; border-bottom:1px solid var(--edge); }
 .tablewrap td{ padding:0.45rem 0.7rem; border-bottom:1px solid var(--edge-soft); color:var(--ink-2); }
 
+/* import / export controls */
+.io-row{ display:flex; flex-wrap:wrap; gap:0.6rem; margin:0.8rem 0; }
+.io-btn{ display:inline-flex; align-items:center; gap:0.45rem; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em; font-weight:600; font-size:0.84rem; color:#fff; background:linear-gradient(180deg,var(--crimson),var(--crimson-deep)); border:1px solid var(--crimson-deep); border-radius:6px; padding:0.5rem 1.05rem; cursor:pointer; box-shadow:var(--shadow-soft); }
+.io-btn:hover{ filter:brightness(1.08); box-shadow:var(--shadow); }
+.io-btn span{ color:#f2d9a0; font-size:1.05em; }
+.io-status{ font-size:0.94rem; color:var(--jade); min-height:1.2em; margin:0.4rem 0 0; }
+
 /* epigraph */
 .epigraph{ font-family:var(--disp); font-style:italic; color:var(--ink-2); font-size:1.2rem; line-height:1.55; text-align:center; max-width:56ch; margin:0.4rem auto 2rem; padding-bottom:1.4rem; border-bottom:1px solid var(--gold-soft); }

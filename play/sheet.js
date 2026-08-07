@@ -57,6 +57,12 @@
   function save(){ if(RO) return; try { localStorage.setItem(LSKEY, JSON.stringify(st)); } catch(e){} }
   function trkVal(key){ return RO ? ((SNAP&&SNAP[key])||0) : (st[key]||0); }
 
+  // ---- roll log (history of kept results) ----
+  var LOGKEY = "pf-log-" + (CURRENT.id || "pc");
+  var rollLog = []; try { rollLog = JSON.parse(localStorage.getItem(LOGKEY)) || []; } catch(e){}
+  function saveLog(){ try { localStorage.setItem(LOGKEY, JSON.stringify(rollLog)); } catch(e){} }
+  function nowStr(){ try { return new Date().toLocaleString(); } catch(e){ return ""; } }
+
   function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
   function el(tag, cls, html){ var e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; }
   function symHTML(d, dark){
@@ -67,6 +73,17 @@
     return out.join("");
   }
   function succ(d){ return (d.su||0)+(d.ex||0); }
+  function escapeHTML(s){ return String(s).replace(/[&<>"']/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  // Render the dice-symbol tokens the corpus stores as ASCII, e.g. (op), as styled glyphs.
+  function syms(t){
+    if(t==null) return "";
+    return String(t)
+      .replace(/\(op\)/g,"<span class='sym op'>◈</span>")
+      .replace(/\(su\)/g,"<span class='sym su'>❁</span>")
+      .replace(/\(ex\)/g,"<span class='sym ex'>❉</span>")
+      .replace(/\(st\)/g,"<span class='sym st'>▲</span>")
+      .replace(/\(ring\)/g,"<span class='sym ring'>⬢</span>");
+  }
 
   // ---- build the sheet ----
   function render(){
@@ -213,7 +230,7 @@
   function entry(name,tag,ring,text){
     var e=el("div","entry");
     var tags=(tag?"<span class='et-tag'>"+tag+"</span>":"")+(ring?"<span class='et-tag ring'>"+cap(ring)+"</span>":"");
-    e.innerHTML="<div class='et-head'><span class='et-name'>"+name+"</span>"+tags+"</div><p class='et-text collapsed'>"+text+"</p><button class='more'>Read more</button>";
+    e.innerHTML="<div class='et-head'><span class='et-name'>"+name+"</span>"+tags+"</div><p class='et-text collapsed'>"+syms(text)+"</p><button class='more'>Read more</button>";
     var body=e.querySelector(".et-text"), btn=e.querySelector(".more");
     btn.addEventListener("click",function(){ var c=body.classList.toggle("collapsed"); btn.textContent=c?"Read more":"Show less"; });
     return e;
@@ -263,7 +280,7 @@
     });
     body.appendChild(confRow("Stance",stWrap));
     if(st.stance && L5RD.stances[st.stance]){
-      body.appendChild(el("div","stance-detail","<b>"+L5RD.stances[st.stance].name+".</b> "+L5RD.stances[st.stance].text));
+      body.appendChild(el("div","stance-detail","<b>"+L5RD.stances[st.stance].name+".</b> "+syms(L5RD.stances[st.stance].text)));
     }
     // initiative
     var initWrap=el("div","conf-init");
@@ -296,6 +313,7 @@
   // for advantages/disadvantages, add Assistance dice, or spend a Void point.
   var pool=[];       // die objects: {type,key,su,ex,op,st,kept,bonus,explodedDone}
   var curKeep=0;     // keep limit locked in at roll time
+  var rollLogged=false;
   var cfg={ assistSkill:0, assistRing:0, voidSpend:false };
 
   function buildRoller(){
@@ -307,28 +325,42 @@
       +"  <span class='rt-chevron'>&#9656;</span>"
       +"</button>"
       +"<div class='roller-body' id='rollerBody'>"
-      +"  <div class='r-controls'>"
-      +"    <div class='r-field'><label>Ring</label><span class='r-pick' id='rRing'></span></div>"
-      +"    <div class='r-field'><label>Skill</label><span class='r-pick' id='rSkill'></span></div>"
-      +"    <div class='r-field r-tn'><label>TN</label><input id='rTN' type='number' min='0' value='2'></div>"
-      +"    <div class='r-field'><label>Assist &mdash; skilled</label><span class='stepper' data-cfg='assistSkill'></span></div>"
-      +"    <div class='r-field'><label>Assist &mdash; unskilled</label><span class='stepper' data-cfg='assistRing'></span></div>"
-      +"    <div class='r-field'><label>Void <span id='rVoidHave' class='vhave'></span></label><label class='vchk'><input type='checkbox' id='rVoid'> Seize the Moment</label></div>"
+      +"  <div class='roller-tabs'><button class='rtab sel' data-tab='roll'>Roll</button><button class='rtab' data-tab='log'>Log <span class='logcount' id='rLogCount'></span></button></div>"
+      +"  <div class='roller-tab tp-roll' data-tab='roll'>"
+      +"    <div class='r-controls'>"
+      +"      <div class='r-field'><label>Ring</label><span class='r-pick' id='rRing'></span></div>"
+      +"      <div class='r-field'><label>Skill</label><span class='r-pick' id='rSkill'></span></div>"
+      +"      <div class='r-field r-tn'><label>TN</label><input id='rTN' type='number' min='0' value='2'></div>"
+      +"      <div class='r-field'><label>Assist &mdash; skilled</label><span class='stepper' data-cfg='assistSkill'></span></div>"
+      +"      <div class='r-field'><label>Assist &mdash; unskilled</label><span class='stepper' data-cfg='assistRing'></span></div>"
+      +"      <div class='r-field'><label>Void <span id='rVoidHave' class='vhave'></span></label><label class='vchk'><input type='checkbox' id='rVoid'> Seize the Moment</label></div>"
+      +"    </div>"
+      +"    <div class='r-noterow'><label class='r-notelabel'>Concerning</label><input type='text' id='rNote' class='r-note' placeholder='What is this roll about? (optional — saved to the log)' maxlength='140'></div>"
+      +"    <div class='r-actions'><button class='roll-btn' id='rRoll'>Assemble &amp; Roll</button><button class='roll-btn ghost' id='rClear'>Clear</button><span class='r-summary' id='rSummary'></span></div>"
+      +"    <p class='r-hint'><b>Click dice to keep</b> &mdash; nothing is kept for you. <b>&#8635;</b> rerolls a die (for advantages or disadvantages). A kept <b>explosive</b> (&#10057;) die shows an explode button to roll a bonus die, which you may keep or drop.</p>"
+      +"    <div class='dice-row' id='rDice'></div>"
+      +"    <div class='r-result' id='rResult'></div>"
+      +"    <div class='opp-panel collapsed' id='oppPanel'>"
+      +"      <button class='opp-toggle' id='oppToggle'><span>Opportunity spends (&#9672;)</span><span class='rt-chevron'>&#9656;</span></button>"
+      +"      <div class='opp-body' id='oppBody'></div>"
+      +"    </div>"
+      +"    <p class='legend'><span>Dark <b>d6</b> = Ring die</span><span>Light <b>d12</b> = Skill die</span><span>Assist / Void add a die <em>and</em> a keep; Void spends a point.</span></p>"
       +"  </div>"
-      +"  <div class='r-actions'><button class='roll-btn' id='rRoll'>Assemble &amp; Roll</button><button class='roll-btn ghost' id='rClear'>Clear</button><span class='r-summary' id='rSummary'></span></div>"
-      +"  <p class='r-hint'><b>Click dice to keep</b> &mdash; nothing is kept for you. <b>&#8635;</b> rerolls a die (for advantages or disadvantages). A kept <b>explosive</b> (&#10057;) die shows an explode button to roll a bonus die, which you may keep or drop.</p>"
-      +"  <div class='dice-row' id='rDice'></div>"
-      +"  <div class='r-result' id='rResult'></div>"
-      +"  <div class='opp-panel collapsed' id='oppPanel'>"
-      +"    <button class='opp-toggle' id='oppToggle'><span>Opportunity spends (&#9672;)</span><span class='rt-chevron'>&#9656;</span></button>"
-      +"    <div class='opp-body' id='oppBody'></div>"
-      +"  </div>"
-      +"  <p class='legend'><span>Dark <b>d6</b> = Ring die</span><span>Light <b>d12</b> = Skill die</span><span>Assist / Void add a die <em>and</em> a keep; Void spends a point.</span></p>"
+      +"  <div class='roller-tab tp-log' data-tab='log' id='rLog' hidden></div>"
       +"</div>";
     setTimeout(function(){
       c.querySelector("#rollerToggle").addEventListener("click",function(){
         var open=!c.classList.toggle("collapsed");
         this.setAttribute("aria-expanded", open?"true":"false");
+      });
+      c.querySelectorAll(".rtab").forEach(function(b){
+        b.addEventListener("click",function(){
+          var t=b.getAttribute("data-tab");
+          c.querySelectorAll(".rtab").forEach(function(x){ x.classList.toggle("sel",x===b); });
+          c.querySelector(".tp-roll").hidden=(t!=="roll");
+          c.querySelector(".tp-log").hidden=(t!=="log");
+          if(t==="log") renderLog();
+        });
       });
       buildStepper(c.querySelector("[data-cfg='assistSkill']"),"assistSkill");
       buildStepper(c.querySelector("[data-cfg='assistRing']"),"assistRing");
@@ -339,6 +371,7 @@
       c.querySelector("#oppToggle").addEventListener("click",function(){ document.getElementById("oppPanel").classList.toggle("collapsed"); });
       syncRoller();
       renderOpp();
+      updateLogCount();
     },0);
     return c;
   }
@@ -355,19 +388,20 @@
       chips.appendChild(b);
     });
     body.appendChild(chips);
-    body.appendChild(el("div","opp-ringnote","Your approach is <b>"+cap(st.ring)+"</b> — matching spends are highlighted. Spend (&#9672;) opportunity from your kept dice."));
+    body.appendChild(el("div","opp-ringnote","Spends for your <b>"+cap(st.ring)+"</b> approach. Spend <span class='sym op'>◈</span> opportunity from your kept dice."));
     var table=L5RD.opportunities[st.oppTable]||{};
     var list=el("div","opp-list");
-    if(table.any) list.appendChild(oppGroup("Any approach", table.any, false, false));
-    RINGS.forEach(function(r){ if(table[r]) list.appendChild(oppGroup(cap(r), table[r], r===st.ring, false)); });
+    if(table.any) list.appendChild(oppGroup("Any approach", table.any, false));
+    if(table[st.ring]) list.appendChild(oppGroup(cap(st.ring)+" approach", table[st.ring], true));
+    else if(!table.any) list.appendChild(el("div","opp-empty","No "+cap(st.ring)+" opportunities listed for this context."));
     var techs=(L5RD.techniqueOpportunities||[]).filter(function(t){ return t.ring===st.ring; });
-    if(techs.length) list.appendChild(oppGroup("From your techniques", techs.map(function(t){ return "<b>"+t.name+":</b> "+t.text; }), true, true));
+    if(techs.length) list.appendChild(oppGroup("From your techniques", techs.map(function(t){ return "<b>"+t.name+":</b> "+t.text; }), true));
     body.appendChild(list);
   }
-  function oppGroup(label,items,hi,rawHTML){
+  function oppGroup(label,items,hi){
     var g=el("div","opp-group"+(hi?" hi":""));
     g.appendChild(el("div","opp-gl",label));
-    items.forEach(function(s){ var e=el("div","opp-item"); if(rawHTML) e.innerHTML=s; else e.textContent=s; g.appendChild(e); });
+    items.forEach(function(s){ var e=el("div","opp-item"); e.innerHTML=syms(s); g.appendChild(e); });
     return g;
   }
 
@@ -404,6 +438,7 @@
   }
 
   function doRoll(){
+    rollLogged=false;
     var spendVoid = cfg.voidSpend && (st["void"]||0)>=1;
     var extraRing = cfg.assistRing + (spendVoid?1:0);
     var extraSkill = cfg.assistSkill;
@@ -469,13 +504,72 @@
     var voidStance = st.inConflict && st.stance==="void";
     var strifeApplied = voidStance ? 0 : stf;
     res.className="r-result show";
+    var applyBar;
+    if(rollLogged){
+      applyBar="<div class='applybar'><span class='kept-tag'>✓ Results kept &amp; logged</span></div>";
+    } else {
+      applyBar="<div class='applybar'>"
+        +"<label class='strife-sel'>Keep strife <input type='number' id='rStrife' min='0' max='"+stf+"' value='"+strifeApplied+"'></label>"
+        +"<span class='of-max'>of "+stf+" rolled</span>"
+        +"<button class='roll-btn' id='rKeep'>Keep Results</button>"
+        +(voidStance&&stf>0?"<span class='r-summary'>Void stance: ▲ on kept dice give no strife</span>":"")
+        +"</div>";
+    }
     res.innerHTML=""
       +"<div class='verdict "+(pass?"pass":"fail")+"'>"+(pass?"Success":"Failure")+" &mdash; "+su+" vs TN "+tn+"</div>"
       +"<div class='tallies'><span>Kept <b>"+keptBase()+"/"+curKeep+"</b>"+(bonusKept?" <em>+"+bonusKept+" bonus</em>":"")+"</span><span>Successes <b class='sym su' style='color:#3f8f5a'>"+su+"</b></span><span>Opportunity <b class='sym op' style='color:#c08a1e'>"+op+"</b></span><span>Strife <b class='sym st' style='color:#b0642a'>"+stf+"</b></span></div>"
-      +"<div class='applybar'><button class='roll-btn ghost' id='rApplyStrife'>Apply "+strifeApplied+" strife"+(voidStance&&stf>0?" (Void stance: 0)":"")+"</button><span class='r-summary'>"+(voidStance&&stf>0?"Void stance ignores ▲ on kept dice":"")+"</span></div>";
-    document.getElementById("rApplyStrife").addEventListener("click",function(){
-      st.strife=Math.min(S.trackers.strife.max, (st.strife||0)+strifeApplied); save(); syncTracker("strife");
+      +applyBar;
+    if(!rollLogged){
+      document.getElementById("rKeep").addEventListener("click",function(){
+        var amt=Math.max(0,Math.min(stf,parseInt(document.getElementById("rStrife").value||"0",10)));
+        keepResults(amt, su, op, stf, tn, pass);
+      });
+    }
+  }
+
+  function keepResults(strifeAmt, su, op, stfRolled, tn, pass){
+    if(RO) return;
+    st.strife=Math.min(S.trackers.strife.max, (st.strife||0)+strifeAmt); save(); syncTracker("strife");
+    var kept=pool.filter(function(d){ return d.kept; });
+    var noteEl=document.getElementById("rNote");
+    var note=noteEl && noteEl.value ? noteEl.value.trim() : "";
+    rollLog.unshift({
+      n: rollLog.length+1,
+      note: note,
+      ring: st.ring, ringN: ringN(),
+      skillLabel: st.skill ? (SKILL_NAMES[st.skill]||cap(st.skill)) : null,
+      tn: tn, su: su, op: op, strifeRolled: stfRolled, strifeApplied: strifeAmt, pass: pass,
+      inConflict: !!st.inConflict, stance: st.inConflict ? st.stance : null,
+      kept: kept.map(function(d){ return { type:d.type, key:d.key, bonus:!!d.bonus }; }),
+      when: nowStr()
     });
+    saveLog();
+    if(noteEl) noteEl.value="";
+    rollLogged=true;
+    updateLogCount();
+    renderLog();
+    tally();
+  }
+
+  function updateLogCount(){ var e=document.getElementById("rLogCount"); if(e) e.textContent=rollLog.length?("("+rollLog.length+")"):""; }
+  function renderLog(){
+    var host=document.getElementById("rLog"); if(!host) return;
+    if(!rollLog.length){ host.innerHTML="<p class='r-hint'>No rolls kept yet. Roll, then <b>Keep Results</b> to record one here.</p>"; return; }
+    host.innerHTML="<div class='log-actions'><span class='r-summary'>"+rollLog.length+" recorded</span><button class='link-btn' id='logClear'>Clear log</button></div>";
+    rollLog.forEach(function(e){
+      var d=el("div","log-entry "+(e.pass?"pass":"fail"));
+      var dice=e.kept.map(function(k){ return "<img class='logdie "+k.type+(k.bonus?" bonus":"")+"' src='../assets/dice/"+k.key+".svg' alt=''>"; }).join("");
+      d.innerHTML=""
+        +"<div class='log-head'><span class='log-verdict'>"+(e.pass?"Success":"Failure")+"</span>"
+        +"<span class='log-approach'>"+cap(e.ring)+" "+e.ringN+(e.skillLabel?" · "+e.skillLabel:"")+(e.stance?" · "+cap(e.stance)+" stance":"")+"</span>"
+        +(e.when?"<span class='log-when'>"+e.when+"</span>":"")+"</div>"
+        +(e.note?"<div class='log-note'>"+escapeHTML(e.note)+"</div>":"")
+        +"<div class='log-dice'>"+dice+"</div>"
+        +"<div class='log-tally'>"+e.su+" vs TN "+e.tn+"  ·  <span class='sym op'>◈</span> "+e.op+"  ·  <span class='sym st'>▲</span> "+e.strifeApplied+" applied"+(e.strifeRolled!==e.strifeApplied?" (of "+e.strifeRolled+")":"")+"</div>";
+      host.appendChild(d);
+    });
+    var c=document.getElementById("logClear");
+    if(c) c.addEventListener("click",function(){ if(RO) return; rollLog=[]; saveLog(); updateLogCount(); renderLog(); });
   }
 
   // ---- version switching ----
