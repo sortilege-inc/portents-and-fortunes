@@ -51,7 +51,7 @@
   // ---- persisted state ----
   var st = { strife:0, fatigue:0, "void":(S.trackers&&S.trackers["void"]&&S.trackers["void"].start)||0,
              stance:S.stance||"void", ring:"earth", skill:null,
-             inConflict:false, conflictType:"skirmish", oppTable:"general",
+             inConflict:false, conflictType:"skirmish", conflictName:"", oppTable:"general",
              conditions:[], techUses:{},
              honor:(S.social?S.social.honor:0), glory:(S.social?S.social.glory:0), status:(S.social?S.social.status:0) };
   var CONDITIONS = ["Afflicted","Bleeding","Burning","Compromised","Dazed","Disoriented","Enraged","Exhausted","Immobilized","Intoxicated","Prone","Silenced","Unconscious"];
@@ -72,6 +72,42 @@
   }
   function socialVal(attr){ if(RO) return (S.social&&S.social[attr])||0; return st[attr]!=null?st[attr]:((S.social&&S.social[attr])||0); }
   function ringIcon(r){ return "<img class='ring-ico' src='../assets/rings/"+r+".svg' alt='"+cap(r)+"' title='"+cap(r)+"'>"; }
+
+  // ---- export / import (state + roll log) ----
+  function buildIO(){
+    var wrap=el("div","sh-io");
+    var ex=el("button","io-tri export","▼"); ex.title="Export JSON (state + log)"; ex.setAttribute("aria-label","Export JSON");
+    var im=el("button","io-tri import","▲"); im.title="Import JSON"; im.setAttribute("aria-label","Import JSON");
+    var file=el("input"); file.type="file"; file.accept="application/json,.json"; file.style.display="none";
+    ex.addEventListener("click",doExport);
+    im.addEventListener("click",function(){ file.click(); });
+    file.addEventListener("change",function(e){ var f=e.target.files&&e.target.files[0]; if(f) doImport(f); e.target.value=""; });
+    wrap.appendChild(ex); wrap.appendChild(im); wrap.appendChild(file);
+    return wrap;
+  }
+  function doExport(){
+    var data={ app:"portents-and-fortunes", character:CURRENT.id, name:CURRENT.name,
+      exportedAt:new Date().toISOString(),
+      state: JSON.parse(localStorage.getItem(LSKEY)||"null"),
+      log: rollLog };
+    var blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+    var url=URL.createObjectURL(blob), a=document.createElement("a");
+    a.href=url; a.download=(CURRENT.id||"character")+"-"+new Date().toISOString().slice(0,10)+".json";
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  }
+  function doImport(file){
+    var r=new FileReader();
+    r.onload=function(){
+      try{
+        var d=JSON.parse(r.result);
+        if(d.character && d.character!==CURRENT.id){ alert("This file is for “"+d.character+"”, not this character."); return; }
+        if(d.state!==undefined && d.state!==null){ localStorage.setItem(LSKEY, JSON.stringify(d.state)); }
+        if(Array.isArray(d.log)){ localStorage.setItem(LOGKEY, JSON.stringify(d.log)); }
+        location.reload();
+      }catch(err){ alert("Could not read that file: "+err.message); }
+    };
+    r.readAsText(file);
+  }
 
   function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
   function el(tag, cls, html){ var e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; }
@@ -110,7 +146,10 @@
     id.appendChild(el("div","sub", S.clan+" Clan · "+S.family+" family"));
     id.appendChild(el("div","sub2", S.school+" · Rank "+S.rank+" "+S.role));
     head.appendChild(id);
-    var mon=el("img","sh-mon"); mon.src="../assets/mon/"+S.clan.toLowerCase()+".svg"; mon.alt=S.clan+" mon"; head.appendChild(mon);
+    var tools=el("div","sh-tools");
+    var mon=el("img","sh-mon"); mon.src="../assets/mon/"+S.clan.toLowerCase()+".svg"; mon.alt=S.clan+" mon"; tools.appendChild(mon);
+    tools.appendChild(buildIO());
+    head.appendChild(tools);
     root.appendChild(head);
 
     if(RO){
@@ -407,6 +446,10 @@
       body.appendChild(el("p","stance-note","Conflict type, stances, initiative, and available actions appear once a conflict begins."));
       return;
     }
+    // optional conflict name
+    var nameIn=el("input","conf-name-in"); nameIn.type="text"; nameIn.placeholder="Name this conflict (optional)"; nameIn.value=st.conflictName||"";
+    nameIn.addEventListener("input",function(){ st.conflictName=nameIn.value; save(); });
+    body.appendChild(confRow("Name",nameIn));
     // conflict type
     var typeWrap=el("div","conf-choices");
     Object.keys(L5RD.conflicts).forEach(function(k){
@@ -610,7 +653,8 @@
       activation: rollCtx ? rollCtx.activation : null,
       bloodOfKami: rollCtx ? !!rollCtx.bloodOfKami : false,
       inConflict: !!st.inConflict, stance: st.inConflict ? st.stance : null,
-      conflictType: st.inConflict ? st.conflictType : null
+      conflictType: st.inConflict ? st.conflictType : null,
+      conflictName: st.inConflict ? (st.conflictName||null) : null
     };
     if(spendVoid){ st["void"]=Math.max(0,(st["void"]||0)-1); save(); syncTracker("void"); syncRoller(); }
     var vc=document.getElementById("rVoid"); if(vc) vc.checked=false; cfg.voidSpend=false;
@@ -773,7 +817,7 @@
       keptBaseCount: keptBaseCount, bonusKept: bonusKept,
       keptFewer: keptBaseCount < (m.keepLimit!=null?m.keepLimit:curKeep),
       initial: m.initial||[], events: m.events||[],
-      source: m.source||null, activation: m.activation||null, bokBonus: bokBonus||0,
+      source: m.source||null, activation: m.activation||null, bokBonus: bokBonus||0, conflictName: m.conflictName||null,
       tn: tn, su: su, op: op, strifeRolled: stfRolled, strifeApplied: strifeAmt, pass: pass,
       inConflict: !!m.inConflict, stance: m.stance||null, conflictType: m.conflictType||null,
       kept: kept.map(function(d){ return { type:d.type, key:d.key, bonus:!!d.bonus }; }),
@@ -838,7 +882,7 @@
 
       d.innerHTML=""
         +"<div class='log-head'><span class='log-verdict'>"+(e.pass?"Success":"Failure")+"</span>"
-        +"<span class='log-approach'>"+cap(e.ring)+" "+e.ringN+(e.skillLabel?" · "+e.skillLabel+(e.skillN!=null?" "+e.skillN:""):"")+(e.stance?" · "+cap(e.stance)+" stance":"")+"</span>"
+        +"<span class='log-approach'>"+cap(e.ring)+" "+e.ringN+(e.skillLabel?" · "+e.skillLabel+(e.skillN!=null?" "+e.skillN:""):"")+(e.stance?" · "+cap(e.stance)+" stance":"")+(e.conflictName?" · “"+escapeHTML(e.conflictName)+"”":"")+"</span>"
         +(e.when?"<span class='log-when'>"+e.when+"</span>":"")+"</div>"
         +(e.source?"<div class='log-source'>via "+e.source+(e.activation?" — "+e.activation:"")+(e.bokBonus?" · +"+e.bokBonus+" Blood of the Kami":"")+"</div>":"")
         +(e.note?"<div class='log-note'>"+escapeHTML(e.note)+"</div>":"")

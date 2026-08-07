@@ -39,8 +39,18 @@
 .sh-id h1{ font-family:var(--disp); font-weight:600; font-size:2.4rem; color:var(--sumi); margin:0; line-height:1; }
 .sh-id .sub{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em; font-size:0.9rem; color:var(--crimson); margin:0.35rem 0 0.1rem; }
 .sh-id .sub2{ font-family:var(--disp); font-style:italic; color:var(--ink-soft); font-size:1.05rem; margin:0.1rem 0 0; }
-.sh-mon{ width:72px; height:72px; margin-left:auto; align-self:flex-start; flex-shrink:0; opacity:0.92; }
-@media (max-width:620px){ .sh-mon{ display:none; } }
+.sh-tools{ margin-left:auto; display:flex; flex-direction:column; align-items:center; gap:0.5rem; flex-shrink:0; }
+.sh-mon{ width:72px; height:72px; flex-shrink:0; opacity:0.92; }
+.sh-io{ display:flex; gap:0.5rem; }
+.io-tri{ width:1.9rem; height:1.9rem; display:flex; align-items:center; justify-content:center; border:1px solid var(--edge); border-radius:5px; background:var(--paper-2); cursor:pointer; font-size:0.85rem; line-height:1; padding:0; }
+.io-tri:hover{ border-color:var(--crimson); background:#fff; }
+.io-tri.export{ color:var(--sumi); }
+.io-tri.import{ color:#fff; text-shadow:0 0 1px var(--ink), 0 0 1px var(--ink), 0 0 2px var(--ink); }
+@media (max-width:620px){ .sh-mon{ display:none; } .sh-tools{ margin-left:auto; } }
+
+/* optional conflict name */
+.conf-name-in{ width:100%; max-width:22rem; font-family:var(--serif); font-size:0.98rem; color:var(--ink); background:var(--paper); border:1px solid var(--edge); border-radius:4px; padding:0.3rem 0.55rem; }
+.conf-name-in:focus{ outline:none; border-color:var(--crimson); }
 
 /* honor/glory/status band */
 .hgs{ display:flex; gap:0.7rem; flex-wrap:wrap; margin-top:0.7rem; }
