@@ -161,6 +161,7 @@
     // --- Skills ---
     var cSk = el("div","sh-card");
     cSk.appendChild(el("h2",null,"Skills"));
+    var sbody=el("div","skills-body");
     SKILL_GROUPS.forEach(function(g){
       var wrap=el("div","skgroup");
       wrap.appendChild(el("h3",null,g[0]));
@@ -174,8 +175,9 @@
         row.addEventListener("click",function(){ st.skill=(st.skill===k?null:k); save(); syncSkill(); syncRoller(); });
         wrap.appendChild(row);
       });
-      cSk.appendChild(wrap);
+      sbody.appendChild(wrap);
     });
+    cSk.appendChild(sbody);
     grid.appendChild(cSk);
 
     // --- Techniques (beside Skills) ---

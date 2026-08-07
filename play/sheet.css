@@ -97,9 +97,10 @@
 .stance-note{ font-size:0.82rem; color:var(--ink-soft); font-style:italic; margin:0.5rem 0 0; }
 
 /* skills */
+.skills-body{ width:fit-content; margin:0 auto; }
 .skgroup{ margin-bottom:0.6rem; }
 .skgroup h3{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em; font-size:0.74rem; color:var(--gold); margin:0.5rem 0 0.25rem; padding-left:calc(4.8rem + 0.6rem); }
-.skrow{ display:grid; grid-template-columns:4.8rem 1fr; align-items:center; gap:0.6rem; padding:0.14rem 0.3rem; cursor:pointer; border-radius:3px; }
+.skrow{ display:grid; grid-template-columns:4.8rem auto; align-items:center; gap:0.6rem; padding:0.14rem 0.3rem; cursor:pointer; border-radius:3px; }
 .skrow:hover{ background:rgba(154,123,63,0.1); }
 .skrow.sel{ background:var(--crimson-soft); box-shadow:inset 2px 0 0 var(--crimson); }
 .skrow .skvals{ display:flex; align-items:center; justify-content:flex-end; gap:0.45rem; }
@@ -122,7 +123,8 @@
 .entry .et-tag.ring{ background:var(--gold); }
 .entry .et-text{ font-size:0.95rem; color:var(--ink-2); margin:0.4rem 0 0; white-space:pre-line; }
 .entry .et-text.collapsed{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-.entry .more{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.08em; font-size:0.7rem; color:var(--crimson); cursor:pointer; background:none; border:0; padding:0.2rem 0; }
+.entry .more{ display:block; margin-top:0.2rem; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.08em; font-size:0.7rem; color:var(--crimson); cursor:pointer; background:none; border:0; padding:0.2rem 0; }
+.tech-activate{ margin-bottom:0.1rem; }
 
 /* gear */
 .gear .entry .et-name{ font-size:1.05rem; }
