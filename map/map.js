@@ -18,9 +18,9 @@
       shapes:[[[16,7],[30,3],[52,3],[60,9],[60,18],[46,22],[34,21],[24,19],[16,13]]],
       label:[38,12],
       pins:[
-        { x:18.5,y:29, name:"Kyūden Togashi", href:"../atlas/index.html#kyuden-togashi" },
-        { x:35.5,y:23.5, name:"White Flower Village", href:"../atlas/index.html#white-flower-village" },
-        { x:33,y:47, name:"Wrath of the Kami", href:"../atlas/index.html#wrath-of-the-kami" },
+        { x:20.5,y:28, name:"Kyūden Togashi", href:"../atlas/index.html#kyuden-togashi" },
+        { x:39.5,y:20.5, name:"White Flower Village", href:"../atlas/index.html#white-flower-village" },
+        { x:38,y:43, name:"Wrath of the Kami", href:"../atlas/index.html#wrath-of-the-kami" },
         { x:33,y:19.5, name:"Seidō Fukurokujin", href:"../atlas/index.html#seido-fukurokujin" }
       ] },
     { key:"unicorn", name:"Unicorn Lands", color:C.unicorn, map:"../assets/regions/unicorn.webp",
