@@ -309,7 +309,7 @@
     var wrap=el("div","strife-btns");
     (S.peculiarities||[]).filter(function(p){ return typeof p.strife==="number"; }).forEach(function(p){
       var d=p.strife;
-      var b=el("button","strife-btn "+(d<0?"heal":"harm"), p.name+" ("+(d>0?"+":"")+d+" ▲)");
+      var b=el("button","strife-btn "+(d<0?"heal":"harm"), p.name+" ("+(d>0?"+":"")+d+")");
       b.addEventListener("click",function(){
         if(RO) return;
         var from=st.strife||0, to=Math.max(0, from+d);   // no upper clamp — strife may exceed maximum
@@ -483,7 +483,7 @@
     conf.actions.forEach(function(a){ actWrap.appendChild(el("span","conf-action",a)); });
     body.appendChild(confRow("Actions",actWrap));
     // end
-    var end=el("button","link-btn","End conflict");
+    var end=el("button","roll-btn ghost conf-end","End Conflict");
     end.addEventListener("click",function(){ st.inConflict=false; save(); renderConflict(body); syncRoller(); });
     body.appendChild(end);
   }

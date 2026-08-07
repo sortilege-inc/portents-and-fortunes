@@ -261,6 +261,7 @@
 .conf-note{ font-size:0.8rem; color:var(--ink-soft); font-style:italic; }
 .link-btn{ margin-top:0.7rem; background:none; border:0; color:var(--crimson); font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em; font-size:0.74rem; cursor:pointer; padding:0; }
 .link-btn:hover{ text-decoration:underline; }
+.conf-end{ margin-top:0.8rem; }
 
 /* ---- opportunity panel ---- */
 .opp-panel{ margin-top:0.8rem; border:1px solid var(--gold-soft); border-radius:5px; background:rgba(154,123,63,0.06); }
