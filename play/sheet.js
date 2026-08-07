@@ -35,7 +35,8 @@
   var SKILL_NAMES = { unarmed:"Martial Arts [Unarmed]", melee:"Martial Arts [Melee]", ranged:"Martial Arts [Ranged]" };
 
   // ---- persisted state ----
-  var st = { strife:0, fatigue:0, "void":0, stance:S.stance||"void", ring:"earth", skill:null,
+  var st = { strife:0, fatigue:0, "void":(S.trackers&&S.trackers["void"]&&S.trackers["void"].start)||0,
+             stance:S.stance||"void", ring:"earth", skill:null,
              inConflict:false, conflictType:"skirmish", oppTable:"general" };
   var L5RD = window.L5R || {stances:{},conflicts:{},opportunities:{},oppTables:[],techniqueOpportunities:[]};
   try { var saved = JSON.parse(localStorage.getItem(LSKEY)); if (saved) Object.assign(st, saved); } catch(e){}
