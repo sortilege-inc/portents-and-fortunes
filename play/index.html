@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Togashi Norikage — Character Sheet — Portents &amp; Fortunes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Cormorant:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../rokugan.css">
+<link rel="stylesheet" href="sheet.css">
+</head>
+<body class="play-body">
+<div class="play-bar">
+<span class="brand">Portents &amp; Fortunes</span>
+<a href="../character/index.html">‹ Norikage</a>
+<span class="spacer"></span>
+<a href="../map/index.html">Map</a>
+<a href="../index.html">Home</a>
+</div>
+<main id="sheet"></main>
+
+<script id="sheet-data" type="application/json">
+{
+  "id": "norikage",
+  "name": "Togashi Norikage",
+  "clan": "Dragon",
+  "family": "Togashi",
+  "school": "Togashi Tattooed Order",
+  "role": "Monk",
+  "rank": 1,
+  "portrait": "../assets/norikage.webp",
+  "rings": { "air": 1, "earth": 3, "fire": 2, "water": 1, "void": 3 },
+  "deficiency": "fire",
+  "derived": { "endurance": 10, "composure": 8, "focus": 3, "vigilance": 1 },
+  "trackers": { "strife": { "max": 8 }, "fatigue": { "max": 10 }, "void": { "max": 3 } },
+  "stance": "void",
+  "social": { "honor": 55, "glory": 50, "status": 30 },
+  "skills": { "fitness": 3, "meditation": 2, "theology": 2, "unarmed": 1, "courtesy": 1 },
+  "bushido": { "paramount": "Sincerity", "less": "Duty" },
+  "ninjo": "To study theology with the Phoenix. They seem to understand what is happening with the elemental imbalance.",
+  "giri": "Eyes and ears for his lord — a Togashi abbot who has posted him to a shrinking village to watch the samurai depopulating it. (The sheet's original field named Togashi Oharu, provincial daimyō; that posting has since changed.)",
+  "money": "150 zeni · starting wealth 3 koku",
+  "techniques": [
+    {
+      "name": "Blood of the Kami",
+      "tag": "School Ability",
+      "ring": "void",
+      "text": "You have one mystical tattoo that empowers your kihō, and gain more as your school rank increases. When you make a check to activate a kihō linked to one of your mystical tattoos, if you succeed, add additional bonus successes equal to your school rank.\n\nSelect a natural motif for your first tattoo and choose one kihō for which you meet the prerequisites that are linked to the tattoo. If you have not learned it, you learn that kihō (without paying its XP cost). You cannot choose the same kihō multiple times this way.\n\nEach time your school rank increases, you gain one additional tattoo this way."
+    },
+    {
+      "name": "Earth Needs No Eyes",
+      "tag": "Kihō",
+      "ring": "earth",
+      "text": "The monk who waits and listens sees much, even without eyes. Sending out waves of their own energy and letting the ki of the life around them flow back into their body through the ground, the monk feels the reverberations of everything moving nearby, from the thunderous breaths of a warrior in battle to the footsteps of the tiniest ants.\n\nActivation: As a Support action, you may activate this kihō. When you do so, you may make a TN 1 Meditation (earth) check to gain an awareness of your surroundings.\n\nEnhancement Effect: If you succeed, this kihō activates. While this kihō is active, you can use vibrations through the earth to “see” a number of range bands in all directions equal to your Earth Ring. While this kihō is active, increase your vigilance by your Earth Ring.\n\nBurst Effect: If you succeed with three or more bonus successes, you instantly become aware of all living creatures and objects touching the ground within a number of range bands equal to your Earth Ring plus your bonus successes."
+    },
+    {
+      "name": "Lord Togashi’s Insight",
+      "tag": "Shūji",
+      "ring": "void",
+      "text": "The enigmatic Kami Togashi was said to have the ability to see the future, by which provenance he excused himself from the Tournament of the Kami. Occasionally he appears to his descendants, the members of the Dragon Clan, in flashes of visions or sudden, unexplained bursts of insight. Whether those who hear the voice of Togashi himself are truly in contact with their progenitor, channeling his essence across the ages, or are letting their imaginations run a bit too wild is a topic of discussion among the Dragon’s scholars.\n\nActivation: Once per game session as an action, you may make a TN 2 Meditation (void) check to seek cosmic wisdom regarding a quandary in front of you.\n\nEffects: If you succeed, you receive a brief vision or hear the voice of Togashi providing a hint regarding one way you might proceed (which the GM should furnish). This hint should not be the full answer, but it should help you move forward toward a solution or at least formulate a plan of action.\n\nNew Opportunities (void): Reduce the TN of your first check to overcome the problem you are facing by your school rank (to a minimum of 1)."
+    }
+  ],
+  "peculiarities": [
+    {
+      "name": "Portentous Birth",
+      "tag": "Distinction",
+      "ring": "fire",
+      "text": "The following apply to a character with the Portentous Birth distinction:\n\n• You are known among your clan or family group to have been born under blessed circumstances or have had some sort of mark or other indication of greatness bestowed upon you by the Heavens. When you interact with someone who knows of your portentous birth and believes in its power, they treat you favorably and may be inclined to give you special privileges as long as you do not give them a reason to treat you otherwise.\n\n• When performing a check for which your fortuitous birth is an asset (such as a Composition (fire) check to craft a clever request to someone who believes in the legacy of your birth or a Theology (fire) check to theorize about an omen), you may reroll up to two dice."
+    },
+    {
+      "name": "Affect of Harmlessness",
+      "tag": "Distinction",
+      "ring": "air",
+      "text": "The following apply to a character with the Affect of Harmlessness distinction:\n\n• You appear earnest and perhaps a bit hapless, and your flaws generally come off as charming, at least at first glance. Additionally, people tend to underestimate you, and this works to your benefit.\n\n• When performing a check to ingratiate yourself with a stranger (such as a Courtesy (air) check to be pleasant to someone of higher social status or a Performance (air) check to conceal your true intentions toward a social equal), you may reroll up to two dice."
+    },
+    {
+      "name": "Brushwork",
+      "tag": "Passion",
+      "ring": "air",
+      "text": "The following apply to a character with the Brushwork passion:\n\n• You can identify the signature styles of numerous different schools and individual artists, as well as common motifs and techniques.\n\n• After performing a check to study or practice brushwork (such as an Aesthetics (air) check to assess a painting’s qualities and artist or a Composition (air) check to add the finishing touches to a letter written in calligraphy), you remove 3 strife."
+    },
+    {
+      "name": "Elemental Deficiency (Fire)",
+      "tag": "Adversity",
+      "ring": "fire",
+      "text": "The following apply to a character with the Elemental Deficiency (Fire) adversity:\n\n• For one reason or another, you lack a fundamental connection with the element of Fire. You tend to have trouble in areas associated with the element, and you have a very poor relationship with fire kami.\n\n• When performing a check to align yourself with the element of Fire or interact with fire kami (such as a Theology [Fire] check to invoke the kami or a Performance [Fire] check to expound upon complex theories), you must choose and reroll two dice containing (su) or (ex). After resolving the check, if you failed, you gain 1 Void point."
+    },
+    {
+      "name": "Tip of the Tongue",
+      "tag": "Anxiety",
+      "ring": "air",
+      "text": "The following apply to a character with the Tip of the Tongue anxiety:\n\n• You know more than one language, perhaps several, and are fluent in all of them. So fluent that your mind mixes and matches words from all of them. While it does not hinder you socially, you find this frustrating when you cannot come up with that word you definitely know.\n\n• After performing a check to communicate that requires you to bridge cultural, religious, philosophical, or regional differences (such as a Courtesy (air) check to use veiled wordplay or metaphors to smooth out a dispute between the samurai and bonge or a Theology (air) check to explain an equivalent religious idea from another culture), you receive 3 strife. If this is the first time this has occurred this scene, you gain 1 Void point."
+    }
+  ],
+  "gear": [
+    { "name": "Bō", "kind": "Weapon", "category": "Polearms", "damage": 6, "deadliness": 2, "rarity": 2, "text": "The bō, a humble staff, is a versatile weapon found throughout Rokugan. Roughly six feet long and made from sturdy hardwood, it is carried by travelers who need both a walking stick and an inconspicuous weapon." },
+    { "name": "Common Clothes", "kind": "Armour", "rarity": 1, "text": "Rokugani clothing runs the gamut from the simple trousers and smocks worn by peasants, to the broad-shouldered haori worn by traditionalist samurai, to the noble’s embroidered silk kimono." },
+    { "name": "Traveling Pack", "kind": "Item", "rarity": 1, "text": "Blanket, bowl, chopsticks, four days of travel rations, flint and tinder, and any three other items of the player’s choice that are rarity 4 or lower." },
+    { "name": "Jade Tadpole", "kind": "Item", "rarity": 0, "text": "A small charm carried since childhood — a gift from the priest who attended his birth." },
+    { "name": "Left Green Armband-sash", "kind": "Item", "rarity": 0, "text": "A green sash worn on the left arm. Its meaning is not yet recorded." }
+  ]
+}
+</script>
+<script>window.SHEET = JSON.parse(document.getElementById("sheet-data").textContent);</script>
+<script src="sheet.js"></script>
+</body>
+</html>
