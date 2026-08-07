@@ -14,6 +14,21 @@
 .play-bar a:hover{ color:#fff; }
 .play-bar .spacer{ flex:1; }
 
+/* version / session picker */
+.ver-picker{ display:inline-flex; align-items:center; gap:0.4rem; }
+.ver-picker .ver-label{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.12em; font-size:0.68rem; color:var(--gold-lit); }
+.ver-picker select{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.78rem; color:#f2e9d4; background:rgba(255,255,255,0.06); border:1px solid var(--gold-soft); border-radius:4px; padding:0.2rem 0.5rem; cursor:pointer; }
+.ver-picker select:hover{ border-color:var(--crimson); }
+
+/* read-only snapshot */
+.ro-banner{ display:flex; gap:0.8rem; align-items:flex-start; background:rgba(154,123,63,0.14); border:1px solid var(--gold-soft); border-left:3px solid var(--gold); border-radius:4px; padding:0.8rem 1rem; margin:0 0 1.2rem; color:var(--ink-2); font-size:0.96rem; line-height:1.5; }
+.ro-banner .seal{ font-size:1.4rem; color:var(--gold); line-height:1; }
+.ro-banner b{ color:var(--sumi); }
+#sheet.readonly .pips{ pointer-events:none; }
+#sheet.readonly .pip{ cursor:default; }
+#sheet.readonly .ring, #sheet.readonly .skrow, #sheet.readonly .stbtn{ cursor:default; }
+#sheet.readonly .sh-head::after{ content:"archived"; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.16em; font-size:0.6rem; color:var(--gold); align-self:flex-start; }
+
 #sheet{ max-width:1120px; margin:0 auto; padding:1.4rem clamp(1rem,4vw,2.4rem); }
 
 /* header */

@@ -4,10 +4,24 @@
    ============================================================ */
 (function () {
   "use strict";
-  var S = window.SHEET;
-  if (!S) return;
+  var CURRENT = window.SHEET;
+  if (!CURRENT) return;
+  var S = CURRENT;                       // active version's data (reassigned when viewing history)
   var root = document.getElementById("sheet");
-  var LSKEY = "pf-sheet-" + (S.id || "pc");
+  var LSKEY = "pf-sheet-" + (CURRENT.id || "pc");
+
+  // ---- version registry: a time-series of character sheets ----
+  // The live sheet is always "current". window.SHEET_HISTORY (optional) holds
+  // read-only snapshots of prior sessions, each SHEET-shaped, e.g.:
+  //   { id, label, date, data:{ ...rings/skills/techniques/…, state:{strife,fatigue,void,stance} } }
+  var VERSIONS = [{ id:"current", label:"Current", live:true, data:CURRENT }];
+  (window.SHEET_HISTORY||[]).forEach(function(h){
+    VERSIONS.push({ id:h.id, label:h.label||h.id, date:h.date||"", live:false, data:h.data||{} });
+  });
+  var curView = "current";   // id of the version being shown
+  var RO = false;            // read-only (a past snapshot is being viewed)
+  var SNAP = null;           // snapshot's recorded tracker state while RO
+  function verById(id){ for(var i=0;i<VERSIONS.length;i++){ if(VERSIONS[i].id===id) return VERSIONS[i]; } return null; }
 
   // ---- dice faces (face index 0 == pip 1) ----
   var RING_FACES = [
@@ -40,7 +54,8 @@
              inConflict:false, conflictType:"skirmish", oppTable:"general" };
   var L5RD = window.L5R || {stances:{},conflicts:{},opportunities:{},oppTables:[],techniqueOpportunities:[]};
   try { var saved = JSON.parse(localStorage.getItem(LSKEY)); if (saved) Object.assign(st, saved); } catch(e){}
-  function save(){ try { localStorage.setItem(LSKEY, JSON.stringify(st)); } catch(e){} }
+  function save(){ if(RO) return; try { localStorage.setItem(LSKEY, JSON.stringify(st)); } catch(e){} }
+  function trkVal(key){ return RO ? ((SNAP&&SNAP[key])||0) : (st[key]||0); }
 
   function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
   function el(tag, cls, html){ var e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; }
@@ -56,6 +71,7 @@
   // ---- build the sheet ----
   function render(){
     root.innerHTML="";
+    root.classList.toggle("readonly", RO);
 
     // header
     var head = el("div","sh-head");
@@ -73,8 +89,13 @@
     var mon=el("img","sh-mon"); mon.src="../assets/mon/"+S.clan.toLowerCase()+".svg"; mon.alt=S.clan+" mon"; head.appendChild(mon);
     root.appendChild(head);
 
-    // Roll & Keep — collapsed by default, at the top of the sheet
-    root.appendChild(buildRoller());
+    if(RO){
+      var v=verById(curView);
+      root.appendChild(el("div","ro-banner","<span class='seal'>&#9719;</span><div><b>Read-only.</b> Viewing "+(v?v.label:"a past session")+(v&&v.date?" &middot; "+v.date:"")+" — a snapshot from an earlier session. Switch the sheet selector to <em>Current</em> to make changes.</div>"));
+    } else {
+      // Roll & Keep — collapsed by default, at the top of the sheet
+      root.appendChild(buildRoller());
+    }
 
     var grid = el("div","sh-grid");
 
@@ -107,7 +128,7 @@
     grid.appendChild(cTrk);
 
     // --- Conflict (stances hidden until a conflict begins) ---
-    grid.appendChild(buildConflict());
+    if(!RO) grid.appendChild(buildConflict());
 
     // --- Skills ---
     var cSk = el("div","sh-card");
@@ -174,7 +195,7 @@
     var wrap=el("div","trk"); wrap.setAttribute("data-key",key);
     wrap.innerHTML="<div class='trk-top'><span class='trk-name'>"+name+" <span class='warn' data-warn></span></span><span class='trk-val'></span></div>";
     var pips=el("div","pips");
-    for(var i=1;i<=max;i++){ (function(n){ var p=el("div","pip"); p.addEventListener("click",function(){ st[key]=(st[key]===n?n-1:n); save(); syncTracker(key); }); pips.appendChild(p); })(i); }
+    for(var i=1;i<=max;i++){ (function(n){ var p=el("div","pip"); p.addEventListener("click",function(){ if(RO) return; st[key]=(st[key]===n?n-1:n); save(); syncTracker(key); }); pips.appendChild(p); })(i); }
     wrap.appendChild(pips);
     if(warnAt) wrap.appendChild(el("p","trk-note",warnAt));
     setTimeout(function(){ syncTracker(key); },0);
@@ -182,7 +203,7 @@
   }
   function syncTracker(key){
     var wrap=root.querySelector('.trk[data-key="'+key+'"]'); if(!wrap) return;
-    var v=st[key]||0;
+    var v=trkVal(key);
     wrap.querySelectorAll(".pip").forEach(function(p,i){ p.classList.toggle("on", i<v); });
     wrap.querySelector(".trk-val").textContent=v+" / "+wrap.querySelectorAll(".pip").length;
     var warn=wrap.querySelector("[data-warn]"); warn.textContent="";
@@ -457,5 +478,22 @@
     });
   }
 
+  // ---- version switching ----
+  function switchVersion(id){
+    var v=verById(id)||VERSIONS[0];
+    curView=v.id; RO=!v.live; S=v.data; SNAP = v.live ? null : (v.data.state||{});
+    buildVersionPicker();
+    render();
+  }
+  function buildVersionPicker(){
+    var host=document.getElementById("verPicker"); if(!host) return;
+    var s="<label class='ver-label'>Sheet</label><select id='verSel'"+(VERSIONS.length<=1?" title='Prior sessions appear here once recorded'":"")+">";
+    VERSIONS.forEach(function(v){ s+="<option value='"+v.id+"'"+(v.id===curView?" selected":"")+">"+v.label+(v.date?" · "+v.date:"")+"</option>"; });
+    s+="</select>";
+    host.innerHTML=s;
+    document.getElementById("verSel").addEventListener("change",function(){ switchVersion(this.value); });
+  }
+
+  buildVersionPicker();
   render();
 })();

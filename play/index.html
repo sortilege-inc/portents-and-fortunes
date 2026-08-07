@@ -13,6 +13,7 @@
 <div class="play-bar">
 <span class="brand">Portents &amp; Fortunes</span>
 <a href="../character/index.html">‹ Norikage</a>
+<span class="ver-picker" id="verPicker"></span>
 <span class="spacer"></span>
 <a href="../map/index.html">Map</a>
 <a href="../index.html">Home</a>
@@ -102,6 +103,19 @@
 }
 </script>
 <script>window.SHEET = JSON.parse(document.getElementById("sheet-data").textContent);</script>
+<!-- Time-series of character sheets. The live sheet above is always "Current".
+     Prior sessions are added here as read-only snapshots and appear in the sheet
+     selector in the top bar. Each snapshot is SHEET-shaped (its own rings, skills,
+     techniques, gear, honor/glory/status as they were that session) plus an optional
+     `state` for the recorded trackers. Example (leave empty until a session is recorded):
+
+     window.SHEET_HISTORY = [
+       { id:"s1", label:"Session 1", date:"2026-08-12",
+         data: { ...a full copy of the sheet as it stood after Session 1...,
+                 state:{ strife:2, fatigue:0, "void":3, stance:"void" } } }
+     ];
+-->
+<script>window.SHEET_HISTORY = window.SHEET_HISTORY || [];</script>
 <script src="l5rdata.js"></script>
 <script src="sheet.js"></script>
 </body>
