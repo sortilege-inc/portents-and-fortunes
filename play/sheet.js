@@ -314,6 +314,7 @@
   var pool=[];       // die objects: {type,key,su,ex,op,st,kept,bonus,explodedDone}
   var curKeep=0;     // keep limit locked in at roll time
   var rollLogged=false;
+  var rollMeta=null; // full provenance of the current roll (for the log)
   var cfg={ assistSkill:0, assistRing:0, voidSpend:false };
 
   function buildRoller(){
@@ -446,6 +447,16 @@
     for(i=0;i<ringN()+extraRing;i++) pool.push(rollFace("ring"));
     for(i=0;i<skillN()+extraSkill;i++) pool.push(rollFace("skill"));
     curKeep = ringN() + cfg.assistRing + cfg.assistSkill + (spendVoid?1:0);
+    rollMeta = {
+      ring: st.ring, ringN: ringN(),
+      skillLabel: st.skill ? (SKILL_NAMES[st.skill]||cap(st.skill)) : null, skillN: skillN(),
+      assistSkill: cfg.assistSkill, assistRing: cfg.assistRing, voidSpent: spendVoid,
+      keepLimit: curKeep,
+      initial: pool.map(function(d){ return { type:d.type, key:d.key }; }),
+      events: [],
+      inConflict: !!st.inConflict, stance: st.inConflict ? st.stance : null,
+      conflictType: st.inConflict ? st.conflictType : null
+    };
     if(spendVoid){ st["void"]=Math.max(0,(st["void"]||0)-1); save(); syncTracker("void"); syncRoller(); }
     var vc=document.getElementById("rVoid"); if(vc) vc.checked=false; cfg.voidSpend=false;
     renderDice(); tally();
@@ -483,14 +494,17 @@
     renderDice(); tally();
   }
   function rerollDie(d){
+    var from=d.key;
     var f=rollFace(d.type);
     d.key=f.key; d.su=f.su; d.ex=f.ex; d.op=f.op; d.st=f.st; d.explodedDone=false;
+    if(rollMeta) rollMeta.events.push({ kind:"reroll", type:d.type, from:from, to:f.key });
     renderDice(); tally();
   }
   function explodeDie(d){
     d.explodedDone=true;
     var nd=rollFace(d.type); nd.bonus=true; nd.kept=true;
     pool.splice(pool.indexOf(d)+1,0,nd);
+    if(rollMeta) rollMeta.events.push({ kind:"explode", type:d.type, source:d.key, result:nd.key });
     renderDice(); tally();
   }
 
@@ -531,41 +545,86 @@
     if(RO) return;
     st.strife=Math.min(S.trackers.strife.max, (st.strife||0)+strifeAmt); save(); syncTracker("strife");
     var kept=pool.filter(function(d){ return d.kept; });
+    var keptBaseCount=kept.filter(function(d){ return !d.bonus; }).length;
+    var bonusKept=kept.filter(function(d){ return d.bonus; }).length;
     var noteEl=document.getElementById("rNote");
     var note=noteEl && noteEl.value ? noteEl.value.trim() : "";
+    var m=rollMeta||{};
     rollLog.unshift({
       n: rollLog.length+1,
       note: note,
-      ring: st.ring, ringN: ringN(),
-      skillLabel: st.skill ? (SKILL_NAMES[st.skill]||cap(st.skill)) : null,
+      ring: m.ring||st.ring, ringN: (m.ringN!=null?m.ringN:ringN()),
+      skillLabel: m.skillLabel!==undefined ? m.skillLabel : (st.skill?(SKILL_NAMES[st.skill]||cap(st.skill)):null),
+      skillN: m.skillN,
+      assistSkill: m.assistSkill||0, assistRing: m.assistRing||0, voidSpent: !!m.voidSpent,
+      keepLimit: (m.keepLimit!=null?m.keepLimit:curKeep),
+      keptBaseCount: keptBaseCount, bonusKept: bonusKept,
+      keptFewer: keptBaseCount < (m.keepLimit!=null?m.keepLimit:curKeep),
+      initial: m.initial||[], events: m.events||[],
       tn: tn, su: su, op: op, strifeRolled: stfRolled, strifeApplied: strifeAmt, pass: pass,
-      inConflict: !!st.inConflict, stance: st.inConflict ? st.stance : null,
+      inConflict: !!m.inConflict, stance: m.stance||null, conflictType: m.conflictType||null,
       kept: kept.map(function(d){ return { type:d.type, key:d.key, bonus:!!d.bonus }; }),
       when: nowStr()
     });
     saveLog();
-    if(noteEl) noteEl.value="";
-    rollLogged=true;
     updateLogCount();
     renderLog();
-    tally();
+    resetRoll();
+  }
+
+  // Clear the Roll & Keep interface for the next roll.
+  function resetRoll(){
+    pool=[]; rollMeta=null; rollLogged=false;
+    cfg={ assistSkill:0, assistRing:0, voidSpend:false };
+    var dice=document.getElementById("rDice"); if(dice) dice.innerHTML="";
+    var res=document.getElementById("rResult"); if(res){ res.classList.remove("show"); res.innerHTML=""; }
+    var note=document.getElementById("rNote"); if(note) note.value="";
+    var vc=document.getElementById("rVoid"); if(vc) vc.checked=false;
+    var tn=document.getElementById("rTN"); if(tn) tn.value="2";
+    document.querySelectorAll(".roller .stepper .st-val").forEach(function(v){ v.textContent="0"; });
+    syncRoller();
+    var sum=document.getElementById("rSummary"); if(sum) sum.innerHTML="✓ Roll kept &amp; logged — ready for the next.";
   }
 
   function updateLogCount(){ var e=document.getElementById("rLogCount"); if(e) e.textContent=rollLog.length?("("+rollLog.length+")"):""; }
+  function logDie(k){ return "<img class='logdie "+k.type+(k.bonus?" bonus":"")+"' src='../assets/dice/"+k.key+".svg' alt=''>"; }
+  function diceRow(list){ return (list||[]).map(function(k){ return logDie(k); }).join(""); }
   function renderLog(){
     var host=document.getElementById("rLog"); if(!host) return;
     if(!rollLog.length){ host.innerHTML="<p class='r-hint'>No rolls kept yet. Roll, then <b>Keep Results</b> to record one here.</p>"; return; }
     host.innerHTML="<div class='log-actions'><span class='r-summary'>"+rollLog.length+" recorded</span><button class='link-btn' id='logClear'>Clear log</button></div>";
     rollLog.forEach(function(e){
       var d=el("div","log-entry "+(e.pass?"pass":"fail"));
-      var dice=e.kept.map(function(k){ return "<img class='logdie "+k.type+(k.bonus?" bonus":"")+"' src='../assets/dice/"+k.key+".svg' alt=''>"; }).join("");
+
+      // config chips: keep, assist, void
+      var chips=[];
+      if(e.keepLimit!=null){
+        var kc="Kept "+(e.keptBaseCount!=null?e.keptBaseCount:(e.kept?e.kept.length:0))+" of "+e.keepLimit;
+        if(e.bonusKept) kc+=" +"+e.bonusKept+" bonus";
+        chips.push("<span class='logchip"+(e.keptFewer?" warn":"")+"'>"+kc+(e.keptFewer?" — fewer than allowed":"")+"</span>");
+      }
+      if(e.assistSkill) chips.push("<span class='logchip'>Assist +"+e.assistSkill+" skilled</span>");
+      if(e.assistRing) chips.push("<span class='logchip'>Assist +"+e.assistRing+" unskilled</span>");
+      if(e.voidSpent) chips.push("<span class='logchip void'>Void point spent</span>");
+      if(e.conflictType) chips.push("<span class='logchip'>"+cap(e.conflictType)+"</span>");
+
+      // reroll / explode events
+      var evRows="";
+      (e.events||[]).forEach(function(ev){
+        if(ev.kind==="reroll") evRows+="<div class='log-ev'><span class='ev-tag'>↻ reroll</span>"+logDie({type:ev.type,key:ev.from})+"<span class='ev-arrow'>→</span>"+logDie({type:ev.type,key:ev.to})+"</div>";
+        else if(ev.kind==="explode") evRows+="<div class='log-ev'><span class='ev-tag'>✦ explode</span>"+logDie({type:ev.type,key:ev.source})+"<span class='ev-arrow'>→</span>"+logDie({type:ev.type,key:ev.result,bonus:true})+"</div>";
+      });
+
       d.innerHTML=""
         +"<div class='log-head'><span class='log-verdict'>"+(e.pass?"Success":"Failure")+"</span>"
-        +"<span class='log-approach'>"+cap(e.ring)+" "+e.ringN+(e.skillLabel?" · "+e.skillLabel:"")+(e.stance?" · "+cap(e.stance)+" stance":"")+"</span>"
+        +"<span class='log-approach'>"+cap(e.ring)+" "+e.ringN+(e.skillLabel?" · "+e.skillLabel+(e.skillN!=null?" "+e.skillN:""):"")+(e.stance?" · "+cap(e.stance)+" stance":"")+"</span>"
         +(e.when?"<span class='log-when'>"+e.when+"</span>":"")+"</div>"
         +(e.note?"<div class='log-note'>"+escapeHTML(e.note)+"</div>":"")
-        +"<div class='log-dice'>"+dice+"</div>"
-        +"<div class='log-tally'>"+e.su+" vs TN "+e.tn+"  ·  <span class='sym op'>◈</span> "+e.op+"  ·  <span class='sym st'>▲</span> "+e.strifeApplied+" applied"+(e.strifeRolled!==e.strifeApplied?" (of "+e.strifeRolled+")":"")+"</div>";
+        +(chips.length?"<div class='log-chips'>"+chips.join("")+"</div>":"")
+        +(e.initial&&e.initial.length?"<div class='log-line'><span class='log-lbl'>Rolled</span><span class='log-dice'>"+diceRow(e.initial)+"</span></div>":"")
+        +(evRows?"<div class='log-events'>"+evRows+"</div>":"")
+        +"<div class='log-line'><span class='log-lbl'>Kept</span><span class='log-dice'>"+diceRow(e.kept)+"</span></div>"
+        +"<div class='log-tally'>"+e.su+" vs TN "+e.tn+"  ·  <span class='sym op'>◈</span> "+e.op+"  ·  <span class='sym st'>▲</span> "+e.strifeApplied+" applied"+(e.strifeRolled!==e.strifeApplied?" (of "+e.strifeRolled+" rolled)":"")+"</div>";
       host.appendChild(d);
     });
     var c=document.getElementById("logClear");

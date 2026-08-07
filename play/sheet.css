@@ -268,8 +268,18 @@
 .log-entry.pass .log-verdict{ color:#2f7d4a; } .log-entry.fail .log-verdict{ color:var(--crimson); }
 .log-approach{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.76rem; color:var(--ink-2); margin-right:auto; }
 .log-when{ font-size:0.74rem; color:var(--ink-soft); font-style:italic; }
-.log-dice{ display:flex; flex-wrap:wrap; gap:4px; margin:0.4rem 0; }
-.logdie{ width:30px; height:30px; border-radius:5px; padding:2px; }
+.log-chips{ display:flex; flex-wrap:wrap; gap:0.35rem; margin:0.4rem 0; }
+.logchip{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.05em; font-size:0.68rem; color:var(--ink-2); background:rgba(154,123,63,0.12); border:1px solid var(--gold-soft); border-radius:3px; padding:0.08rem 0.45rem; }
+.logchip.warn{ color:#8a3030; background:rgba(182,36,50,0.1); border-color:rgba(182,36,50,0.35); }
+.logchip.void{ color:#5a4a6e; background:rgba(90,74,110,0.12); border-color:rgba(90,74,110,0.4); }
+.log-line{ display:flex; align-items:center; gap:0.6rem; margin:0.3rem 0; }
+.log-lbl{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.08em; font-size:0.66rem; color:var(--ink-soft); min-width:3.4rem; flex-shrink:0; }
+.log-dice{ display:flex; flex-wrap:wrap; gap:4px; }
+.log-events{ margin:0.25rem 0 0.1rem; }
+.log-ev{ display:flex; align-items:center; gap:0.4rem; padding:0.12rem 0; }
+.ev-tag{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.05em; font-size:0.64rem; color:var(--crimson); min-width:5.2rem; }
+.ev-arrow{ color:var(--ink-soft); }
+.logdie{ width:28px; height:28px; border-radius:5px; padding:2px; }
 .logdie.ring{ background:#241a12; } .logdie.skill{ background:#f4ecd8; border:1px solid var(--edge); }
 .logdie.bonus{ box-shadow:0 0 0 2px var(--gold-lit); }
-.log-tally{ font-size:0.86rem; color:var(--ink-2); }
+.log-tally{ font-size:0.86rem; color:var(--ink-2); margin-top:0.3rem; }
