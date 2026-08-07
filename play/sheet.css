@@ -157,3 +157,64 @@
 .r-result .applybar{ margin-top:0.6rem; display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center; }
 .legend{ font-size:0.8rem; color:var(--ink-soft); margin-top:0.5rem; }
 .legend span{ margin-right:1rem; white-space:nowrap; }
+
+/* ---- collapsible roller ---- */
+.roller-toggle{ width:100%; display:flex; align-items:center; gap:0.7rem; background:none; border:0; cursor:pointer; padding:0; text-align:left; }
+.roller-toggle .rt-title{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.14em; font-size:1.05rem; color:var(--crimson); }
+.roller-toggle .rt-current{ font-family:var(--disp); font-style:italic; color:var(--ink-soft); font-size:1rem; margin-right:auto; }
+.rt-chevron{ font-size:0.9rem; color:var(--gold); transition:transform .18s; }
+.roller:not(.collapsed) .rt-chevron{ transform:rotate(90deg); }
+.roller.collapsed .roller-body{ display:none; }
+.roller-body{ margin-top:0.9rem; }
+.r-actions{ display:flex; flex-wrap:wrap; gap:0.6rem; align-items:center; margin:0.2rem 0 0.4rem; }
+.vchk{ display:inline-flex; align-items:center; gap:0.35rem; font-family:var(--serif); font-size:0.92rem; color:var(--ink); text-transform:none; letter-spacing:normal; cursor:pointer; }
+.vhave{ font-family:var(--disp); color:var(--ink-soft); font-style:italic; }
+
+/* ---- steppers ---- */
+.stepper{ display:inline-flex; align-items:center; gap:0.35rem; }
+.st-btn{ width:1.7rem; height:1.7rem; border:1px solid var(--edge); background:var(--paper); color:var(--crimson); border-radius:4px; font-size:1rem; line-height:1; cursor:pointer; }
+.st-btn:hover{ background:#fff; border-color:var(--crimson); }
+.st-val{ font-family:var(--disp); font-weight:700; font-size:1.1rem; min-width:1.1rem; text-align:center; color:var(--sumi); }
+
+/* ---- per-die controls ---- */
+.die-op{ position:absolute; top:1px; width:16px; height:16px; padding:0; border:0; border-radius:50%; font-size:0.66rem; line-height:14px; text-align:center; cursor:pointer; opacity:0; transition:opacity .12s; z-index:3; }
+.die:hover .die-op{ opacity:1; }
+.die-op.reroll{ right:1px; background:rgba(60,40,18,0.82); color:#f2e6cf; }
+.die-op.explode{ left:1px; background:var(--crimson); color:#fff; opacity:1; }
+.die.skill .die-op.reroll{ background:rgba(60,40,18,0.72); }
+.die.bonus{ box-shadow:0 0 0 2px var(--gold-lit); }
+.die.bonus::after{ content:"✦"; position:absolute; bottom:1px; left:3px; font-size:0.6rem; color:var(--gold); z-index:2; }
+
+/* ---- conflict card ---- */
+.conf-enter{ width:100%; }
+.conf-row{ display:flex; gap:0.7rem; align-items:flex-start; padding:0.5rem 0; border-bottom:1px solid var(--edge-soft); }
+.conf-row:last-of-type{ border-bottom:0; }
+.conf-label{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em; font-size:0.72rem; color:var(--crimson); min-width:5.2rem; flex-shrink:0; padding-top:0.3rem; }
+.conf-choices{ display:flex; flex-wrap:wrap; gap:0.4rem; }
+.conf-choice{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.78rem; font-weight:600; color:var(--ink); background:var(--paper); border:1px solid var(--edge); border-radius:4px; padding:0.28rem 0.6rem; cursor:pointer; }
+.conf-choice:hover{ border-color:var(--crimson); }
+.conf-choice.sel{ background:var(--crimson); color:#fff; border-color:var(--crimson-deep); }
+.conf-action{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.05em; font-size:0.74rem; color:var(--ink-2); background:rgba(154,123,63,0.14); border:1px solid var(--gold-soft); border-radius:3px; padding:0.16rem 0.5rem; }
+.stance-detail{ margin:0.5rem 0 0.2rem; padding:0.55rem 0.7rem; background:var(--crimson-soft); border-left:3px solid var(--crimson); border-radius:3px; font-size:0.92rem; color:var(--ink); }
+.conf-init{ display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem; }
+.conf-note{ font-size:0.8rem; color:var(--ink-soft); font-style:italic; }
+.link-btn{ margin-top:0.7rem; background:none; border:0; color:var(--crimson); font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em; font-size:0.74rem; cursor:pointer; padding:0; }
+.link-btn:hover{ text-decoration:underline; }
+
+/* ---- opportunity panel ---- */
+.opp-panel{ margin-top:0.8rem; border:1px solid var(--gold-soft); border-radius:5px; background:rgba(154,123,63,0.06); }
+.opp-toggle{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:0.6rem; background:none; border:0; cursor:pointer; padding:0.55rem 0.8rem; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em; font-size:0.82rem; color:var(--crimson); }
+.opp-panel:not(.collapsed) .opp-toggle .rt-chevron{ transform:rotate(90deg); }
+.opp-panel.collapsed .opp-body{ display:none; }
+.opp-body{ padding:0 0.8rem 0.8rem; }
+.opp-chips{ display:flex; flex-wrap:wrap; gap:0.35rem; margin-bottom:0.5rem; }
+.opp-chip{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.72rem; font-weight:600; color:var(--ink-2); background:var(--paper); border:1px solid var(--edge); border-radius:12px; padding:0.14rem 0.66rem; cursor:pointer; }
+.opp-chip:hover{ border-color:var(--crimson); }
+.opp-chip.sel{ background:var(--crimson); color:#fff; border-color:var(--crimson-deep); }
+.opp-ringnote{ font-size:0.82rem; color:var(--ink-soft); font-style:italic; margin-bottom:0.5rem; }
+.opp-group{ margin-bottom:0.7rem; padding:0.4rem 0.6rem; border-radius:4px; border:1px solid transparent; }
+.opp-group.hi{ background:var(--crimson-soft); border-color:rgba(182,36,50,0.28); }
+.opp-gl{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em; font-size:0.72rem; color:var(--gold); margin-bottom:0.25rem; }
+.opp-group.hi .opp-gl{ color:var(--crimson); }
+.opp-item{ font-size:0.9rem; color:var(--ink-2); padding:0.2rem 0; border-top:1px solid var(--edge-soft); }
+.opp-item:first-of-type{ border-top:0; }

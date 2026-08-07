@@ -35,7 +35,9 @@
   var SKILL_NAMES = { unarmed:"Martial Arts [Unarmed]", melee:"Martial Arts [Melee]", ranged:"Martial Arts [Ranged]" };
 
   // ---- persisted state ----
-  var st = { strife:0, fatigue:0, "void":0, stance:S.stance||"void", ring:"earth", skill:null };
+  var st = { strife:0, fatigue:0, "void":0, stance:S.stance||"void", ring:"earth", skill:null,
+             inConflict:false, conflictType:"skirmish", oppTable:"general" };
+  var L5RD = window.L5R || {stances:{},conflicts:{},opportunities:{},oppTables:[],techniqueOpportunities:[]};
   try { var saved = JSON.parse(localStorage.getItem(LSKEY)); if (saved) Object.assign(st, saved); } catch(e){}
   function save(){ try { localStorage.setItem(LSKEY, JSON.stringify(st)); } catch(e){} }
 
@@ -70,6 +72,9 @@
     var mon=el("img","sh-mon"); mon.src="../assets/mon/"+S.clan.toLowerCase()+".svg"; mon.alt=S.clan+" mon"; head.appendChild(mon);
     root.appendChild(head);
 
+    // Roll & Keep — collapsed by default, at the top of the sheet
+    root.appendChild(buildRoller());
+
     var grid = el("div","sh-grid");
 
     // --- Rings + derived ---
@@ -98,18 +103,10 @@
     cTrk.appendChild(tracker("strife","Strife",S.trackers.strife.max,S.derived.composure,"Compromised at "+S.derived.composure));
     cTrk.appendChild(tracker("fatigue","Fatigue",S.trackers.fatigue.max,S.derived.endurance,"Incapacitated at "+S.derived.endurance));
     cTrk.appendChild(tracker("void","Void Points",S.trackers["void"].max,null,null));
-    // stance
-    cTrk.appendChild(el("h2",null,"Stance"));
-    var stances = el("div","stances");
-    RINGS.forEach(function(r){
-      var b=el("button","stbtn"+(st.stance===r?" sel":""),cap(r));
-      b.setAttribute("data-stance",r);
-      b.addEventListener("click",function(){ st.stance=r; save(); syncStance(); });
-      stances.appendChild(b);
-    });
-    cTrk.appendChild(stances);
-    cTrk.appendChild(el("p","stance-note","Your stance sets the ring you roll with in a conflict. In <b>Void</b> stance you take no strife from ▲ on kept dice."));
     grid.appendChild(cTrk);
+
+    // --- Conflict (stances hidden until a conflict begins) ---
+    grid.appendChild(buildConflict());
 
     // --- Skills ---
     var cSk = el("div","sh-card");
@@ -170,9 +167,6 @@
     grid.appendChild(cMot);
 
     root.appendChild(grid);
-
-    // --- Roller (full width) ---
-    root.appendChild(buildRoller());
   }
 
   function tracker(key,name,max,limit,warnAt){
@@ -207,101 +201,256 @@
   function syncSkill(){ root.querySelectorAll(".skrow").forEach(function(r){ r.classList.toggle("sel", r.getAttribute("data-skill")===st.skill); }); }
   function syncStance(){ root.querySelectorAll(".stbtn").forEach(function(b){ b.classList.toggle("sel", b.getAttribute("data-stance")===st.stance); }); }
 
+  // ===================== CONFLICT =====================
+  function buildConflict(){
+    var c=el("div","sh-card conflict-card");
+    c.appendChild(el("h2",null,"Conflict"));
+    var body=el("div","conflict-body");
+    c.appendChild(body);
+    setTimeout(function(){ renderConflict(body); },0);
+    return c;
+  }
+  function confRow(label,node){
+    var r=el("div","conf-row"); r.appendChild(el("div","conf-label",label)); r.appendChild(node); return r;
+  }
+  function renderConflict(body){
+    body.innerHTML="";
+    if(!st.inConflict){
+      var enter=el("button","roll-btn conf-enter","⚔ Enter Conflict");
+      enter.addEventListener("click",function(){ st.inConflict=true; st.conflictType=st.conflictType||"skirmish"; save(); renderConflict(body); syncRoller(); });
+      body.appendChild(enter);
+      body.appendChild(el("p","stance-note","Conflict type, stances, initiative, and available actions appear once a conflict begins."));
+      return;
+    }
+    // conflict type
+    var typeWrap=el("div","conf-choices");
+    Object.keys(L5RD.conflicts).forEach(function(k){
+      var b=el("button","conf-choice"+(st.conflictType===k?" sel":""),L5RD.conflicts[k].name);
+      b.addEventListener("click",function(){ st.conflictType=k; save(); renderConflict(body); });
+      typeWrap.appendChild(b);
+    });
+    body.appendChild(confRow("Type",typeWrap));
+    var conf=L5RD.conflicts[st.conflictType]||{actions:[],initSkill:"—"};
+    // stance
+    var stWrap=el("div","stances");
+    RINGS.forEach(function(r){
+      var b=el("button","stbtn"+(st.stance===r?" sel":""),cap(r));
+      b.setAttribute("data-stance",r);
+      b.addEventListener("click",function(){ st.stance=r; st.ring=r; save(); renderConflict(body); syncRing(); syncRoller(); });
+      stWrap.appendChild(b);
+    });
+    body.appendChild(confRow("Stance",stWrap));
+    if(st.stance && L5RD.stances[st.stance]){
+      body.appendChild(el("div","stance-detail","<b>"+L5RD.stances[st.stance].name+".</b> "+L5RD.stances[st.stance].text));
+    }
+    // initiative
+    var initWrap=el("div","conf-init");
+    var initBtn=el("button","roll-btn ghost","Roll Initiative");
+    initBtn.addEventListener("click",function(){ rollInitiative(conf); });
+    initWrap.appendChild(initBtn);
+    initWrap.appendChild(el("span","conf-note","TN 1 · "+conf.initSkill+" · any ring — order by bonus successes, ties: lowest honor first"));
+    body.appendChild(confRow("Initiative",initWrap));
+    // actions
+    var actWrap=el("div","conf-choices actions");
+    conf.actions.forEach(function(a){ actWrap.appendChild(el("span","conf-action",a)); });
+    body.appendChild(confRow("Actions",actWrap));
+    // end
+    var end=el("button","link-btn","End conflict");
+    end.addEventListener("click",function(){ st.inConflict=false; save(); renderConflict(body); syncRoller(); });
+    body.appendChild(end);
+  }
+  function rollInitiative(conf){
+    var key=conf.initSkill.toLowerCase();
+    st.skill=key; save(); syncSkill();
+    var rc=document.getElementById("rollerCard"); if(rc) rc.classList.remove("collapsed");
+    var tn=document.getElementById("rTN"); if(tn) tn.value=1;
+    syncRoller(); doRoll();
+    if(rc) rc.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+
   // ===================== ROLLER =====================
-  var pool=[], keepLimit=0;
+  // Roll & Keep, played by the rules: the player keeps dice (nothing is kept
+  // automatically), chooses whether to explode kept (ex) dice, may reroll dice
+  // for advantages/disadvantages, add Assistance dice, or spend a Void point.
+  var pool=[];       // die objects: {type,key,su,ex,op,st,kept,bonus,explodedDone}
+  var curKeep=0;     // keep limit locked in at roll time
+  var cfg={ assistSkill:0, assistRing:0, voidSpend:false };
+
   function buildRoller(){
-    var c=el("div","sh-card span2 roller");
+    var c=el("div","sh-card span2 roller collapsed"); c.id="rollerCard";
     c.innerHTML=""
-      +"<h2>Roll &amp; Keep</h2>"
-      +"<div class='r-controls'>"
-      +"  <div class='r-field'><label>Ring</label><span class='r-pick' id='rRing'></span></div>"
-      +"  <div class='r-field'><label>Skill</label><span class='r-pick' id='rSkill'></span></div>"
-      +"  <div class='r-field r-tn'><label>TN</label><input id='rTN' type='number' min='0' value='2'></div>"
-      +"  <button class='roll-btn' id='rRoll'>Assemble &amp; Roll</button>"
-      +"  <button class='roll-btn ghost' id='rClear'>Clear</button>"
-      +"  <span class='r-summary' id='rSummary'></span>"
-      +"</div>"
-      +"<p class='r-hint' id='rHint'>Choose a ring and a skill above (or here), then roll. Keep up to your ring in dice — click dice to change what you keep.</p>"
-      +"<div class='dice-row' id='rDice'></div>"
-      +"<div class='r-result' id='rResult'></div>"
-      +"<p class='legend'><span>Dark <b>d6</b> = Ring die</span><span>Light <b>d12</b> = Skill die</span><span>✦ = exploded (rolled again)</span><span>Keep up to your Ring; successes meet the TN, ▲ strife accrues.</span></p>";
+      +"<button class='roller-toggle' id='rollerToggle' aria-expanded='false'>"
+      +"  <span class='rt-title'>Roll &amp; Keep</span>"
+      +"  <span class='rt-current' id='rtCurrent'></span>"
+      +"  <span class='rt-chevron'>&#9656;</span>"
+      +"</button>"
+      +"<div class='roller-body' id='rollerBody'>"
+      +"  <div class='r-controls'>"
+      +"    <div class='r-field'><label>Ring</label><span class='r-pick' id='rRing'></span></div>"
+      +"    <div class='r-field'><label>Skill</label><span class='r-pick' id='rSkill'></span></div>"
+      +"    <div class='r-field r-tn'><label>TN</label><input id='rTN' type='number' min='0' value='2'></div>"
+      +"    <div class='r-field'><label>Assist &mdash; skilled</label><span class='stepper' data-cfg='assistSkill'></span></div>"
+      +"    <div class='r-field'><label>Assist &mdash; unskilled</label><span class='stepper' data-cfg='assistRing'></span></div>"
+      +"    <div class='r-field'><label>Void <span id='rVoidHave' class='vhave'></span></label><label class='vchk'><input type='checkbox' id='rVoid'> Seize the Moment</label></div>"
+      +"  </div>"
+      +"  <div class='r-actions'><button class='roll-btn' id='rRoll'>Assemble &amp; Roll</button><button class='roll-btn ghost' id='rClear'>Clear</button><span class='r-summary' id='rSummary'></span></div>"
+      +"  <p class='r-hint'><b>Click dice to keep</b> &mdash; nothing is kept for you. <b>&#8635;</b> rerolls a die (for advantages or disadvantages). A kept <b>explosive</b> (&#10057;) die shows an explode button to roll a bonus die, which you may keep or drop.</p>"
+      +"  <div class='dice-row' id='rDice'></div>"
+      +"  <div class='r-result' id='rResult'></div>"
+      +"  <div class='opp-panel collapsed' id='oppPanel'>"
+      +"    <button class='opp-toggle' id='oppToggle'><span>Opportunity spends (&#9672;)</span><span class='rt-chevron'>&#9656;</span></button>"
+      +"    <div class='opp-body' id='oppBody'></div>"
+      +"  </div>"
+      +"  <p class='legend'><span>Dark <b>d6</b> = Ring die</span><span>Light <b>d12</b> = Skill die</span><span>Assist / Void add a die <em>and</em> a keep; Void spends a point.</span></p>"
+      +"</div>";
     setTimeout(function(){
+      c.querySelector("#rollerToggle").addEventListener("click",function(){
+        var open=!c.classList.toggle("collapsed");
+        this.setAttribute("aria-expanded", open?"true":"false");
+      });
+      buildStepper(c.querySelector("[data-cfg='assistSkill']"),"assistSkill");
+      buildStepper(c.querySelector("[data-cfg='assistRing']"),"assistRing");
       c.querySelector("#rRoll").addEventListener("click",doRoll);
-      c.querySelector("#rClear").addEventListener("click",function(){ pool=[]; renderDice(); document.getElementById("rResult").classList.remove("show"); });
+      c.querySelector("#rClear").addEventListener("click",clearRoll);
+      c.querySelector("#rVoid").addEventListener("change",function(){ cfg.voidSpend=this.checked; });
+      c.querySelector("#rTN").addEventListener("input",function(){ if(pool.length) tally(); });
+      c.querySelector("#oppToggle").addEventListener("click",function(){ document.getElementById("oppPanel").classList.toggle("collapsed"); });
       syncRoller();
+      renderOpp();
     },0);
     return c;
   }
-  function ringN(){ return S.rings[st.ring]||0; }
-  function skillN(){ return st.skill?(S.skills[st.skill]||0):0; }
-  function syncRoller(){
-    var rr=document.getElementById("rRing"), rs=document.getElementById("rSkill"), sum=document.getElementById("rSummary");
-    if(!rr) return;
-    rr.textContent=cap(st.ring)+" "+ringN();
-    rs.textContent=st.skill?((SKILL_NAMES[st.skill]||cap(st.skill))+" "+skillN()):"— none —";
-    sum.innerHTML="Pool <b>"+(ringN()+skillN())+"</b> dice · keep up to <b>"+ringN()+"</b>";
-  }
-  function rollFace(type){
-    var faces=type==="ring"?RING_FACES:SKILL_FACES;
-    var i=Math.floor(Math.random()*faces.length);
-    return Object.assign({type:type,kept:false,exploded:false}, faces[i]);
-  }
-  function doRoll(){
-    pool=[];
-    var i;
-    for(i=0;i<ringN();i++) pool.push(rollFace("ring"));
-    for(i=0;i<skillN();i++) pool.push(rollFace("skill"));
-    // resolve explosions (chain)
-    var q=pool.slice();
-    while(q.length){
-      var d=q.shift();
-      var ex=d.ex||0;
-      for(var k=0;k<ex;k++){ var nd=rollFace(d.type); nd.exploded=true; pool.push(nd); q.push(nd); }
-    }
-    autoKeep();
-    renderDice();
-    tally();
-  }
-  function autoKeep(){
-    pool.forEach(function(d){ d.kept=false; });
-    var order=pool.slice().sort(function(a,b){
-      return succ(b)-succ(a) || (a.st||0)-(b.st||0) || (b.op||0)-(a.op||0);
+
+  function renderOpp(){
+    var body=document.getElementById("oppBody"); if(!body) return;
+    if(!L5RD.oppTables.length){ body.innerHTML=""; return; }
+    st.oppTable = st.oppTable || "general";
+    body.innerHTML="";
+    var chips=el("div","opp-chips");
+    L5RD.oppTables.forEach(function(t){
+      var b=el("button","opp-chip"+(st.oppTable===t[0]?" sel":""),t[1]);
+      b.addEventListener("click",function(){ st.oppTable=t[0]; save(); renderOpp(); });
+      chips.appendChild(b);
     });
-    order.slice(0,ringN()).forEach(function(d){ d.kept=true; });
+    body.appendChild(chips);
+    body.appendChild(el("div","opp-ringnote","Your approach is <b>"+cap(st.ring)+"</b> — matching spends are highlighted. Spend (&#9672;) opportunity from your kept dice."));
+    var table=L5RD.opportunities[st.oppTable]||{};
+    var list=el("div","opp-list");
+    if(table.any) list.appendChild(oppGroup("Any approach", table.any, false, false));
+    RINGS.forEach(function(r){ if(table[r]) list.appendChild(oppGroup(cap(r), table[r], r===st.ring, false)); });
+    var techs=(L5RD.techniqueOpportunities||[]).filter(function(t){ return t.ring===st.ring; });
+    if(techs.length) list.appendChild(oppGroup("From your techniques", techs.map(function(t){ return "<b>"+t.name+":</b> "+t.text; }), true, true));
+    body.appendChild(list);
   }
-  function keptCount(){ return pool.filter(function(d){return d.kept;}).length; }
-  function renderDice(){
-    var row=document.getElementById("rDice"); row.innerHTML="";
-    if(!pool.length) return;
-    ["ring","skill"].forEach(function(type){
-      var group=pool.filter(function(d){return d.type===type;});
-      if(!group.length) return;
-      row.appendChild(el("div","dice-group-label",(type==="ring"?"Ring Dice (d6)":"Skill Dice (d12)")));
-      group.forEach(function(d){
-        var die=el("div","die "+type+(d.kept?" kept":"")+(d.exploded?" exploded":""));
-        die.innerHTML="<img class='face' src='../assets/dice/"+d.key+".svg' alt=''><span class='dtype'>"+(type==="ring"?"d6":"d12")+"</span>";
-        die.title=faceTitle(d);
-        die.addEventListener("click",function(){
-          if(!d.kept && keptCount()>=ringN()) return; // keep limit
-          d.kept=!d.kept; die.classList.toggle("kept",d.kept); tally();
-        });
-        row.appendChild(die);
+  function oppGroup(label,items,hi,rawHTML){
+    var g=el("div","opp-group"+(hi?" hi":""));
+    g.appendChild(el("div","opp-gl",label));
+    items.forEach(function(s){ var e=el("div","opp-item"); if(rawHTML) e.innerHTML=s; else e.textContent=s; g.appendChild(e); });
+    return g;
+  }
+
+  function buildStepper(host,key){
+    host.innerHTML="<button class='st-btn' data-d='-1' aria-label='decrease'>&minus;</button><span class='st-val'>0</span><button class='st-btn' data-d='1' aria-label='increase'>+</button>";
+    var val=host.querySelector(".st-val");
+    host.querySelectorAll(".st-btn").forEach(function(b){
+      b.addEventListener("click",function(){
+        cfg[key]=Math.max(0,Math.min(6,(cfg[key]||0)+parseInt(b.getAttribute("data-d"),10)));
+        val.textContent=cfg[key];
       });
     });
   }
+
+  function ringN(){ return S.rings[st.ring]||0; }
+  function skillN(){ return st.skill?(S.skills[st.skill]||0):0; }
+  function skillLabel(){ return st.skill?((SKILL_NAMES[st.skill]||cap(st.skill))+" "+skillN()):"— none —"; }
+  function syncRoller(){
+    var rr=document.getElementById("rRing"); if(!rr) return;
+    rr.textContent=cap(st.ring)+" "+ringN();
+    document.getElementById("rSkill").textContent=skillLabel();
+    var cur=document.getElementById("rtCurrent");
+    if(cur) cur.textContent=cap(st.ring)+" "+ringN()+(st.skill?"  ·  "+skillLabel():"");
+    var vh=document.getElementById("rVoidHave"); if(vh) vh.textContent="("+(st["void"]||0)+" held)";
+    var sum=document.getElementById("rSummary");
+    if(sum) sum.innerHTML="Base pool <b>"+(ringN()+skillN())+"</b> · keep <b>"+ringN()+"</b>";
+    renderOpp();
+  }
+
+  function rollFace(type){
+    var faces=type==="ring"?RING_FACES:SKILL_FACES;
+    var f=faces[Math.floor(Math.random()*faces.length)];
+    return { type:type, key:f.key, su:f.su||0, ex:f.ex||0, op:f.op||0, st:f.st||0, kept:false, bonus:false, explodedDone:false };
+  }
+
+  function doRoll(){
+    var spendVoid = cfg.voidSpend && (st["void"]||0)>=1;
+    var extraRing = cfg.assistRing + (spendVoid?1:0);
+    var extraSkill = cfg.assistSkill;
+    pool=[]; var i;
+    for(i=0;i<ringN()+extraRing;i++) pool.push(rollFace("ring"));
+    for(i=0;i<skillN()+extraSkill;i++) pool.push(rollFace("skill"));
+    curKeep = ringN() + cfg.assistRing + cfg.assistSkill + (spendVoid?1:0);
+    if(spendVoid){ st["void"]=Math.max(0,(st["void"]||0)-1); save(); syncTracker("void"); syncRoller(); }
+    var vc=document.getElementById("rVoid"); if(vc) vc.checked=false; cfg.voidSpend=false;
+    renderDice(); tally();
+  }
+  function clearRoll(){ pool=[]; renderDice(); document.getElementById("rResult").classList.remove("show"); }
+
+  function keptBase(){ return pool.filter(function(d){ return d.kept && !d.bonus; }).length; }
+
+  function renderDice(){
+    var row=document.getElementById("rDice"); row.innerHTML="";
+    if(!pool.length){ document.getElementById("rResult").classList.remove("show"); return; }
+    ["ring","skill"].forEach(function(type){
+      var group=pool.filter(function(d){ return d.type===type; });
+      if(!group.length) return;
+      row.appendChild(el("div","dice-group-label",(type==="ring"?"Ring Dice (d6)":"Skill Dice (d12)")));
+      group.forEach(function(d){ row.appendChild(makeDie(d)); });
+    });
+  }
+  function makeDie(d){
+    var die=el("div","die "+d.type+(d.kept?" kept":"")+(d.bonus?" bonus":""));
+    die.title=faceTitle(d);
+    var canExplode = d.kept && d.ex>0 && !d.explodedDone;
+    die.innerHTML="<img class='face' src='../assets/dice/"+d.key+".svg' alt=''>"
+      +"<span class='dtype'>"+(d.type==="ring"?"d6":"d12")+"</span>"
+      +"<button class='die-op reroll' title='Reroll this die'>&#8635;</button>"
+      +(canExplode?"<button class='die-op explode' title='Explode: roll a bonus die'>&#10057;</button>":"");
+    die.addEventListener("click",function(){ toggleKeep(d); });
+    die.querySelector(".reroll").addEventListener("click",function(e){ e.stopPropagation(); rerollDie(d); });
+    var ex=die.querySelector(".explode"); if(ex) ex.addEventListener("click",function(e){ e.stopPropagation(); explodeDie(d); });
+    return die;
+  }
+  function toggleKeep(d){
+    if(!d.kept && !d.bonus && keptBase()>=curKeep) return; // base keep limit
+    d.kept=!d.kept;
+    renderDice(); tally();
+  }
+  function rerollDie(d){
+    var f=rollFace(d.type);
+    d.key=f.key; d.su=f.su; d.ex=f.ex; d.op=f.op; d.st=f.st; d.explodedDone=false;
+    renderDice(); tally();
+  }
+  function explodeDie(d){
+    d.explodedDone=true;
+    var nd=rollFace(d.type); nd.bonus=true; nd.kept=true;
+    pool.splice(pool.indexOf(d)+1,0,nd);
+    renderDice(); tally();
+  }
+
   function tally(){
-    var kept=pool.filter(function(d){return d.kept;});
-    var su=0,op=0,stf=0;
-    kept.forEach(function(d){ su+=succ(d); op+=(d.op||0); stf+=(d.st||0); });
+    var kept=pool.filter(function(d){ return d.kept; });
+    var su=0,op=0,stf=0,bonusKept=0;
+    kept.forEach(function(d){ su+=d.su+d.ex; op+=d.op; stf+=d.st; if(d.bonus) bonusKept++; });
     var tn=parseInt(document.getElementById("rTN").value||"0",10);
     var res=document.getElementById("rResult");
     var pass=su>=tn;
-    var strifeApplied = st.stance==="void" ? 0 : stf;
+    var voidStance = st.inConflict && st.stance==="void";
+    var strifeApplied = voidStance ? 0 : stf;
     res.className="r-result show";
     res.innerHTML=""
-      +"<div class='verdict "+(pass?"pass":"fail")+"'>"+(pass?"Success":"Failure")+" — "+su+" vs TN "+tn+"</div>"
-      +"<div class='tallies'><span>Kept <b>"+kept.length+"/"+ringN()+"</b></span><span>Successes <b class='sym su' style='color:#3f8f5a'>"+su+"</b></span><span>Opportunity <b class='sym op' style='color:#c08a1e'>"+op+"</b></span><span>Strife <b class='sym st' style='color:#b0642a'>"+stf+"</b></span></div>"
-      +"<div class='applybar'><button class='roll-btn ghost' id='rApplyStrife'>Apply "+strifeApplied+" strife"+(st.stance==="void"&&stf>0?" (Void: 0)":"")+"</button><span class='r-summary'>"+(st.stance==="void"&&stf>0?"Void stance ignores ▲ on kept dice":"")+"</span></div>";
+      +"<div class='verdict "+(pass?"pass":"fail")+"'>"+(pass?"Success":"Failure")+" &mdash; "+su+" vs TN "+tn+"</div>"
+      +"<div class='tallies'><span>Kept <b>"+keptBase()+"/"+curKeep+"</b>"+(bonusKept?" <em>+"+bonusKept+" bonus</em>":"")+"</span><span>Successes <b class='sym su' style='color:#3f8f5a'>"+su+"</b></span><span>Opportunity <b class='sym op' style='color:#c08a1e'>"+op+"</b></span><span>Strife <b class='sym st' style='color:#b0642a'>"+stf+"</b></span></div>"
+      +"<div class='applybar'><button class='roll-btn ghost' id='rApplyStrife'>Apply "+strifeApplied+" strife"+(voidStance&&stf>0?" (Void stance: 0)":"")+"</button><span class='r-summary'>"+(voidStance&&stf>0?"Void stance ignores ▲ on kept dice":"")+"</span></div>";
     document.getElementById("rApplyStrife").addEventListener("click",function(){
       st.strife=Math.min(S.trackers.strife.max, (st.strife||0)+strifeApplied); save(); syncTracker("strife");
     });
