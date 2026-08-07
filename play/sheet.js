@@ -143,13 +143,13 @@
       der.appendChild(el("div","d","<span class='dl'>"+d[0]+"</span><span class='dv'>"+d[1]+"</span>"));
     });
     cRings.appendChild(der);
-    if (S.deficiency) cRings.appendChild(el("p","trk-note","▼ Elemental Deficiency ("+cap(S.deficiency)+")"));
     grid.appendChild(cRings);
 
     // --- Trackers ---
     var cTrk = el("div","sh-card trackers");
     cTrk.appendChild(el("h2",null,"Condition"));
     cTrk.appendChild(tracker("strife","Strife",S.trackers.strife.max,S.derived.composure,"Compromised at "+S.derived.composure));
+    cTrk.appendChild(buildStrifeButtons());
     cTrk.appendChild(tracker("fatigue","Fatigue",S.trackers.fatigue.max,S.derived.endurance,"Incapacitated at "+S.derived.endurance));
     cTrk.appendChild(tracker("void","Void Points",S.trackers["void"].max,null,null));
     cTrk.appendChild(buildConditions());
@@ -242,8 +242,12 @@
   function syncTracker(key){
     var wrap=root.querySelector('.trk[data-key="'+key+'"]'); if(!wrap) return;
     var v=trkVal(key);
-    wrap.querySelectorAll(".pip").forEach(function(p,i){ p.classList.toggle("on", i<v); });
-    wrap.querySelector(".trk-val").textContent=v+" / "+wrap.querySelectorAll(".pip").length;
+    var pips=wrap.querySelector(".pips");
+    var base=wrap.querySelectorAll(".pip:not(.overflow)").length;
+    wrap.querySelectorAll(".pip.overflow").forEach(function(p){ p.remove(); });   // clear old overflow
+    for(var j=base;j<v;j++){ pips.appendChild(el("div","pip overflow on")); }      // beyond-max strife/fatigue
+    wrap.querySelectorAll(".pip:not(.overflow)").forEach(function(p,i){ p.classList.toggle("on", i<v); });
+    wrap.querySelector(".trk-val").textContent=v+" / "+base+(v>base?" (over)":"");
     var warn=wrap.querySelector("[data-warn]"); warn.textContent="";
     if(key==="strife" && v>=S.derived.composure) warn.textContent="Compromised";
     if(key==="fatigue" && v>=S.derived.endurance) warn.textContent="Incapacitated";
@@ -260,6 +264,23 @@
   function syncRing(){ root.querySelectorAll(".ring").forEach(function(r){ r.classList.toggle("sel", r.getAttribute("data-ring")===st.ring); }); }
   function syncSkill(){ root.querySelectorAll(".skrow").forEach(function(r){ r.classList.toggle("sel", r.getAttribute("data-skill")===st.skill); }); }
   function syncStance(){ root.querySelectorAll(".stbtn").forEach(function(b){ b.classList.toggle("sel", b.getAttribute("data-stance")===st.stance); }); }
+
+  // ===================== STRIFE SHORTCUTS =====================
+  function buildStrifeButtons(){
+    var wrap=el("div","strife-btns");
+    (S.peculiarities||[]).filter(function(p){ return typeof p.strife==="number"; }).forEach(function(p){
+      var d=p.strife;
+      var b=el("button","strife-btn "+(d<0?"heal":"harm"), p.name+" ("+(d>0?"+":"")+d+" ▲)");
+      b.addEventListener("click",function(){
+        if(RO) return;
+        var from=st.strife||0, to=Math.max(0, from+d);   // no upper clamp — strife may exceed maximum
+        st.strife=to; save(); syncTracker("strife");
+        logEvent("strife", p.name+": Strife "+from+" → "+to, {attr:"strife", from:from, to:to, delta:to-from, source:p.name});
+      });
+      wrap.appendChild(b);
+    });
+    return wrap;
+  }
 
   // ===================== CONDITIONS =====================
   function buildConditions(){
@@ -441,7 +462,11 @@
   var rollLogged=false;
   var rollMeta=null; // full provenance of the current roll (for the log)
   var rollCtx=null;  // technique-activation context (source, Blood of the Kami, etc.)
+  var rrMode=null;   // active reroll mode (advantage/disadvantage/free) while marking dice
   var cfg={ assistSkill:0, assistRing:0, voidSpend:false };
+  var RRADV=(S.peculiarities||[]).filter(function(p){ return p.reroll; }).map(function(p){
+    return { id:p.name, label:p.name, approach:p.reroll.approach, max:p.reroll.max||2, successOnly:!!p.reroll.successOnly, mustMax:!!p.reroll.mustMax };
+  });
 
   function buildRoller(){
     var c=el("div","sh-card span2 roller collapsed"); c.id="rollerCard";
@@ -466,6 +491,7 @@
       +"    <div class='r-actions'><button class='roll-btn' id='rRoll'>Assemble &amp; Roll</button><button class='roll-btn ghost' id='rClear'>Clear</button><span class='r-summary' id='rSummary'></span></div>"
       +"    <p class='r-hint'><b>Click dice to keep</b> &mdash; nothing is kept for you. <b>&#8635;</b> rerolls a die (for advantages or disadvantages). A kept <b>explosive</b> (&#10057;) die shows an explode button to roll a bonus die, which you may keep or drop.</p>"
       +"    <div class='dice-row' id='rDice'></div>"
+      +"    <div class='reroll-bar' id='rRerollBar'></div>"
       +"    <div class='r-result' id='rResult'></div>"
       +"    <div class='opp-panel collapsed' id='oppPanel'>"
       +"      <button class='opp-toggle' id='oppToggle'><span>Opportunity spends (&#9672;)</span><span class='rt-chevron'>&#9656;</span></button>"
@@ -565,7 +591,7 @@
   }
 
   function doRoll(){
-    rollLogged=false;
+    rollLogged=false; rrMode=null;
     var spendVoid = cfg.voidSpend && (st["void"]||0)>=1;
     var extraRing = cfg.assistRing + (spendVoid?1:0);
     var extraSkill = cfg.assistSkill;
@@ -596,24 +622,25 @@
 
   function renderDice(){
     var row=document.getElementById("rDice"); row.innerHTML="";
-    if(!pool.length){ document.getElementById("rResult").classList.remove("show"); return; }
+    if(!pool.length){ document.getElementById("rResult").classList.remove("show"); renderRerollBar(); return; }
     ["ring","skill"].forEach(function(type){
       var group=pool.filter(function(d){ return d.type===type; });
       if(!group.length) return;
       row.appendChild(el("div","dice-group-label",(type==="ring"?"Ring Dice (d6)":"Skill Dice (d12)")));
       group.forEach(function(d){ row.appendChild(makeDie(d)); });
     });
+    renderRerollBar();
   }
   function makeDie(d){
-    var die=el("div","die "+d.type+(d.kept?" kept":"")+(d.bonus?" bonus":""));
+    var die=el("div","die "+d.type+(d.kept?" kept":"")+(d.bonus?" bonus":"")+(d.markedReroll?" marked":""));
     die.title=faceTitle(d);
     var canExplode = d.kept && d.ex>0 && !d.explodedDone;
     die.innerHTML="<img class='face' src='../assets/dice/"+d.key+".svg' alt=''>"
       +"<span class='dtype'>"+(d.type==="ring"?"d6":"d12")+"</span>"
-      +"<button class='die-op reroll' title='Reroll this die'>&#8635;</button>"
+      +"<button class='die-op reroll"+(d.markedReroll?" active":"")+"' title='Mark for reroll'>&#8635;</button>"
       +(canExplode?"<button class='die-op explode' title='Explode: roll a bonus die'>&#10057;</button>":"");
     die.addEventListener("click",function(){ toggleKeep(d); });
-    die.querySelector(".reroll").addEventListener("click",function(e){ e.stopPropagation(); rerollDie(d); });
+    die.querySelector(".reroll").addEventListener("click",function(e){ e.stopPropagation(); toggleRerollMark(d); });
     var ex=die.querySelector(".explode"); if(ex) ex.addEventListener("click",function(e){ e.stopPropagation(); explodeDie(d); });
     return die;
   }
@@ -622,12 +649,64 @@
     d.kept=!d.kept;
     renderDice(); tally();
   }
-  function rerollDie(d){
-    var from=d.key;
-    var f=rollFace(d.type);
-    d.key=f.key; d.su=f.su; d.ex=f.ex; d.op=f.op; d.st=f.st; d.explodedDone=false;
-    if(rollMeta) rollMeta.events.push({ kind:"reroll", type:d.type, from:from, to:f.key });
+
+  // ---- reroll marking (advantages / disadvantages / free reroll) ----
+  function successDie(d){ return ((d.su||0)+(d.ex||0))>0; }
+  function markedDice(){ return pool.filter(function(d){ return d.markedReroll; }); }
+  function setRerollMode(m){ rrMode=m; pool.forEach(function(d){ d.markedReroll=false; }); renderDice(); }
+  function rerollNeed(){ if(!rrMode) return 0; if(rrMode.mustMax){ return Math.min(rrMode.max||2, pool.filter(successDie).length); } return rrMode.max||2; }
+  function toggleRerollMark(d){
+    if(RO || !rrMode) return;
+    if(d.markedReroll){ d.markedReroll=false; renderDice(); return; }
+    if(rrMode.successOnly && !successDie(d)) return;
+    var max = rrMode.free ? Infinity : (rrMode.max||2);
+    if(markedDice().length>=max) return;
+    d.markedReroll=true; renderDice();
+  }
+  function executeReroll(){
+    var marked=markedDice(); if(!marked.length) return;
+    var via=rrMode?rrMode.label:"Reroll";
+    marked.forEach(function(d){
+      var from=d.key, f=rollFace(d.type);
+      d.key=f.key; d.su=f.su; d.ex=f.ex; d.op=f.op; d.st=f.st; d.explodedDone=false; d.markedReroll=false;
+      if(rollMeta) rollMeta.events.push({ kind:"reroll", type:d.type, from:from, to:f.key, via:via });
+    });
+    rrMode=null;
     renderDice(); tally();
+  }
+  function labelWithIcon(name){ return name.replace(/\((Air|Earth|Fire|Water|Void)\)/g,function(m,r){ return ringIcon(r.toLowerCase()); }); }
+  function renderRerollBar(){
+    var bar=document.getElementById("rRerollBar"); if(!bar) return;
+    bar.innerHTML="";
+    if(!pool.length) return;
+    var row=el("div","rr-modes");
+    RRADV.forEach(function(a){
+      var off = a.approach && a.approach!==st.ring;
+      var b=el("button","rr-mode"+(a.successOnly?" dis":" adv")+(rrMode&&rrMode.id===a.id?" sel":"")+(off?" off":""));
+      b.innerHTML=labelWithIcon(a.label);
+      b.title=(a.successOnly?"Disadvantage":"Advantage")+(off?" — off-approach":"");
+      b.addEventListener("click",function(){ if(RO) return; setRerollMode(rrMode&&rrMode.id===a.id?null:a); });
+      row.appendChild(b);
+    });
+    var free={ id:"free", label:"Free Reroll", free:true };
+    var fb=el("button","rr-mode free"+(rrMode&&rrMode.id==="free"?" sel":""),"Free Reroll");
+    fb.title="GM-requested reroll — any number of dice";
+    fb.addEventListener("click",function(){ if(RO) return; setRerollMode(rrMode&&rrMode.id==="free"?null:free); });
+    row.appendChild(fb);
+    bar.appendChild(row);
+    if(rrMode){
+      var need=rerollNeed(), marks=markedDice().length;
+      var hint = rrMode.free ? "Click the ↻ on any dice to mark them, then reroll."
+        : rrMode.successOnly ? ("Mark "+need+" success "+(need===1?"die":"dice")+" (↻) to reroll — the deficiency compels it.")
+        : ("Mark up to "+(rrMode.max||2)+" dice (↻) to reroll.");
+      bar.appendChild(el("div","rr-hint",hint));
+      if(marks>=1){
+        var canGo = rrMode.free ? true : (rrMode.mustMax ? (marks===need) : true);
+        var go=el("button","roll-btn rr-go","Reroll "+marks+" "+(marks===1?"die":"dice"));
+        if(canGo) go.addEventListener("click",executeReroll); else { go.disabled=true; go.title="Mark "+need+" dice"; }
+        bar.appendChild(go);
+      }
+    }
   }
   function explodeDie(d){
     d.explodedDone=true;
@@ -708,7 +787,7 @@
 
   // Clear the Roll & Keep interface for the next roll.
   function resetRoll(){
-    pool=[]; rollMeta=null; rollCtx=null; rollLogged=false;
+    pool=[]; rollMeta=null; rollCtx=null; rrMode=null; rollLogged=false;
     cfg={ assistSkill:0, assistRing:0, voidSpend:false };
     var dice=document.getElementById("rDice"); if(dice) dice.innerHTML="";
     var res=document.getElementById("rResult"); if(res){ res.classList.remove("show"); res.innerHTML=""; }
@@ -753,7 +832,7 @@
       // reroll / explode events
       var evRows="";
       (e.events||[]).forEach(function(ev){
-        if(ev.kind==="reroll") evRows+="<div class='log-ev'><span class='ev-tag'>↻ reroll</span>"+logDie({type:ev.type,key:ev.from})+"<span class='ev-arrow'>→</span>"+logDie({type:ev.type,key:ev.to})+"</div>";
+        if(ev.kind==="reroll") evRows+="<div class='log-ev'><span class='ev-tag'>↻ reroll"+(ev.via?" · "+escapeHTML(ev.via):"")+"</span>"+logDie({type:ev.type,key:ev.from})+"<span class='ev-arrow'>→</span>"+logDie({type:ev.type,key:ev.to})+"</div>";
         else if(ev.kind==="explode") evRows+="<div class='log-ev'><span class='ev-tag'>✦ explode</span>"+logDie({type:ev.type,key:ev.source})+"<span class='ev-arrow'>→</span>"+logDie({type:ev.type,key:ev.result,bonus:true})+"</div>";
       });
 
