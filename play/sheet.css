@@ -157,7 +157,8 @@
 .equip-btn:hover{ border-color:var(--crimson); background:rgba(182,36,50,0.06); }
 .equip-btn.on{ color:#fff; background:var(--crimson); border-color:var(--crimson-deep); }
 .et-tag.equip-badge{ background:#2f7d4a; color:#fff; }
-.gear-item.equipped{ background:rgba(47,125,74,0.05); box-shadow:inset 2px 0 0 #2f7d4a; border-radius:4px; }
+.gear-item.equipped{ background:rgba(47,125,74,0.05); box-shadow:inset 3px 0 0 #2f7d4a; border-radius:4px; padding-left:0.85rem; padding-right:0.6rem; }
+.gear-item.equipped .gearmeta{ margin-top:0.15rem; }
 
 /* combat calculators (readied weapon) */
 .combat-panel{ border:1px solid var(--gold-soft); border-radius:6px; background:var(--paper); margin:0.2rem 0 0.9rem; padding:0.7rem 0.9rem 0.9rem; }
@@ -168,8 +169,9 @@
 .cp-h{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.12em; font-size:0.74rem; color:var(--crimson); margin-bottom:0.35rem; }
 .cp-rule{ font-size:0.86rem; color:var(--ink-2); margin:0 0 0.55rem; line-height:1.45; }
 .cp-rule.cp-fine{ font-size:0.78rem; color:var(--ink-soft); margin-top:0.5rem; }
-.cp-row{ display:flex; flex-wrap:wrap; gap:0.7rem 1rem; align-items:flex-end; }
+.cp-row{ display:flex; flex-wrap:wrap; gap:0.7rem 1rem; align-items:flex-start; }
 .cp-f{ display:flex; flex-direction:column; gap:0.2rem; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.64rem; color:var(--ink-soft); }
+.cp-cap{ display:block; line-height:1.2; min-height:2.4em; }
 .cp-f b{ font-family:var(--disp); font-size:1.4rem; color:var(--sumi); line-height:1; }
 .cp-f .cp-in{ width:4.2rem; font-family:var(--disp); font-size:1.15rem; text-align:center; padding:0.25rem; border:1px solid var(--edge); border-radius:4px; background:#fff; color:var(--sumi); }
 .cp-f .cp-in:focus{ outline:none; border-color:var(--crimson); }

@@ -664,9 +664,9 @@
     dmg.innerHTML="<div class='cp-h'>Damage</div>"
       +"<p class='cp-rule'>"+syms(SK.effect||"")+"</p>"
       +"<div class='cp-row'>"
-      +"<label class='cp-f'>Base<b>"+w.damage+"</b></label>"
-      +"<label class='cp-f'>Bonus successes<input type='number' min='0' class='cp-in' id='cpBonus' value='"+baseBonus+"'></label>"
-      +(fireOn?"<label class='cp-f cp-fire' title=\""+String(SK.fireStance||"").replace(/"/g,"&quot;")+"\">Fire Stance (kept &#9650;)<input type='number' min='0' class='cp-in' id='cpFire' value='"+fireBonus+"'></label>":"")
+      +"<label class='cp-f'><span class='cp-cap'>Base</span><b>"+w.damage+"</b></label>"
+      +"<label class='cp-f'><span class='cp-cap'>Bonus successes</span><input type='number' min='0' class='cp-in' id='cpBonus' value='"+baseBonus+"'></label>"
+      +(fireOn?"<label class='cp-f cp-fire' title=\""+String(SK.fireStance||"").replace(/"/g,"&quot;")+"\"><span class='cp-cap'>Fire Stance (kept &#9650;)</span><input type='number' min='0' class='cp-in' id='cpFire' value='"+fireBonus+"'></label>":"")
       +"</div>"
       +"<div class='cp-actions'><button class='roll-btn' id='cpDealBtn'>Calculate Damage</button>"
       +(last?"<button class='roll-btn ghost cp-sync' id='cpSync' title='Pull bonus successes from your last kept roll'>&#8635; from last roll</button>":"")
@@ -677,8 +677,8 @@
     crit.innerHTML="<div class='cp-h'>Critical Strike</div>"
       +"<p class='cp-rule'>"+syms(SK.critOpportunity||"")+"</p>"
       +"<div class='cp-row'>"
-      +"<label class='cp-f'>Severity before reductions<input type='number' min='0' class='cp-in' id='cpSev' value='"+w.deadliness+"'><span class='cp-tag'>= deadliness</span></label>"
-      +"<label class='cp-f'>Reduced by<input type='number' min='0' class='cp-in' id='cpRed' value='0'></label>"
+      +"<label class='cp-f'><span class='cp-cap'>Severity before reductions</span><input type='number' min='0' class='cp-in' id='cpSev' value='"+w.deadliness+"'><span class='cp-tag'>= deadliness</span></label>"
+      +"<label class='cp-f'><span class='cp-cap'>Reduced by</span><input type='number' min='0' class='cp-in' id='cpRed' value='0'></label>"
       +"</div>"
       +"<p class='cp-rule cp-fine'>"+syms(CS.resist||"")+"</p>"
       +"<div class='cp-actions'><button class='roll-btn' id='cpCritBtn'>Resolve Critical Strike</button></div>"
