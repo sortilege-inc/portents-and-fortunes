@@ -58,7 +58,7 @@ body:not(.gm-on) .fz.revealed{ background:rgba(79,125,92,0.12); }
 .tr-table{ position:absolute; bottom:0; left:0; right:0; text-align:center; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em; font-size:0.62rem; color:#efe4cf; background:linear-gradient(180deg,var(--lacquer),var(--lacquer-2)); padding:0.55rem; transition:.15s; }
 .tarot:hover .tr-table{ background:linear-gradient(180deg,#3a2c1a,#2a2012); }
 .tr-table.on{ background:linear-gradient(180deg,var(--crimson),var(--crimson-deep)); color:#fff; }
-.tr-plus{ position:absolute; bottom:0.4rem; right:0.5rem; z-index:3; width:1.8rem; height:1.8rem; border-radius:50%; border:1px solid var(--gold-soft); background:var(--paper-2); color:var(--crimson); font-size:1.15rem; line-height:1; cursor:pointer; box-shadow:var(--shadow-soft); }
+.tr-plus{ position:absolute; bottom:0.28rem; right:0.45rem; z-index:3; width:1.45rem; height:1.45rem; border-radius:50%; border:1px solid var(--gold-soft); background:var(--paper-2); color:var(--crimson); font-size:1rem; line-height:1; cursor:pointer; box-shadow:var(--shadow-soft); display:flex; align-items:center; justify-content:center; padding:0; }
 .tr-plus:hover{ background:#fff; border-color:var(--crimson); }
 
 /* ================= scene panel ================= */
