@@ -9,6 +9,28 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Cormorant:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../rokugan.css">
+<style>
+  .sess-head{ display:flex; align-items:baseline; gap:0.9rem; flex-wrap:wrap; border-bottom:2px solid var(--crimson); padding-bottom:0.5rem; margin:2.4rem 0 0.2rem; }
+  .sess-n{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.18em; font-size:0.78rem; color:#fff; background:var(--crimson); border-radius:3px; padding:0.15rem 0.6rem; }
+  .sess-t{ font-family:var(--disp); font-weight:700; font-size:clamp(1.6rem,3.4vw,2.2rem); color:var(--sumi); margin:0; }
+  .sess-d{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em; font-size:0.72rem; color:var(--ink-soft); margin-left:auto; }
+  .sec-h{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.14em; font-size:0.8rem; color:var(--crimson); margin:1.6rem 0 0.6rem; padding-bottom:0.3rem; border-bottom:1px solid var(--gold-soft); }
+  .creed{ margin:0.6rem 0; padding-left:1rem; border-left:2px solid var(--gold-soft); }
+  .creed dt{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.08em; font-size:0.68rem; color:var(--ink-soft); margin-top:0.8rem; }
+  .creed dd{ margin:0.15rem 0 0; font-size:1rem; color:var(--ink-2); line-height:1.6; }
+  .said{ font-family:var(--disp); font-size:1.22rem; font-style:italic; color:var(--sumi); line-height:1.5; border-left:3px solid var(--crimson); padding:0.2rem 0 0.2rem 0.9rem; margin:1.1rem 0; }
+  .said cite{ display:block; font-family:var(--caps); font-style:normal; text-transform:uppercase; letter-spacing:0.1em; font-size:0.64rem; color:var(--ink-soft); margin-top:0.35rem; }
+  .roll-rec{ background:var(--paper-2); border:1px solid var(--gold-soft); border-left:3px solid var(--gold); border-radius:5px; padding:0.8rem 1rem; margin:1.1rem 0; }
+  .rr-h{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.12em; font-size:0.7rem; color:var(--gold); margin-bottom:0.5rem; }
+  .rr-line{ display:flex; gap:0.7rem; padding:0.22rem 0; border-bottom:1px dotted var(--edge-soft); font-size:0.92rem; }
+  .rr-line:last-child{ border-bottom:0; }
+  .rr-k{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.66rem; color:var(--ink-soft); min-width:7.5rem; flex-shrink:0; padding-top:0.15rem; }
+  .rr-v{ color:var(--ink); }
+  .rr-v b{ color:var(--sumi); }
+  .verb{ font-size:0.9rem; color:var(--ink-2); font-style:italic; background:var(--paper); border:1px dashed var(--gold-soft); border-radius:4px; padding:0.5rem 0.7rem; margin:0.5rem 0 0; }
+  .tablenote{ font-size:0.9rem; color:var(--ink-soft); background:rgba(154,123,63,0.08); border-radius:5px; padding:0.7rem 0.9rem; margin-top:1.4rem; }
+  .sym.su{ color:#3f8f5a; font-weight:700; } .sym.op{ color:#c08a1e; font-weight:700; } .sym.st{ color:#b0642a; font-weight:700; }
+</style>
 </head>
 <body>
 <nav class="topnav"><span class="brand">Portents &amp; Fortunes</span><a href="../index.html">Home</a><a href="../character/index.html">Characters</a><a href="index.html" class="active">Chronicle</a><a href="../dramatis-personae/index.html">Dramatis Personae</a><a href="../map/index.html">Atlas</a><a href="../lore/index.html">Lore</a><a href="../gm/index.html" class="gm">Behind the Veil</a></nav>
@@ -19,12 +41,96 @@
 <p class="sub">Session by session — the tale as it is told at the table.</p></header>
 <div class="flourish"></div>
 <div class="col">
-<p class="epigraph">The mountain has slept for twenty years. The first tremor has not yet been written.</p>
+<p class="epigraph">The mountain has slept for twenty-four years. Nothing has happened. That is the thing that has happened.</p>
+
+<div class="sess-head">
+  <span class="sess-n">Session One</span>
+  <h2 class="sess-t">The Road East</h2>
+  <span class="sess-d">11 August 2026</span>
+</div>
 <article class="panel">
-<p class="lede">The chronicle has not yet begun. Togashi Norikage has been made — his rings cast, his tattoo chosen, his abbot's charge received — and stands at the edge of his posting. When the first session is played, its record will appear here.</p>
-<p>Each entry will hold the date, a short recap, and the moments that mattered — the omens read, the shrines found wanting, the truths spoken when a lie would have been easier.</p>
-<p class="meta" style="margin-top:1.4rem">Until then: read <a class="ref" href="../character/index.html">who he is</a>, walk <a class="ref" href="../map/index.html#dragon">the Dragon lands</a>, or — if you are the Master — turn to <a class="ref" href="../gm/index.html">Behind the Veil</a>.</p>
+
+<p class="lede">Togashi Norikage is twenty-four years old, and the Wrath of the Kami has not erupted once in his lifetime. It used to erupt every winter, small and dependable, so reliably that the Agasha would have called a quiet year an ill omen. There have been twenty-four quiet years. A priest at his cradle said the mountain would not wake while he lived, and for most of his life that sounded like a blessing. This session was largely spent discovering that he does not think it is one.</p>
+
+<h3 class="sec-h">The charge</h3>
+<p><strong>Seiya Mori</strong> — daimyō of the province, of a vassal family sworn to the Agasha — has ordered a consolidation. Two or three villages in the province are being given up entirely, their remaining people divided among the settlements that can still hold them. The mountains are hard, the terraces are failing, and the population has fallen past the point where a village can feed the work it takes to stay a village.</p>
+<p>A samurai and a body of ashigaru have been sent to supervise the move. Norikage is not one of them. His abbot, <strong>Togashi Oharu</strong>, has sent him along as an observer, in a religious capacity — outside the daimyō's chain of command, carrying no responsibility for moving anyone. He was not told precisely what to watch for.</p>
+<p>The destination is <strong>White Flower Village</strong>. The village the people are leaving is not marked on any map he has seen.</p>
+
+<h3 class="sec-h">What he found worth watching</h3>
+<p>Asked what he thought Oharu wanted from him, Norikage did not reach for the policy. He reached for the seating.</p>
+<p>These are not people being scattered into empty country. They are being put down among strangers — families and households with no shared history, no inherited sense of who defers to whom, expected to become one village by arriving in the same place. Uprooted is the smaller injury. <em>Mixed</em> is the larger one. There is a jostling for position coming, and no established order to settle it against.</p>
+<p>So he spent the road talking to the people who would have to hold that order together: not the households at the bottom, but the family heads and the village elders — those with standing enough, by office or by sheer age and knowledge, to speak for the people walking behind them. If the elders and the appointed men were of one mind before arrival, there would at least be a basis on which to resolve what was coming.</p>
+
+<h3 class="sec-h">The reading</h3>
+<p>He worked without training for it — no schooling in the forms and courtesies this called for — and went at it through the Void: quiet, attentive, more listening than steering. He spent a Void point to seize the moment.</p>
+<p>It held. He got his buy-in. But the conversation cost him: he came away carrying a great deal of feeling he had not walked in with, and while he was listening to the elders, he noticed something else in the scene that had nothing to do with them.</p>
+
+<div class="roll-rec">
+  <div class="rr-h">◈ The roll of record</div>
+  <div class="rr-line"><span class="rr-k">Check</span><span class="rr-v"><b>Culture (Void)</b> · TN 3 · untrained (Culture 0, Void 3)</span></div>
+  <div class="rr-line"><span class="rr-k">Spent</span><span class="rr-v">1 Void point — <b>Seize the Moment</b> (+1 die, +1 keep) · 4 rolled, 4 kept</span></div>
+  <div class="rr-line"><span class="rr-k">Result</span><span class="rr-v"><b class="sym su">3 successes</b> (one from an exploded die) · <b class="sym op">2 opportunity</b> · <b class="sym st">3 strife</b> — <b>success</b></span></div>
+  <div class="rr-line"><span class="rr-k">Opportunity</span><span class="rr-v">Both spent on the Void approach:
+    <div class="verb">(◈)+: Feel a chill down your spine, notice a sudden silence, or detect another sign of the supernatural if there is a spiritual disturbance in the scene. Extra (◈) gives an increasingly precise location for the supernatural occurrence.</div></span></div>
+  <div class="rr-line"><span class="rr-k">Carried out</span><span class="rr-v">Strife 3 · Void points 2 of 3</span></div>
+</div>
+
+<h3 class="sec-h">The chill</h3>
+<p>There is a spiritual disturbance on this road, and he has felt it, and he knows roughly where it is. He does not yet know what it is. Neither does the chronicle. That is where the next session begins.</p>
+
+<h3 class="sec-h">What he believes</h3>
+<p>Most of Session One was not the road at all. It was the long questioning that established, for the first time, what this monk actually holds — on the prophecy, the wheel, the Fortunes, and the heresy spreading through the peasantry. What follows is his own reasoning, kept close to how he gave it.</p>
+
+<dl class="creed">
+  <dt>On the prophecy</dt>
+  <dd>He is afraid it is true. Not that it dooms him — he does not believe the mountain's waking would kill him, unless he happened to stand near enough to burn — but that his life is a clock counting toward something, and that the something is building. As a child, the fear ran the other way: he was frightened it <em>would</em> erupt.</dd>
+
+  <dt>On prophecy against the will of the kami</dt>
+  <dd>If the mountain wakes tomorrow, the priest was not necessarily a liar. To hold that a prophecy must bind the heavens is to grant humanity a power that does not belong to it. If the kami speak, we receive what they say; if they change their minds, or if one of them takes the other's side against it, that is not a human failure. It is beyond our capacity to do more than accept.</dd>
+
+  <dt>On being a harbinger</dt>
+  <dd>People look at him and see the omen rather than the man. Twenty-four years among the Agasha's unease has done its work: he has come to half-believe them by osmosis.</dd>
+
+  <dt>On the Order</dt>
+  <dd>His parents urged him to it. He was sixteen when he made the climb to the High House of Light to pledge himself and take the ink said to be mixed with the blood of the kami.</dd>
+
+  <dt>On his past lives</dt>
+  <dd>He remembers none of them. What he has instead are flashes of intuition that surprise him — a fleeting competence he has no right to, a moment where he acts in a way so unlike himself that he looks back and asks where it came from. His masters remember more. He puts his own blankness down to a cloudy mind, because to call himself a new soul would be presumptuous. And yet: if the world were only the past rearranged, nothing new could ever occur, and things must sometimes be new. Could that be him? But why him?</dd>
+
+  <dt>On the ancestor he is named for</dt>
+  <dd>A brutal martial master. If that man is in Yomi and watching, Norikage feels disapproval — so it is more comfortable to hope he has been reborn as someone who has never heard of him. The offerings continue, out of familial obligation rather than love. He believes the man would be embarrassed of him. He will not say the man was wrong; he has to assume the deeds could have been right, could have mattered — and that possibility disturbs him exactly as much as the alternative.</dd>
+
+  <dt>On the dead</dt>
+  <dd>That peasants go to Meido and are reborn while samurai reach Yomi, he believes — passively, the way one believes the weather. After all, in a rebirth, perhaps one becomes samurai. That the forgotten dwindle into clerks in Emma-O's courts he takes as simple fact.</dd>
+
+  <dt>On why anyone prays to a Fortune</dt>
+  <dd>Because you have met an obstacle you cannot find your own way through. Prayer is the side trail: better to walk around and rejoin the path you were meant to walk than to stop at the foot of a wall you cannot climb.</dd>
+
+  <dt>On the Dragon championing Kisshōten</dt>
+  <dd>Need first, not faith first — a clan without children raising up the Fortune of Fertility. He does not condemn it. There is wisdom in taking relief where it can be found, so long as the taking is not itself dishonourable.</dd>
+
+  <dt>On the Perfect Land Sect</dt>
+  <dd>A subversive teaching. If a chanted mantra carries you past judgment without practice or merit, then whatever good it does is outweighed by the apathy that follows it. It empties accomplishment of meaning. Why would anyone do anything worth doing?</dd>
+
+  <dt>On the Age of Declining Virtue</dt>
+  <dd>The sect is not in a position to make the claim. If it is true, it cannot be known until much later — and saying it now only makes people readier to do nothing.</dd>
+
+  <dt>On a villager who chants it</dt>
+  <dd>He would report the presence, not the person. He is unwilling to name peasants going about their lives. He would rather argue with her, and not unkindly: what is this belief of yours doing for the land, for the people you care for, for the generation coming after? All will be well in the end, perhaps. But we live now.</dd>
+
+  <dt>On whether the heresy might simply be correct</dt>
+  <dd>He has not let himself follow that road, and he knows it.</dd>
+</dl>
+
+<div class="said">It can’t be true, therefore it isn’t. It can’t be true, therefore it is not worth considering as though it could be. I don’t say it is, because if it is true, I don’t want it.
+<cite>Togashi Norikage, on the possibility that the Perfect Land Sect is right</cite></div>
+
+<p class="tablenote"><strong>At the table.</strong> The first session was mostly system and character: a tour of the Atlas and the sheet, a walk through rings and approaches, strife and fatigue, Void points, opportunity spends, stances and conflict actions, damage and critical strikes — then the long interview above, then one real check to close on. Two rolls earlier in the evening (a Fitness test and a duel initiative) were teaching examples and are not part of the record. The player's reading of the posting — that the interesting pressure is <em>mixing</em> households rather than scattering them — was adopted on the spot and changed the shape of the campaign: White Flower Village is now the destination, not the village being emptied.</p>
+
 </article>
+
+<p class="meta" style="margin-top:1.8rem">Next: the disturbance on the road, and the first sight of White Flower Village from above.</p>
 </div>
 </div>
 <footer class="foot"><span class="mark">❖</span>Portents &amp; Fortunes · Legend of the Five Rings</footer>

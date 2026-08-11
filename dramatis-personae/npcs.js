@@ -16,10 +16,10 @@ window.NPCS = [
     affil: "Dragon · Seiya (a vassal family of the Agasha)",
     statNote: "Statted on the core Venerable Provincial Daimyō block (core p.315) pending a bespoke build.",
     bio: [
-      "Lord of the province in which White Flower Village sits, and the hand behind its consolidation — it was Seiya Mori who gave the order to empty the village. The Seiya are a vassal family sworn to the Agasha, and through them to the Dragon; a daimyō of their line answers to Agasha interests even as he governs in his own name.",
-      "Why a shrinking village on the mountain's skirts should be gathered up and moved, and on whose counsel, is not yet known to Norikage — only that the order carries a daimyō's authority."
+      "Lord of the province in which White Flower Village sits, and the hand behind the consolidation. Two or three villages of the province are being given up entirely, their remaining people divided among the settlements that can still carry them — and the order carries a daimyō's authority. The Seiya are a vassal family sworn to the Agasha, and through them to the Dragon; a daimyō of that line answers to Agasha interests while governing in their own name.",
+      "The reasoning offered is arithmetic: the mountains are hard, the terraces are failing, and a village past a certain thinness costs more than it returns. Whether that is the whole of it, and on whose counsel it was decided, Norikage does not know. He walks with one of the displaced groups, but not under this lord's command."
     ],
-    status: "Named, unmet · issued the consolidation order · Norikage sent to watch it quietly",
+    status: "Named, unmet · ordered the consolidation · Norikage observes it from outside his chain of command",
     stat: {
       kind: "Adversary",
       combatRank: 7, intrigueRank: 6,
@@ -132,8 +132,8 @@ window.NPCS = [
     affil: "Togashi · Norikage's lord and master of his temple",
     statNote: "Built on Togashi Remmu, Sociable Wanderer (Writ of Wilds) with the Temple Abbot title's Soothing Cadence and Status +10 — re-skinned for the Abbot, pending a bespoke build.",
     bio: [
-      "Abbot of the Tattooed Order and the authority to whom Norikage answers. It is Oharu who gave the charge that sets this chronicle in motion: to go down into a shrinking village and watch — quietly — the samurai who are emptying it, and to report back to the temple. Norikage's character sheet first recorded Togashi Oharu as a provincial daimyō he served as \"eyes and ears\"; that role is now understood as the abbot and the temple. Oharu's age, and true reasons, are not yet known.",
-      "Like Norikage, an ise zumi of the Togashi line — the same Blood of the Kami in his tattoos, the same humble bō in his hands. What his student sees in the master is a mirror held a lifetime ahead."
+      "Abbot of the Tattooed Order and the authority to whom Norikage answers. It is Oharu who gave the charge that sets this chronicle in motion: to walk east with a village that is being moved, as an observer in a religious capacity — outside the daimyō's chain of command, responsible for none of the moving — and to report back to the temple. What exactly he is to watch for was not specified. Norikage's character sheet first recorded Togashi Oharu as a provincial daimyō he served as \"eyes and ears\"; that role is now understood as the abbot and the temple. Oharu's age, and true reasons, are not yet known.",
+      "Like Norikage, an ise zumi of the Togashi line — the same Blood of the Kami in the tattoos, the same humble bō in hand. What the student sees in the master is a mirror held a lifetime ahead."
     ],
     status: "Named but unmet · Norikage's lord and giri",
     stat: {
