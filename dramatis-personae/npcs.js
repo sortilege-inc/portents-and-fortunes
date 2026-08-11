@@ -1,0 +1,149 @@
+/* ============================================================
+   npcs.js — Dramatis Personae data for Portents & Fortunes.
+   Each NPC has a narrative `bio` (bio card) and, where statted,
+   a `stat` block (play card). Statblock text is reproduced
+   VERBATIM from the L5R5e core corpus (titterpig-dsl-l5r5e/0.4,
+   l5r5e-0.4-core-npcs.ttrpg) — only whitespace / dice-glyph
+   transforms. Own narrative prose is bio-only.
+   ============================================================ */
+window.NPCS = [
+
+  // ---- Seiya Mori — provincial daimyō (canonical Venerable Provincial Daimyō chassis) ----
+  {
+    id: "seiya-mori",
+    name: "Seiya Mori",
+    epithet: "Provincial Daimyō",
+    affil: "Dragon · Seiya (a vassal family of the Agasha)",
+    statNote: "Statted on the core Venerable Provincial Daimyō block (core p.315) pending a bespoke build.",
+    bio: [
+      "Lord of the province in which White Flower Village sits, and the hand behind its consolidation — it was Seiya Mori who gave the order to empty the village. The Seiya are a vassal family sworn to the Agasha, and through them to the Dragon; a daimyō of their line answers to Agasha interests even as he governs in his own name.",
+      "Why a shrinking village on the mountain's skirts should be gathered up and moved, and on whose counsel, is not yet known to Norikage — only that the order carries a daimyō's authority."
+    ],
+    status: "Named, unmet · issued the consolidation order · Norikage sent to watch it quietly",
+    stat: {
+      kind: "Adversary",
+      combatRank: 7, intrigueRank: 6,
+      description: "The typical daimyō is stern, serious, and inured to flattery. Their time is valuable, so they appreciate brevity and clarity from any samurai who address them. While most no longer take up arms often, they can be extremely deadly in battle, for they often possess arms and armor of surpassing quality and a lifetime of experience fighting to maintain what is theirs at court and in combat.",
+      rings: { air:3, earth:4, fire:4, water:4, void:4 },
+      endurance:14, composure:16, focus:7, vigilance:4,
+      honor:55, glory:70, status:65,
+      demeanor:"Assertive", tnMods:"Earth +2, Air -2",
+      skills: { artisan:2, martial:4, scholar:3, social:3, trade:1 },
+      advantages: [
+        "Wisdom of Experience: (void) Scholar; Mental",
+        "Bolstering Presence: (earth) Social; Interpersonal"
+      ],
+      disadvantages: [
+        "Long at Court: (water) Martial; Mental, Physical"
+      ],
+      weapons: [
+        "Wakizashi: Range 0–1, Damage 3, Deadliness 5/7, Ceremonial, Razor-Edged"
+      ],
+      gear: [ "Calligraphy set", "personal chop" ],
+      gearOther: [ "Daishō", "plated armor (Physical 5, Cumbersome, Durable, Wargear)", "various estates" ],
+      abilities: [
+        { name:"Lord’s Command", text:"Once per scene, as a Support action, a daimyō may advise a character who can hear them on how to complete a task they wish the character to perform. The character may use the daimyō’s ring or skill in place of their own for the next check they make to complete this task before the end of the game session." }
+      ]
+    }
+  },
+
+  // ---- Scholarly Shugenja (core adversary, verbatim) ----
+  {
+    id: "scholarly-shugenja",
+    name: "Scholarly Shugenja",
+    epithet: "Adversary · Subjects of Rokugan",
+    affil: "A priest who communes with the kami",
+    bio: [
+      "Shugenja are holy people, priests who commune with the kami, making invocations to persuade them to cause spectacular and even destructive effects in the Mortal Realm. However, shugenja are rare, and seldom encountered outside of shrines, temples, and libraries."
+    ],
+    status: "Type template · use for any shrine, temple, or library priest met on the road",
+    stat: {
+      kind: "Adversary",
+      combatRank: 4, intrigueRank: 3,
+      description: "Shugenja are holy people, priests who commune with the kami, making invocations to persuade them to cause spectacular and even destructive effects in the Mortal Realm. However, shugenja are rare, and seldom encountered outside of shrines, temples, and libraries.",
+      rings: { air:3, earth:3, fire:3, water:3, void:3 },
+      endurance:10, composure:12, focus:6, vigilance:3,
+      honor:60, glory:45, status:39,
+      demeanor:"Ambitious", tnMods:"Fire +2, Water -2",
+      skills: { artisan:3, martial:0, scholar:2, social:3, trade:0 },
+      advantages: [
+        "Mystical Knowledge: (void) Scholar; Mental",
+        "Holy Personage: (void) Social; Interpersonal"
+      ],
+      disadvantages: [
+        "Scholar’s Physique: (earth) Martial; Physical"
+      ],
+      weapons: [
+        "Wakizashi: Range 0–1, Damage 3, Deadliness 5/7, Ceremonial, Razor-Edged"
+      ],
+      gear: [ "Sanctified robes (Physical 1, Supernatural 3, Ceremonial)", "scroll satchel", "offerings" ],
+      abilities: [
+        { name:"Path to Inner Peace", tag:"Invocation", check:{ tn:2, ring:"water", group:"scholar", label:"Theology (Water)" },
+          text:"As a Support action, the shugenja may make a TN 2 Theology (Water) check targeting a character at range 0–2. If the shugenja succeeds, the target removes 3 fatigue, plus 1 per bonus success. A target can only be affected by the Path to Inner Peace invocation once per scene." },
+        { name:"The Fires from Within", tag:"Invocation", check:{ tn:3, ring:"fire", group:"scholar", label:"Theology (Fire)" },
+          text:"As an Attack action, the shugenja may make a TN 3 Theology (Fire) check targeting up to three characters at range 1–3. If the shugenja succeeds, each target suffers 3 supernatural damage, plus 1 per bonus success. (op)+: Choose 1 additional target per (op) spent this way." },
+        { name:"Disciple of Secret Lore", text:"Activation: Choose 0–5 additional invocations (see page 189) and 0–3 additional rituals (see page 212) that this shugenja can perform. Add 1 to this character’s combat rank for each invocation with a prerequisite of rank 3+ chosen this way." }
+      ]
+    }
+  },
+
+  // ---- Trained Ashigaru (core minion, verbatim) ----
+  {
+    id: "trained-ashigaru",
+    name: "Trained Ashigaru",
+    epithet: "Minion · Subjects of Rokugan",
+    affil: "Rank-and-file foot soldier",
+    bio: [
+      "Ashigaru are the rank-and-file foot soldiers who make up the bulk of Rokugani armies. These foot soldiers are commoners, peasants who have been drafted into military service. Interestingly, once drafted, they are considered to belong to the lowest rank of the buke, the samurai caste, even though they aren’t samurai."
+    ],
+    status: "Type template · village guards, drafted levies, a daimyō's escort",
+    stat: {
+      kind: "Minion",
+      combatRank: 2, intrigueRank: 1,
+      description: "Ashigaru are the rank-and-file foot soldiers who make up the bulk of Rokugani armies. These foot soldiers are commoners, peasants who have been drafted into military service. Interestingly, once drafted, they are considered to belong to the lowest rank of the buke, the samurai caste, even though they aren’t samurai. When they are not performing military service, ashigaru generally revert to their peasant status as farmers or tradespeople, but some continue to serve as guards or scouts, or as dōshin to magistrates. If the player characters encounter ashigaru in formed bodies of troops, then it is almost certainly because they are from a clan that is at war. Samurai from that clan, such as officers and units of bushi, should be nearby.",
+      rings: { air:1, earth:3, fire:2, water:2, void:1 },
+      endurance:6, composure:12, focus:6, vigilance:2,
+      honor:25, glory:29, status:19,
+      demeanor:"Gruff", tnMods:"Water +2, Earth -2",
+      skills: { artisan:0, martial:1, scholar:0, social:0, trade:1 },
+      advantages: [
+        "Strength in Numbers: (earth) Martial; Physical"
+      ],
+      disadvantages: [
+        "Jaded by Battle: (fire) Social; Mental"
+      ],
+      weapons: [
+        "Yari: Range 2, Damage 5, Deadliness 3, Wargear"
+      ],
+      gear: [ "Ashigaru armor (Physical 3, Wargear)", "knife", "dice and cup or musical instrument", "a handful of bu and zeni" ],
+      abilities: [
+        { name:"Rank Tactics", text:"When an ashigaru provides assistance (see page 26) to the Martial skill check of another character at range 0–2, that character adds one kept (ring) set to a (su) result instead of rolling an additional die." }
+      ]
+    }
+  },
+
+  // ---- Togashi Oharu — bio only (Norikage's lord) ----
+  {
+    id: "togashi-oharu",
+    name: "Togashi Oharu",
+    epithet: "The Abbot",
+    affil: "Togashi · Norikage's lord and master of his temple",
+    bio: [
+      "Abbot of the Tattooed Order and the authority to whom Norikage answers. It is Oharu who gave the charge that sets this chronicle in motion: to go down into a shrinking village and watch — quietly — the samurai who are emptying it, and to report back to the temple. Norikage's character sheet first recorded Togashi Oharu as a provincial daimyō he served as \"eyes and ears\"; that role is now understood as the abbot and the temple. Oharu's age, and true reasons, are not yet known."
+    ],
+    status: "Named but unmet · Norikage's lord and giri"
+  },
+
+  // ---- Yogo Kenzan — bio only (mentor) ----
+  {
+    id: "yogo-kenzan",
+    name: "Yogo Kenzan",
+    epithet: "“Brother Kenzan”",
+    affil: "Brotherhood of Shinsei · the teacher from whom Norikage learned the most",
+    bio: [
+      "A monk of the Brotherhood of Shinsei, Scorpion-born under the Yogo name, and the person from whom Norikage says he learned the most. Their conversations shaped how the young Togashi thinks about faith and doubt. Where Kenzan is now, and what he believes, are threads yet to be drawn."
+    ],
+    status: "Known · mentor"
+  }
+
+];
