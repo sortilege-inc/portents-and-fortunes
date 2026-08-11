@@ -22,6 +22,12 @@
   if (!root) return;
   var L5RD = window.L5R || { stances:{}, conflicts:{}, opportunities:{}, oppTables:[] };
 
+  // Player characters live in the Play section; we read their sheet data from
+  // those pages so the cards never drift. Add a page here to add a PC.
+  var PC_PAGES = ["index.html", "setsuna.html"];
+  var CAST = NPCS.slice();   // PCs get prepended once loaded
+  var SKILLLBL = function (k) { var m = { unarmed:"Martial Arts [Unarmed]", melee:"Martial Arts [Melee]", ranged:"Martial Arts [Ranged]" }; return m[k] || (k ? cap(k) : "(ring only)"); };
+
   // ---------------- persisted mode / discovery ----------------
   var GMKEY = "pf-dp-gm", REVKEY = "pf-dp-revealed", SCENEKEY = "pf-dp-scene", SLOGKEY = "pf-dp-scene-log";
   var gm = false; try { gm = localStorage.getItem(GMKEY) === "1"; } catch (e) {}
@@ -42,7 +48,7 @@
   function saveLog(l) { try { localStorage.setItem(SLOGKEY, JSON.stringify(l)); } catch (e) {} }
 
   // ---------------- members ----------------
-  function byId(id) { for (var i=0;i<NPCS.length;i++) if (NPCS[i].id===id) return NPCS[i]; return null; }
+  function byId(id) { for (var i=0;i<CAST.length;i++) if (CAST[i].id===id) return CAST[i]; return null; }
   function baseIdOf(mid) { return String(mid).split("#")[0]; }
   function instNumOf(mid) { var p = String(mid).split("#"); return p.length > 1 ? parseInt(p[1], 10) : 0; }
   function memberNpc(mid) { return byId(baseIdOf(mid)); }
@@ -73,7 +79,7 @@
 
   // ---- fuzzable fact ----
   function fz(fid, inner, extraCls) {
-    var isRev = gm || revealed[fid];
+    var isRev = gm || revealed[fid] || /^pc-/.test(fid);   // players know their own PCs — never fuzz them
     var span = el("span", "fz " + (extraCls || "") + (isRev ? " revealed" : " fuzzed"));
     span.setAttribute("data-fid", fid); span.innerHTML = inner;
     if (!gm) {
@@ -119,7 +125,7 @@
     var prev = el("button", "car-nav prev", "&#8249;"); prev.setAttribute("aria-label","Previous");
     var next = el("button", "car-nav next", "&#8250;"); next.setAttribute("aria-label","Next");
     var track = el("div", "dp-carousel"); track.id = "dpCarousel";
-    NPCS.forEach(function (npc) { track.appendChild(tarotCard(npc)); });
+    CAST.forEach(function (npc) { track.appendChild(tarotCard(npc)); });
     prev.addEventListener("click", function () { track.scrollBy({ left:-cardStep(track), behavior:"smooth" }); });
     next.addEventListener("click", function () { track.scrollBy({ left: cardStep(track), behavior:"smooth" }); });
     wrap.appendChild(prev); wrap.appendChild(track); wrap.appendChild(next);
@@ -132,7 +138,7 @@
     var isTpl = !!npc.template;
     var count = instanceCount(id);
     var onTable = isTpl ? count > 0 : inScene(id);
-    var card = el("article", "tarot" + (onTable ? " active" : "") + (npc.stat ? "" : " nostat"));
+    var card = el("article", "tarot" + (onTable ? " active" : "") + (npc.stat ? "" : " nostat") + (npc.pc ? " pc" : ""));
     card.setAttribute("data-id", id);
     var kind = npc.stat ? npc.stat.kind : "Bio";
     var inner = el("div", "tr-inner");
@@ -154,7 +160,7 @@
     card.addEventListener("click", function () { primaryAdd(npc); });
     return card;
   }
-  function kindEmblem(kind) { return kind === "Minion" ? "▲" : kind === "Adversary" ? "❁" : "❖"; }
+  function kindEmblem(kind) { return kind === "Player Character" ? "◈" : kind === "Minion" ? "▲" : kind === "Adversary" ? "❁" : "❖"; }
 
   function primaryAdd(npc) {
     if (npc.template) { addInstance(npc.id); return; }
@@ -176,7 +182,7 @@
     var host = document.getElementById("dpScene"); if (!host) return;
     host.innerHTML = "";
     if (gm) host.appendChild(buildSceneSettings());
-    if (!scene.members.length) { host.appendChild(el("p", "scene-empty", "No one on the table yet. Tap a card's bottom bar above to bring an NPC into the scene" + (NPCS.some(function(n){return n.template;}) ? " — use + on a template to add several." : "."))); return; }
+    if (!scene.members.length) { host.appendChild(el("p", "scene-empty", "No one on the table yet. Tap a card's bottom bar above to bring an NPC (or a PC) into the scene" + (CAST.some(function(n){return n.template;}) ? " — use + on a template to add several." : "."))); return; }
     var main = el("div", "scene-main");
     main.appendChild(buildRoster());
     var sheet = el("div", "scene-sheet"); sheet.id = "sceneSheet"; main.appendChild(sheet);
@@ -309,7 +315,16 @@
   var pool = [], curKeep = 0, rollMeta = null, rrMode = null, rollLogged = false, cfg = { assistSkill:0, assistRing:0 };
   function resetRollState() { pool = []; curKeep = 0; rollMeta = null; rrMode = null; rollLogged = false; cfg = { assistSkill:0, assistRing:0 }; }
   function ringN(npc, mid) { return npc.stat.rings[getEng(mid).ring] || 0; }
-  function skillN(npc, mid) { return npc.stat.skills[getEng(mid).group] || 0; }
+  function skillN(npc, mid) { var e = getEng(mid); if (npc.stat.pc) return e.group ? (npc.stat.skillsIndividual[e.group] || 0) : 0; return npc.stat.skills[e.group] || 0; }
+  // NPCs choose a skill group; PCs choose one of their individual skills (or ring-only).
+  function skillOptions(npc) {
+    if (npc.stat.pc) {
+      var out = [{ key:"", label:"— ring only —" }], sm = npc.stat.skillsIndividual || {};
+      Object.keys(sm).forEach(function (k) { if (sm[k]) out.push({ key:k, label:SKILLLBL(k) + " " + sm[k] }); });
+      return out;
+    }
+    return GROUPS.map(function (g) { return { key:g, label:cap(g) + " " + (npc.stat.skills[g]||0) }; });
+  }
 
   function buildRollSection(mid, npc) {
     resetRollState();
@@ -324,7 +339,7 @@
     wrap.innerHTML =
       "<div class='nr-controls'>"
       + "<div class='nr-field'><label>Ring</label><span class='nr-chips' id='nrRings'></span></div>"
-      + "<div class='nr-field'><label>Skill group</label><span class='nr-chips' id='nrGroups'></span></div>"
+      + "<div class='nr-field'><label>Skill</label><span class='nr-chips' id='nrGroups'></span></div>"
       + "<div class='nr-field nr-tn'><label>TN</label><input id='nrTN' type='number' min='0' value='2'></div>"
       + "<div class='nr-field'><label>Assist — skilled</label><span class='stepper' data-cfg='assistSkill'></span></div>"
       + "<div class='nr-field'><label>Assist — unskilled</label><span class='stepper' data-cfg='assistRing'></span></div>"
@@ -342,7 +357,7 @@
     var rc = wrap.querySelector("#nrRings");
     RINGS.forEach(function (r) { var b = el("button", "nr-chip" + (e.ring === r ? " sel" : ""), cap(r) + " " + npc.stat.rings[r]); b.addEventListener("click", function () { var en = getEng(mid); en.ring = r; saveEng(mid, en); rc.querySelectorAll(".nr-chip").forEach(function(x){x.classList.remove("sel");}); b.classList.add("sel"); syncSummary(mid, npc); renderOpp(mid, npc); }); rc.appendChild(b); });
     var gc = wrap.querySelector("#nrGroups");
-    GROUPS.forEach(function (g) { var b = el("button", "nr-chip" + (e.group === g ? " sel" : ""), cap(g) + " " + (npc.stat.skills[g]||0)); b.addEventListener("click", function () { var en = getEng(mid); en.group = g; saveEng(mid, en); gc.querySelectorAll(".nr-chip").forEach(function(x){x.classList.remove("sel");}); b.classList.add("sel"); syncSummary(mid, npc); }); gc.appendChild(b); });
+    skillOptions(npc).forEach(function (o) { var b = el("button", "nr-chip" + (e.group === o.key ? " sel" : ""), o.label); b.addEventListener("click", function () { var en = getEng(mid); en.group = o.key; saveEng(mid, en); gc.querySelectorAll(".nr-chip").forEach(function(x){x.classList.remove("sel");}); b.classList.add("sel"); syncSummary(mid, npc); }); gc.appendChild(b); });
     buildStepper(wrap.querySelector("[data-cfg='assistSkill']"), "assistSkill");
     buildStepper(wrap.querySelector("[data-cfg='assistRing']"), "assistRing");
     wrap.querySelector("#nrRoll").addEventListener("click", function () { doRoll(mid, npc); });
@@ -352,7 +367,7 @@
   }
   function syncSummary(mid, npc) {
     var s = document.getElementById("nrSummary"); if (s) s.innerHTML = "Base pool <b>" + (ringN(npc, mid) + skillN(npc, mid)) + "</b> · keep <b>" + ringN(npc, mid) + "</b>";
-    var cur = document.getElementById("nrCur"); if (cur) { var e = getEng(mid); cur.textContent = cap(e.ring) + " " + npc.stat.rings[e.ring] + " · " + cap(e.group) + " " + (npc.stat.skills[e.group]||0); }
+    var cur = document.getElementById("nrCur"); if (cur) { var e = getEng(mid); cur.textContent = cap(e.ring) + " " + (npc.stat.rings[e.ring]||0) + " · " + (npc.stat.pc ? SKILLLBL(e.group) : cap(e.group)) + " " + skillN(npc, mid); }
   }
   function buildStepper(host, key) {
     host.innerHTML = "<button class='st-btn' data-d='-1'>−</button><span class='st-val'>0</span><button class='st-btn' data-d='1'>+</button>";
@@ -510,10 +525,15 @@
     var wrap = el("div", "dp-play");
     var top = el("div", "dp-typebar");
     top.innerHTML = "<span class='dp-type'>" + esc(s.kind) + "</span>";
-    var ranks = el("span", "dp-ranks"); ranks.innerHTML = "<span class='rk-lab'>Conflict Rank</span>";
-    ranks.appendChild(fz(id + ":combatRank", "<span class='rk combat' title='Combat'>&#9876; " + s.combatRank + "</span>"));
-    ranks.appendChild(fz(id + ":intrigueRank", "<span class='rk intrigue' title='Intrigue'>&#10057; " + s.intrigueRank + "</span>"));
+    var ranks = el("span", "dp-ranks");
+    if (s.pc) { ranks.innerHTML = "<span class='rk-lab'>School Rank</span><span class='rk'>" + s.schoolRank + "</span>"; }
+    else {
+      ranks.innerHTML = "<span class='rk-lab'>Conflict Rank</span>";
+      ranks.appendChild(fz(id + ":combatRank", "<span class='rk combat' title='Combat'>&#9876; " + s.combatRank + "</span>"));
+      ranks.appendChild(fz(id + ":intrigueRank", "<span class='rk intrigue' title='Intrigue'>&#10057; " + s.intrigueRank + "</span>"));
+    }
     top.appendChild(ranks); wrap.appendChild(top);
+    if (s.pc && npc.sheetFile) { var lk = el("a", "pc-sheetlink", "Open full interactive sheet &rsaquo;"); lk.href = "../play/" + npc.sheetFile; wrap.appendChild(lk); }
     var desc = el("p", "dp-desc"); desc.appendChild(fz(id + ":desc", esc(s.description), "fz-block")); wrap.appendChild(desc);
     var rr = el("div", "dp-ringrow");
     RINGS.forEach(function (r) { var cell = el("div", "rr-cell ring-" + r); cell.innerHTML = "<img class='rr-ico' src='../assets/rings/" + r + ".svg' alt=''><span class='rr-nm'>" + cap(r) + "</span>"; cell.appendChild(fz(id + ":ring:" + r, "<span class='rr-v'>" + s.rings[r] + "</span>")); rr.appendChild(cell); });
@@ -522,11 +542,20 @@
     stats.appendChild(statCol("Societal", [["Honor",s.honor,id+":honor"],["Glory",s.glory,id+":glory"],["Status",s.status,id+":status"]]));
     stats.appendChild(statCol("Personal", [["Endurance",s.endurance,id+":endurance"],["Composure",s.composure,id+":composure"],["Focus",s.focus,id+":focus"],["Vigilance",s.vigilance,id+":vigilance"]]));
     wrap.appendChild(stats);
-    var dm = el("div", "dp-demeanor"); dm.innerHTML = "<span class='dm-lab'>Demeanor</span>"; dm.appendChild(fz(id + ":demeanor", esc(s.demeanor)));
-    if (s.tnMods) { var tn = el("span", "dp-tnmods"); tn.innerHTML = "<span class='dm-lab'>Social TN</span>"; tn.appendChild(fz(id + ":tnmods", esc(s.tnMods))); dm.appendChild(tn); }
-    wrap.appendChild(dm);
+    if (s.demeanor || s.tnMods) {
+      var dm = el("div", "dp-demeanor");
+      if (s.demeanor) { dm.innerHTML = "<span class='dm-lab'>Demeanor</span>"; dm.appendChild(fz(id + ":demeanor", esc(s.demeanor))); }
+      if (s.tnMods) { var tn = el("span", "dp-tnmods"); tn.innerHTML = "<span class='dm-lab'>Social TN</span>"; tn.appendChild(fz(id + ":tnmods", esc(s.tnMods))); dm.appendChild(tn); }
+      wrap.appendChild(dm);
+    }
     var sk = el("div", "dp-skills");
-    GROUPS.forEach(function (g) { var v = s.skills[g] || 0; var chip = el("span", "sk-chip" + (v > 0 ? " ranked" : "")); chip.innerHTML = "<span class='sk-nm'>" + cap(g) + "</span>"; chip.appendChild(fz(id + ":skill:" + g, "<span class='sk-v'>" + v + "</span>")); sk.appendChild(chip); });
+    if (s.pc) {
+      var sm = s.skillsIndividual || {}, keys = Object.keys(sm).filter(function (k) { return sm[k]; });
+      keys.forEach(function (k) { var chip = el("span", "sk-chip ranked"); chip.innerHTML = "<span class='sk-nm'>" + esc(SKILLLBL(k)) + "</span><span class='sk-v'>" + sm[k] + "</span>"; sk.appendChild(chip); });
+      if (!keys.length) sk.appendChild(el("span", "ad-none", "no ranked skills"));
+    } else {
+      GROUPS.forEach(function (g) { var v = s.skills[g] || 0; var chip = el("span", "sk-chip" + (v > 0 ? " ranked" : "")); chip.innerHTML = "<span class='sk-nm'>" + cap(g) + "</span>"; chip.appendChild(fz(id + ":skill:" + g, "<span class='sk-v'>" + v + "</span>")); sk.appendChild(chip); });
+    }
     wrap.appendChild(sk);
     if ((s.advantages && s.advantages.length) || (s.disadvantages && s.disadvantages.length)) { var ad = el("div", "dp-adv"); ad.appendChild(adColumn("Advantages", s.advantages, id + ":adv")); ad.appendChild(adColumn("Disadvantages", s.disadvantages, id + ":dis")); wrap.appendChild(ad); }
     var wg = el("div", "dp-gear"); wg.appendChild(el("div", "dp-h", "Favored Weapons &amp; Gear"));
@@ -534,8 +563,9 @@
     if (s.gear && s.gear.length) { var gl = el("p", "dp-gearline"); gl.innerHTML = "<span class='gl-lab'>Gear (equipped):</span> "; s.gear.forEach(function (g,i) { if (i) gl.appendChild(document.createTextNode(", ")); gl.appendChild(fz(id + ":gear" + i, syms(g))); }); wg.appendChild(gl); }
     if (s.gearOther && s.gearOther.length) { var gl2 = el("p", "dp-gearline"); gl2.innerHTML = "<span class='gl-lab'>Gear (other):</span> "; s.gearOther.forEach(function (g,i) { if (i) gl2.appendChild(document.createTextNode(", ")); gl2.appendChild(fz(id + ":gearo" + i, syms(g))); }); wg.appendChild(gl2); }
     wrap.appendChild(wg);
-    if (s.abilities && s.abilities.length) { var ab = el("div", "dp-abils"); ab.appendChild(el("div", "dp-h", "Abilities")); s.abilities.forEach(function (a, i) { ab.appendChild(abilityEntry(mid, npc, a, id + ":abil" + i)); }); wrap.appendChild(ab); }
-    if (gm) wrap.appendChild(buildTrackers(mid, npc));
+    if (s.abilities && s.abilities.length) { var ab = el("div", "dp-abils"); ab.appendChild(el("div", "dp-h", s.pc ? "Techniques" : "Abilities")); s.abilities.forEach(function (a, i) { ab.appendChild(abilityEntry(mid, npc, a, id + ":abil" + i)); }); wrap.appendChild(ab); }
+    if (gm && !s.pc) wrap.appendChild(buildTrackers(mid, npc));
+    if (gm && s.pc) wrap.appendChild(el("p", "dp-meta gm-hint", "Quick rolls here don't spend Void or apply strife to the sheet — the full interactive sheet stays authoritative for this PC."));
     return wrap;
   }
   function statCol(label, rows) { var col = el("div", "stat-col"); col.appendChild(el("div", "sc-lab", label)); rows.forEach(function (r) { var line = el("div", "sc-row"); line.innerHTML = "<span class='sc-nm'>" + r[0] + "</span>"; line.appendChild(fz(r[2], "<span class='sc-v'>" + r[1] + "</span>")); col.appendChild(line); }); return col; }
@@ -623,5 +653,55 @@
     r.readAsText(file);
   }
 
-  render();
+  // ============================ PC adapter + loader ============================
+  // Read each PC's live sheet JSON from its Play page and shape it like a card.
+  function adaptPC(sheet, file) {
+    var g = sheet.gear || [];
+    var weapons = g.filter(function (x) { return /weapon/i.test(x.kind || ""); }).map(function (w) {
+      return w.name + ": Range " + (w.range||"—") + ", Damage " + (w.damage!=null?w.damage:"—") + ", Deadliness " + (w.deadliness!=null?w.deadliness:"—") + (w.qualities && w.qualities.length ? ", " + w.qualities.join(", ") : "");
+    });
+    var gear = g.filter(function (x) { return !/weapon/i.test(x.kind || ""); }).map(function (it) {
+      var extra = []; if (it.physical != null) extra.push("Physical " + it.physical); if (it.supernatural) extra.push("Supernatural " + it.supernatural);
+      return it.name + (extra.length ? " (" + extra.join(", ") + ")" : "");
+    });
+    var abilities = (sheet.techniques || []).map(function (t) {
+      var a = { name: t.name, tag: t.tag, text: t.text };
+      if (t.activation) a.check = { tn: t.activation.tn, ring: t.activation.ring, group: t.activation.skill, label: SKILLLBL(t.activation.skill) + " (" + cap(t.activation.ring) + ")" };
+      return a;
+    });
+    var adv = [], dis = [];
+    (sheet.peculiarities || []).forEach(function (p) { var line = p.name + ": (" + (p.ring || "void") + ") " + (p.tag || ""); if (/Adversity|Anxiety/i.test(p.tag || "")) dis.push(line); else adv.push(line); });
+    var bio = [];
+    if (sheet.ninjo) bio.push("Ninjō — " + sheet.ninjo);
+    if (sheet.giri) bio.push("Giri — " + sheet.giri);
+    bio.push("A player character. The full interactive sheet in the Play section — Void points, technique activations, strife/fatigue trackers, session history — is authoritative; this card is for quick rolls and reference at the table.");
+    return {
+      id: "pc-" + sheet.id, pc: true, name: sheet.name,
+      epithet: sheet.clan + " · " + sheet.school,
+      affil: "Player character · " + sheet.family + " family · " + sheet.role + " · Rank " + sheet.rank,
+      sheetFile: file, status: "Player character", bio: bio,
+      stat: {
+        kind: "Player Character", pc: true, schoolRank: sheet.rank,
+        description: sheet.clan + " " + sheet.role + " of the " + sheet.school + ", rank " + sheet.rank + ".",
+        rings: sheet.rings,
+        endurance: (sheet.derived||{}).endurance, composure: (sheet.derived||{}).composure, focus: (sheet.derived||{}).focus, vigilance: (sheet.derived||{}).vigilance,
+        honor: (sheet.social||{}).honor, glory: (sheet.social||{}).glory, status: (sheet.social||{}).status,
+        demeanor: null, tnMods: null, skillsIndividual: sheet.skills || {},
+        weapons: weapons, gear: gear, advantages: adv, disadvantages: dis, abilities: abilities
+      }
+    };
+  }
+  function loadPCs() {
+    if (typeof fetch !== "function") return Promise.resolve([]);
+    return Promise.all(PC_PAGES.map(function (f) {
+      return fetch("../play/" + f).then(function (r) { return r.ok ? r.text() : null; }).then(function (html) {
+        if (!html) return null;
+        try { var doc = new DOMParser().parseFromString(html, "text/html"); var node = doc.getElementById("sheet-data"); return node ? adaptPC(JSON.parse(node.textContent), f) : null; }
+        catch (e) { return null; }
+      }).catch(function () { return null; });
+    })).then(function (arr) { return arr.filter(Boolean); });
+  }
+
+  render();   // NPCs immediately; PC members (if any) fill in once their sheets load
+  loadPCs().then(function (pcs) { if (pcs.length) { CAST = pcs.concat(NPCS); render(); } });
 })();

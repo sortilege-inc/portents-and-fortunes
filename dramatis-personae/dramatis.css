@@ -48,6 +48,11 @@ body:not(.gm-on) .fz.revealed{ background:rgba(79,125,92,0.12); }
 .tarot.active{ background:linear-gradient(160deg,#f6efd8,#e7d9b0); border-color:var(--gold-lit); }
 .tarot.active::before{ border-color:var(--gold-lit); box-shadow:0 0 10px rgba(194,162,92,0.5) inset; }
 .tarot.nostat{ opacity:0.96; }
+.tarot.pc{ background:linear-gradient(160deg,#eef2e6,#dfe6cf); }
+.tarot.pc::before{ border-color:var(--jade); }
+.tarot.pc .tr-emblem{ color:var(--jade); }
+.tarot.pc .tr-kind{ color:var(--jade); border-color:rgba(79,125,92,0.4); }
+.tarot.pc.active{ border-color:var(--jade); }
 .tr-inner{ position:relative; z-index:1; text-align:center; padding-top:0.6rem; display:flex; flex-direction:column; align-items:center; height:100%; }
 .tr-emblem{ font-size:2.5rem; color:var(--crimson); line-height:1; margin-bottom:0.5rem; opacity:0.85; }
 .tr-name{ font-family:var(--disp); font-weight:700; font-size:1.35rem; color:var(--sumi); line-height:1.1; }
@@ -125,6 +130,9 @@ body:not(.gm-on) .fz.revealed{ background:rgba(79,125,92,0.12); }
 .rk{ font-family:var(--disp); font-weight:700; font-size:1.05rem; color:var(--sumi); padding:0.05rem 0.4rem; border:1px solid var(--gold-soft); border-radius:4px; background:var(--paper); }
 .rk.combat{ color:var(--crimson); } .rk.intrigue{ color:var(--clan-unicorn); }
 .dp-desc{ font-size:0.96rem; color:var(--ink-2); line-height:1.55; margin:0 0 0.9rem; }
+.rk-lab + .rk{ margin-left:0.4rem; }
+.pc-sheetlink{ display:inline-block; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.08em; font-size:0.7rem; color:#fff; background:var(--jade); border:1px solid #3d6349; border-radius:4px; padding:0.3rem 0.7rem; margin:0 0 0.7rem; text-decoration:none; }
+.pc-sheetlink:hover{ filter:brightness(1.08); }
 
 /* horizontal ring row */
 .dp-ringrow{ display:grid; grid-template-columns:repeat(5,1fr); gap:0.4rem; margin-bottom:0.9rem; }
