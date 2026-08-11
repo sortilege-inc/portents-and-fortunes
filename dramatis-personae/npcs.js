@@ -128,10 +128,31 @@ window.NPCS = [
     name: "Togashi Oharu",
     epithet: "The Abbot",
     affil: "Togashi · Norikage's lord and master of his temple",
+    statNote: "Built on Togashi Remmu, Sociable Wanderer (Writ of Wilds) with the Temple Abbot title's Soothing Cadence and Status +10 — re-skinned for the Abbot, pending a bespoke build.",
     bio: [
-      "Abbot of the Tattooed Order and the authority to whom Norikage answers. It is Oharu who gave the charge that sets this chronicle in motion: to go down into a shrinking village and watch — quietly — the samurai who are emptying it, and to report back to the temple. Norikage's character sheet first recorded Togashi Oharu as a provincial daimyō he served as \"eyes and ears\"; that role is now understood as the abbot and the temple. Oharu's age, and true reasons, are not yet known."
+      "Abbot of the Tattooed Order and the authority to whom Norikage answers. It is Oharu who gave the charge that sets this chronicle in motion: to go down into a shrinking village and watch — quietly — the samurai who are emptying it, and to report back to the temple. Norikage's character sheet first recorded Togashi Oharu as a provincial daimyō he served as \"eyes and ears\"; that role is now understood as the abbot and the temple. Oharu's age, and true reasons, are not yet known.",
+      "Like Norikage, an ise zumi of the Togashi line — the same Blood of the Kami in his tattoos, the same humble bō in his hands. What his student sees in the master is a mirror held a lifetime ahead."
     ],
-    status: "Named but unmet · Norikage's lord and giri"
+    status: "Named but unmet · Norikage's lord and giri",
+    stat: {
+      kind: "Adversary",
+      combatRank: 4, intrigueRank: 4,
+      description: "An abbot of the Tattooed Order — an ise zumi who presides over Norikage's temple. Revered as wise and deeply committed to his faith and traditions, he carries a tattooed adept's quiet power beneath a warm and sociable manner.",
+      rings: { air:3, earth:3, fire:3, water:4, void:4 },
+      endurance:12, composure:14, focus:6, vigilance:4,
+      honor:60, glory:72, status:45,
+      demeanor:"Outgoing", tnMods:"Water +2, Earth -2",
+      skills: { artisan:2, martial:3, scholar:3, social:3, trade:1 },
+      advantages: [ "Higher Purpose: (air) Scholar; Mental" ],
+      disadvantages: [ "Conciliatory: (fire) Social; Mental" ],
+      weapons: [ "Bō (staff): Range 1–2, Damage 6, Deadliness 2, Mundane" ],
+      gear: [ "Traveling Clothes (Physical 2, Durable, Mundane, Subtle)", "Wicker satchel", "Journal of personal poetry" ],
+      abilities: [
+        { name:"Blood of the Kami", text:"When Oharu successfully uses a kihō, they are considered to have three bonus successes for the purposes of resolving the effects of that kihō." },
+        { name:"Drawing From Within", text:"Choose four kihō from those listed beginning on page 182 of the Core Rulebook, which Oharu can use. Each is linked to an appropriate tattoo, so they benefit from Blood of the Kami." },
+        { name:"Soothing Cadence", tag:"Abbot", text:"When making a skill check to communicate with a group of three or more people, you may keep up to one extra die. If your check succeeds, each other character in the scene removes strife equal to your bonus successes." }
+      ]
+    }
   },
 
   // ---- Yogo Kenzan — bio only (mentor) ----
@@ -140,10 +161,29 @@ window.NPCS = [
     name: "Yogo Kenzan",
     epithet: "“Brother Kenzan”",
     affil: "Brotherhood of Shinsei · the teacher from whom Norikage learned the most",
+    statNote: "Built on Jun, Shinseist Monk (Emerald Empire), re-skinned for Kenzan's Yogo / Brotherhood background, pending a bespoke build.",
     bio: [
-      "A monk of the Brotherhood of Shinsei, Scorpion-born under the Yogo name, and the person from whom Norikage says he learned the most. Their conversations shaped how the young Togashi thinks about faith and doubt. Where Kenzan is now, and what he believes, are threads yet to be drawn."
+      "A monk of the Brotherhood of Shinsei, Scorpion-born under the Yogo name, and the person from whom Norikage says he learned the most. Their conversations shaped how the young Togashi thinks about faith and doubt. Where Kenzan is now, and what he believes, are threads yet to be drawn.",
+      "A flippant manner belies a deep understanding of the Way — the kind of teacher who answers a hard question with a lighter one, and is remarkably difficult to corner in an argument or a conflict."
     ],
-    status: "Known · mentor"
+    status: "Known · mentor",
+    stat: {
+      kind: "Adversary",
+      combatRank: 4, intrigueRank: 2,
+      description: "A Shinseist monk with a flippant demeanor that belies his deep understanding of the Way. His attunement to Shinsei's teachings makes him remarkably difficult to overcome in conflict.",
+      rings: { air:4, earth:2, fire:2, water:3, void:3 },
+      endurance:10, composure:12, focus:6, vigilance:4,
+      honor:55, glory:45, status:25,
+      demeanor:"Flippant", tnMods:"Fire +2, Air -2",
+      skills: { artisan:0, martial:2, scholar:3, social:3, trade:0 },
+      advantages: [ "Subtle Observer: (air) Social; Interpersonal" ],
+      disadvantages: [ "Bluntness: (air) Social; Interpersonal" ],
+      weapons: [ "Walking Staff: Range 1–2, Damage 6, Deadliness 2, Mundane" ],
+      gear: [ "Monk's robes (Physical 1)", "Gold lotus pendant (When performing a Meditation check add one rolled Ring die showing (op) result)" ],
+      abilities: [
+        { name:"Attuned to the Way", text:"When a character succeeds on an Attack or Scheme action targeting Kenzan, reduce their bonus successes by 3, to a minimum of 0." }
+      ]
+    }
   }
 
 ];
