@@ -83,7 +83,28 @@
     im.addEventListener("click",function(){ file.click(); });
     file.addEventListener("change",function(e){ var f=e.target.files&&e.target.files[0]; if(f) doImport(f); e.target.value=""; });
     wrap.appendChild(ex); wrap.appendChild(im); wrap.appendChild(file);
-    return wrap;
+    var col=el("div","sh-iocol");
+    col.appendChild(wrap);
+    col.appendChild(buildReset());
+    return col;
+  }
+  // Full local reset: discards this browser's saved trackers, conflict state and
+  // roll log for this character and reloads the pristine sheet. Destructive, so it
+  // confirms first and offers an export on the way out.
+  function buildReset(){
+    var b=el("button","io-reset","⟲ Reset");
+    b.title="Discard all local changes on this page (trackers, conflict, log) and reload the sheet as authored";
+    b.addEventListener("click",function(){
+      var n=rollLog.length;
+      if(!confirm("Reset this sheet?\n\nThis discards everything stored in THIS browser for "
+        +(CURRENT.name||"this character")+":\n  • trackers (strife, fatigue, Void), conditions, social standing\n"
+        +"  • stance, conflict, equipped weapon/armour, technique uses\n"
+        +"  • the roll and event log"+(n?" ("+n+" entries)":"")
+        +"\n\nThe sheet reloads exactly as authored. This cannot be undone — export first if you want a copy.")) return;
+      try { localStorage.removeItem(LSKEY); localStorage.removeItem(LOGKEY); } catch(e){}
+      location.reload();
+    });
+    return b;
   }
   function doExport(){
     var data={ app:"portents-and-fortunes", character:CURRENT.id, name:CURRENT.name,
@@ -688,7 +709,8 @@
     var actWrap=el("div","conf-choices actions");
     var actDetail=el("div","conf-action-detail"); actDetail.hidden=true;
     (conf.actions||[]).forEach(function(a){
-      var hint = a.check ? (a.check.tn!=null?("TN "+a.check.tn):"check")+(a.check.skill?" · "+(SKILL_NAMES[a.check.skill]||cap(a.check.skill)):"")+(a.check.opt?" (optional)":"") : "";
+      var hc = a.check ? resolveCheck(a.check) : null;
+      var hint = hc ? (hc.tn!=null?("TN "+hc.tn):"check")+(hc.skill?" · "+(SKILL_NAMES[hc.skill]||cap(hc.skill)):"")+(hc.opt?" (optional)":"") : "";
       var b=el("button","conf-action-btn");
       b.innerHTML="<span class='ca-name'>"+a.name+"</span>"
         +"<span class='ca-cats'>"+a.cats+"</span>"
@@ -705,13 +727,17 @@
     end.addEventListener("click",function(){ st.inConflict=false; save(); renderConflict(body); syncRoller(); });
     body.appendChild(end);
   }
+  // Initiative tees up the roll without making it, like every other conflict action.
+  // In a conflict the ring is the one your stance dictates, so carry the stance across.
   function rollInitiative(conf){
     var key=conf.initSkill.toLowerCase();
-    st.skill=key; save(); syncSkill();
-    var rc=document.getElementById("rollerCard"); if(rc) rc.classList.remove("collapsed");
-    var tn=document.getElementById("rTN"); if(tn) tn.value=1;
-    syncRoller(); doRoll();
-    if(rc) rc.scrollIntoView({behavior:"smooth",block:"start"});
+    st.skill=key;
+    if(st.inConflict && st.stance) st.ring=st.stance;
+    save(); syncSkill(); syncRing();
+    teeUpRoll({ tn:1 }, "Initiative — "+conf.initSkill);
+    logEvent("action","Rolled Initiative — teed up check (TN 1, "+conf.initSkill
+      +(st.inConflict&&st.stance?", "+cap(st.stance)+" stance":"")+")",
+      {conflict:(conf.name||cap(st.conflictType)), stance:st.stance});
   }
 
   // Declare a conflict action: record it to the log, and if it involves a check,
@@ -721,11 +747,13 @@
     var typeName=(conf.name||cap(st.conflictType));
     var teed="";
     if(a.check){
+      var chk=resolveCheck(a.check);
       var parts=[];
-      if(a.check.tn!=null) parts.push("TN "+a.check.tn);
-      if(a.check.skill) parts.push(SKILL_NAMES[a.check.skill]||cap(a.check.skill));
-      teed = " — teed up "+(a.check.opt?"optional ":"")+"check"+(parts.length?" ("+parts.join(", ")+")":"");
-      teeUpRoll(a.check, a.name);
+      if(chk.tn!=null) parts.push("TN "+chk.tn);
+      if(chk.skill) parts.push(SKILL_NAMES[chk.skill]||cap(chk.skill));
+      else if(a.check.weapon) parts.push("no weapon readied — ready one to set the skill");
+      teed = " — teed up "+(chk.opt?"optional ":"")+"check"+(parts.length?" ("+parts.join(", ")+")":"");
+      teeUpRoll(chk, a.name);
     }
     logEvent("action", a.name+" ("+a.cats+")"+teed, {conflict:typeName, stance:st.stance});
   }
@@ -738,6 +766,19 @@
       +"<p><b>Effects:</b> "+syms(a.effects)+"</p>"
       +(a.newOpp?"<p><b>New Opportunities:</b> "+syms(a.newOpp)+"</p>":"");
     host.hidden=false;
+  }
+  // "the appropriate skill for the weapon" — resolve a weapon check against the
+  // readied weapon's own skill (Bō → Martial Arts [Melee]). Unreadied, the skill
+  // is left alone rather than guessed at.
+  function equippedWeapon(){
+    if(!st.equipWeapon) return null;
+    var g=(S.gear||[]).filter(function(x){ return x.name===st.equipWeapon; })[0];
+    return g||null;
+  }
+  function resolveCheck(check){
+    var c={ skill:check.skill, tn:check.tn, opt:check.opt };
+    if(check.weapon){ var w=equippedWeapon(); if(w && w.skill) c.skill=w.skill; }
+    return c;
   }
   // Open the roller and pre-fill skill/TN for an action or effect, WITHOUT rolling.
   function teeUpRoll(check,label){
@@ -806,6 +847,9 @@
     logEvent("gear",verb+" "+g.name,{attr:"equip"});
     var old=root.querySelector(".sh-card.gear");
     if(old){ var fresh=buildGearCard(); if(old.id) fresh.id=old.id; old.replaceWith(fresh); }
+    // Strike's "appropriate skill for the weapon" depends on what is readied, so the
+    // conflict action hints must be rebuilt whenever that changes.
+    if(weapon){ var cb=root.querySelector(".conflict-body"); if(cb) renderConflict(cb); }
   }
 
   // Damage + Critical Strike calculators for the readied weapon. The player

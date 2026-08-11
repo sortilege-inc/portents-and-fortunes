@@ -17,8 +17,10 @@ window.L5R = {
   // --- Conflict types: initiative skill + available actions ---
   // Each action's desc / activation / effects / newOpp text is VERBATIM from the
   // L5R5e core rulebook. `check` (when present) tees up the appropriate Roll & Keep:
-  //   skill  — the skill key to select (null = player chooses; e.g. Strike's "appropriate
-  //            skill for the weapon", Persuade's Social skill, an open Unique Action)
+  //   skill  — the skill key to select (null = player chooses; e.g. Persuade's Social
+  //            skill, an open Unique Action)
+  //   weapon — true if the skill is "the appropriate skill for the weapon" (Strike):
+  //            the readied weapon's own skill is selected, per its gear entry
   //   tn     — the TN to fill in (null = set by target/GM, left for the player)
   //   opt    — true if the check is optional to the action (e.g. Maneuver's Fitness check)
   // Actions with no `check` are declared to the log only.
@@ -65,7 +67,7 @@ window.L5R = {
         activation:"As an Attack action using one readied weapon, make a TN 2 Martial Arts check using the appropriate skill for the weapon, targeting one character within the weapon's range.",
         effects:"If you succeed, deal physical damage to the target equal to the weapon's base damage plus your bonus successes.",
         newOpp:"(op): If you succeed, inflict a critical strike on your target with severity equal to your weapon's deadliness.",
-        check:{ skill:null, tn:2 } }
+        check:{ skill:null, weapon:true, tn:2 } }
     ] },
     skirmish: { name:"Skirmish", initSkill:"Tactics", actions:[
       { name:"Assist", cats:"Attack, Scheme, and Support action",
@@ -100,7 +102,7 @@ window.L5R = {
         activation:"As an Attack action using one readied weapon, make a TN 2 Martial Arts check using the appropriate skill for the weapon, targeting one character within the weapon's range.",
         effects:"If you succeed, deal physical damage to the target equal to the weapon's base damage plus your bonus successes.",
         newOpp:"(op): If you succeed, you inflict a critical strike on your target with severity equal to your weapon's deadliness.",
-        check:{ skill:null, tn:2 } },
+        check:{ skill:null, weapon:true, tn:2 } },
       { name:"Unique Action", cats:"action",
         desc:"You make a check using a skill for a mechanical or narrative effect.",
         activation:"As an action, make a skill check to attempt a task you have described to the GM.",
