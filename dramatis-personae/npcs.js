@@ -50,6 +50,7 @@ window.NPCS = [
   // ---- Scholarly Shugenja (core adversary, verbatim) ----
   {
     id: "scholarly-shugenja",
+    template: true,
     name: "Scholarly Shugenja",
     epithet: "Adversary · Subjects of Rokugan",
     affil: "A priest who communes with the kami",
@@ -90,6 +91,7 @@ window.NPCS = [
   // ---- Trained Ashigaru (core minion, verbatim) ----
   {
     id: "trained-ashigaru",
+    template: true,
     name: "Trained Ashigaru",
     epithet: "Minion · Subjects of Rokugan",
     affil: "Rank-and-file foot soldier",
