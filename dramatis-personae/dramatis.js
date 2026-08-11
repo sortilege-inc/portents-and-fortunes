@@ -239,6 +239,10 @@
     reset.title = "End the conflict and reduce every NPC's strife & fatigue to half.";
     reset.addEventListener("click", sceneReset);
     tools.appendChild(reset);
+    var clear = el("button", "roll-btn ghost", "✕ Clear Table");
+    clear.title = "Empty the scene: remove everyone, discard their trackers, and reset numbering so the next copy of a template is “1”. The scene log is kept.";
+    clear.addEventListener("click", clearTable);
+    tools.appendChild(clear);
     var logBtn = el("button", "roll-btn ghost", "Log " + (getLog().length ? "(" + getLog().length + ")" : ""));
     logBtn.addEventListener("click", function () { var p = document.getElementById("sceneLogPane"); if (p) { p.hidden = !p.hidden; } });
     tools.appendChild(logBtn);
@@ -264,6 +268,39 @@
     scene.inConflict = false; saveScene();
     logEvent(null, "scene", "Scene reset — conflict ended, strife & fatigue reduced to half.");
     renderScene();
+  }
+  // Empties the table. Distinct from sceneReset(), which is the rules-side rest
+  // between scenes: this one takes everybody off, drops their trackers with them,
+  // and zeroes the instance counters so templates number from 1 again. The scene
+  // log is deliberately kept — it is the record of what happened, not scene state.
+  function clearTable() {
+    var n = scene.members.length;
+    if (n && !confirm("Clear the table?\n\nThis removes all " + n + " participant" + (n === 1 ? "" : "s")
+      + " from the scene, discards their trackers (strife, fatigue, stance, conditions), and resets"
+      + " numbering so the next copy of a template is “1”.\n\nThe scene log is kept — export it first"
+      + " if you want a copy.")) return;
+    purgeEngagements();
+    scene.members = []; scene.selected = null; scene.counters = {};
+    scene.inConflict = false; scene.conflictName = "";
+    saveScene();
+    VIEW = {}; rollOpen = false; pendingTee = null;
+    if (n) logEvent(null, "scene", "Table cleared — " + n + " participant" + (n === 1 ? "" : "s")
+      + " removed, instance numbering reset.");
+    renderScene();
+  }
+  // Engagement state outlives its member — removeMember() leaves the key behind so
+  // an NPC put back on the table returns as they left it. Clearing has to sweep the
+  // whole namespace rather than just the current roster, or a fresh "Name 1" would
+  // inherit the strife of the last one.
+  function purgeEngagements() {
+    try {
+      var kill = [];
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf("pf-dp-eng-") === 0) kill.push(k);
+      }
+      kill.forEach(function (k) { localStorage.removeItem(k); });
+    } catch (e) {}
   }
 
   // ============================ selected NPC page ============================
