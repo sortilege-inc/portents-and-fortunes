@@ -47,6 +47,49 @@ window.NPCS = [
     }
   },
 
+  // ---- Seiya Fusae — the officer of the escort (canonical Loyal Bushi chassis) ----
+  {
+    id: "seiya-fusae",
+    name: "Seiya Fusae",
+    epithet: "Officer of the Escort",
+    affil: "Dragon · Seiya · Mirumoto Two-Heavens Adept, trained at Iron Mountain Dojo",
+    statNote: "Statted on the core Loyal Bushi block (core p.312), unmodified, with two additions for her niten training: the wakizashi line from Mirumoto Kichiru, Thwarted Duelist (Writ of Wilds), since Two Heavens needs a second readied blade, and that same NPC's Two Heavens Style ability re-skinned to her. Pending a bespoke build.",
+    bio: [
+      "Twenty-two years old, and in command of the ashigaru walking the displaced households east to White Flower Village. The Seiya are a vassal family of the Agasha, and virtually every Dragon shugenja is Agasha — so a Seiya daughter who is not attuned to the kami cannot train with her own parent family. She went instead to Iron Mountain Dojo, the academy for most Dragon bushi and the center of excellence for niten, where instruction is famously unfocused by Rokugani standards and students are encouraged to follow their interests. She followed hers to the two-sword style.",
+      "The result is an officer taught to fight one person extremely well, handed a column of families, carts and levies instead. The ashigaru under her are mostly older men; her authority over them rests on nothing but rank, because nothing in her education touches this work. She knows it, and so do they. She does not speak about religious matters at all — whether from caution or from ignorance, Norikage cannot yet tell. It is worth his considering that the silence may be his own doing: a monk sent by a temple, in a religious capacity, for reasons nobody explained to her, is an excellent reason to say nothing."
+    ],
+    status: "On the road with him · commands the escort · silent on anything to do with the kami",
+    stat: {
+      kind: "Adversary",
+      combatRank: 4, intrigueRank: 2,
+      description: "Bushi are warriors: armed samurai who are professional soldiers in service to their clan. PCs might encounter bushi individually, or they might meet an organized body, which could be anything from a squad (or guntai) of up to a dozen bushi commanded by a sergeant (or gunsō) to an entire army on the march.",
+      rings: { air:2, earth:3, fire:3, water:3, void:2 },
+      endurance:12, composure:9, focus:5, vigilance:3,
+      honor:55, glory:50, status:39,
+      demeanor:"Assertive", tnMods:"Earth +2, Air -2",
+      skills: { artisan:1, martial:3, scholar:2, social:1, trade:0 },
+      advantages: [
+        "Tested in War: (earth) Martial; Mental, Physical",
+        "Sworn to Bushidō: (void) Social; Mental"
+      ],
+      disadvantages: [
+        "Hot-Tempered: (water) Social; Mental"
+      ],
+      weapons: [
+        "Katana: Range 1, Damage 4, Deadliness 5/7, Ceremonial, Razor-Edged",
+        "Wakizashi: Range 0–1, Damage 3, Deadliness 5/7, Ceremonial, Razor-Edged",
+        "Yumi (Bow): Range 2–5, Damage 5, Deadliness 3"
+      ],
+      gear: [ "Lacquered armor (Physical 4, Ceremonial, Cumbersome, Wargear)", "wakizashi", "quiver", "yari (spear)", "knife" ],
+      gearOther: [ "Plain robes (Physical 1, Mundane)", "a handful of koku and bu" ],
+      abilities: [
+        { name:"Two Heavens Style", tag:"Niten", text:"Once per round, when performing an Attack action, Fusae may spend (op) as follows: (op): Perform a Strike Action with a readied weapon she has not used for an Attack action this turn." },
+        { name:"Crescent Moon Style", text:"When performing a Guard action (see page 264), the bushi may spend (op) in the following way: (op): After another character performs an Attack action targeting the bushi or another character the bushi is guarding, the bushi may perform a Strike action targeting them. This effect persists until the start of the bushi’s next turn or until they perform a Strike action." },
+        { name:"Sworn Protector", text:"Once per scene, when an Attack action check targeting another character at range 0–1 succeeds, a bushi may intervene, becoming the target of the action instead." }
+      ]
+    }
+  },
+
   // ---- Scholarly Shugenja (core adversary, verbatim) ----
   {
     id: "scholarly-shugenja",
