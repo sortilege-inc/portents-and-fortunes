@@ -198,6 +198,7 @@
     cTrk.appendChild(tracker("fatigue","Fatigue",S.trackers.fatigue.max,S.derived.endurance,"Incapacitated at "+S.derived.endurance));
     cTrk.appendChild(tracker("void","Void Points",S.trackers["void"].max,null,null));
     cTrk.appendChild(buildConditions());
+    if(S.afflictions&&S.afflictions.length) cTrk.appendChild(buildAfflictions());
     grid.appendChild(cTrk);
 
     // --- Social (Honor / Glory / Status) ---
@@ -252,10 +253,141 @@
     row("Least significant", S.bushido.less);
     row("Ninjō (desire)", S.ninjo);
     row("Giri (duty)", S.giri);
+    if(S.bushido.register) row("Register", S.bushido.register);
     cMot.appendChild(dl);
     grid.appendChild(cMot);
 
+    // --- Titles & bonds ---
+    if((S.titles&&S.titles.length)||(S.bonds&&S.bonds.length)) grid.appendChild(buildTitlesCard());
+
     root.appendChild(grid);
+    applyRails();          // section ids are recreated by render(), so rebuild the nav
+  }
+
+  // ===================== ABILITY USE CONTROLS =====================
+  // Title abilities, bond abilities, and the shūji that spend a resource or move a
+  // tracker without rolling get a Use button rather than an activation roll.
+  // L5R5e social ranks are the tens digit of the attribute (honor 35 = rank 3), so
+  // these read the live value and follow honor/glory/status as they are adjusted.
+  function rankOf(attr){ return Math.floor(socialVal(attr)/10); }
+  function useAmount(spec, ctx){
+    if(spec==null) return 0;
+    if(typeof spec==="number") return spec;
+    if(spec==="gloryRank")  return rankOf("glory");
+    if(spec==="honorRank")  return rankOf("honor");
+    if(spec==="statusRank") return rankOf("status");
+    if(spec==="bondRank")   return (ctx&&ctx.rank)||0;
+    return (S.skills&&S.skills[spec])||0;              // a skill's ranks, e.g. "sentiment"
+  }
+  function useScale(u, ctx){
+    var spec = u.scaleBy!=null ? u.scaleBy
+             : (u.strifeRemove!=null ? u.strifeRemove : u.strifeAdd);
+    return useAmount(spec, ctx);
+  }
+  function abilityUse(name, u, ctx){
+    var key=u.usesKey||name;
+    var spent=(st.techUses[key]||0);
+    var maxed=!!(u.uses && spent>=u.uses.max);
+    var short=!!(u.voidCost && (st["void"]||0)<u.voidCost);
+    var blocked=u.locked||maxed||short||RO;
+
+    var wrap=el("div","ability-use");
+    var bits=[];
+    if(u.voidCost) bits.push(u.voidCost+" Void");
+    if(u.strifeRemove!=null) bits.push("&minus;"+useAmount(u.strifeRemove,ctx)+" strife");
+    if(u.strifeAdd!=null) bits.push("+"+useAmount(u.strifeAdd,ctx)+" strife");
+    var btn=el("button","tech-activate ability-btn"+(blocked?" spent":""),
+      (u.label||"Use")+(bits.length?" &middot; "+bits.join(" &middot; "):""));
+    if(u.locked){ btn.disabled=true; btn.title=u.locked; }
+    else if(RO){ btn.disabled=true; }
+    else if(maxed){ btn.disabled=true; btn.title="Already used — recharges per "+String(u.uses.per).toLowerCase(); }
+    else if(short){ btn.disabled=true; btn.title="Not enough Void points"; }
+    else btn.addEventListener("click",function(){ useAbility(name,u,ctx); });
+    wrap.appendChild(btn);
+    if(u.uses) wrap.appendChild(el("span","tech-uses",spent+"/"+u.uses.max+" per "+u.uses.per));
+    if(u.locked) wrap.appendChild(el("div","ability-note locked",u.locked));
+    if(u.note) wrap.appendChild(el("div","ability-note",syms(String(u.note).replace(/\{n\}/g, useScale(u,ctx)))));
+    return wrap;
+  }
+  function useAbility(name,u,ctx){
+    var key=u.usesKey||name, done=[];
+    if(u.voidCost){
+      var vf=st["void"]||0; st["void"]=Math.max(0,vf-u.voidCost);
+      done.push("Void "+vf+" → "+st["void"]);
+    }
+    if(u.strifeRemove!=null){
+      var amt=useAmount(u.strifeRemove,ctx), sf=st.strife||0;
+      st.strife=Math.max(0,sf-amt); done.push("Strife "+sf+" → "+st.strife);
+    }
+    if(u.strifeAdd!=null){
+      var add=useAmount(u.strifeAdd,ctx), s0=st.strife||0;
+      st.strife=s0+add; done.push("Strife "+s0+" → "+st.strife);   // no upper clamp, as elsewhere
+    }
+    if(u.uses) st.techUses[key]=(st.techUses[key]||0)+1;
+    save();
+    logEvent("ability", name+(done.length?" — "+done.join("; "):" — used"), {source:name});
+    syncTracker("strife"); syncTracker("void"); syncRoller();
+    renderTechniques(); renderTitles();
+  }
+
+  // ===================== TITLES & BONDS =====================
+  // Titles carry a status award, a title ability, and an advancement curriculum;
+  // bonds carry a rank and a bond ability. Both are collapsible like techniques.
+  function renderTitles(){
+    var old=root.querySelector(".titles-card"); if(!old) return;
+    var fresh=buildTitlesCard();
+    if(old.id) fresh.id=old.id;          // keep the left rail's section anchor alive
+    old.replaceWith(fresh);
+  }
+  function buildTitlesCard(){
+    var c=el("div","sh-card span2 titles-card");
+    c.appendChild(el("h2",null,"Titles &amp; Bonds"));
+    (S.titles||[]).forEach(function(t){ c.appendChild(titleEntry(t)); });
+    (S.bonds||[]).forEach(function(b){ c.appendChild(bondEntry(b)); });
+    return c;
+  }
+  function titleEntry(t){
+    var e=el("div","entry title-entry");
+    var meta=[];
+    if(t.state) meta.push(t.state);
+    if(t.statusAward) meta.push("Status award "+t.statusAward);
+    if(t.assignedBy) meta.push("Assigned by "+t.assignedBy);
+    e.innerHTML="<div class='et-head'><span class='et-name'>"+t.name+"</span><span class='et-tag'>Title</span></div>"
+      +(meta.length?"<div class='gearmeta'>"+meta.join(" · ")+"</div>":"")
+      +(t.ability?"<div class='tech-blood'><b>Title ability — "+t.ability+"</b>"+(t.abilityText?"<br>"+syms(t.abilityText):"")+(t.abilityLocked?" <em>("+t.abilityLocked+")</em>":"")+"</div>":"")
+      +(t.curriculum&&t.curriculum.length?"<div class='gearmeta'>Curriculum: "+t.curriculum.join(" · ")+"</div>":"");
+    if(t.use) e.appendChild(abilityUse(t.ability||t.name, t.use, t));
+    if(t.text){
+      var body=el("p","et-text collapsed"); body.innerHTML=syms(boldLabels(t.text)); e.appendChild(body);
+      var more=el("button","more","Read more"); e.appendChild(more); wireMore(body,more);
+    }
+    return e;
+  }
+  function bondEntry(b){
+    var e=el("div","entry bond-entry");
+    var meta=[];
+    if(b.type) meta.push(b.type);
+    if(b.rank!=null) meta.push("Rank "+b.rank);
+    e.innerHTML="<div class='et-head'><span class='et-name'>"+b.name+"</span><span class='et-tag'>Bond</span></div>"
+      +(meta.length?"<div class='gearmeta'>"+meta.join(" · ")+"</div>":"")
+      +(b.ability?"<div class='tech-blood'><b>Bond ability — "+b.ability+"</b>"+(b.abilityText?"<br>"+syms(b.abilityText):"")+"</div>":"");
+    if(b.use) e.appendChild(abilityUse(b.ability||b.name, b.use, b));
+    if(b.text){
+      var body=el("p","et-text collapsed"); body.innerHTML=syms(boldLabels(b.text)); e.appendChild(body);
+      var more=el("button","more","Read more"); e.appendChild(more); wireMore(body,more);
+    }
+    return e;
+  }
+
+  // Long-running wounds and other standing mechanical burdens that are not
+  // conditions and do not clear on a scene reset.
+  function buildAfflictions(){
+    var wrap=el("div","afflictions-wrap");
+    wrap.appendChild(el("h2",null,"Standing Wounds"));
+    (S.afflictions||[]).forEach(function(a){
+      wrap.appendChild(el("div","affliction","<span class='aff-name'>"+a.name+"</span><span class='aff-text'>"+syms(a.text)+"</span>"));
+    });
+    return wrap;
   }
 
   function tracker(key,name,max,limit,warnAt){
@@ -287,6 +419,7 @@
     var warn=wrap.querySelector("[data-warn]"); warn.textContent="";
     if(key==="strife" && v>=S.derived.composure) warn.textContent="Compromised";
     if(key==="fatigue" && v>=S.derived.endurance) warn.textContent="Incapacitated";
+    syncRails();
   }
   function entry(name,tag,ring,text){
     var e=el("div","entry");
@@ -297,9 +430,9 @@
     return e;
   }
 
-  function syncRing(){ root.querySelectorAll(".ring").forEach(function(r){ r.classList.toggle("sel", r.getAttribute("data-ring")===st.ring); }); }
-  function syncSkill(){ root.querySelectorAll(".skrow").forEach(function(r){ r.classList.toggle("sel", r.getAttribute("data-skill")===st.skill); }); }
-  function syncStance(){ root.querySelectorAll(".stbtn").forEach(function(b){ b.classList.toggle("sel", b.getAttribute("data-stance")===st.stance); }); }
+  function syncRing(){ root.querySelectorAll(".ring").forEach(function(r){ r.classList.toggle("sel", r.getAttribute("data-ring")===st.ring); }); syncRails(); }
+  function syncSkill(){ root.querySelectorAll(".skrow").forEach(function(r){ r.classList.toggle("sel", r.getAttribute("data-skill")===st.skill); }); syncRails(); }
+  function syncStance(){ root.querySelectorAll(".stbtn").forEach(function(b){ b.classList.toggle("sel", b.getAttribute("data-stance")===st.stance); }); syncRails(); }
 
   // ===================== STRIFE SHORTCUTS =====================
   function buildStrifeButtons(){
@@ -338,6 +471,22 @@
   // reduction (RAW: to half Composure / half Endurance, rounded up, only if over
   // that threshold; suppressed by Exhausted), per-scene ability uses, per-scene
   // Void-grant triggers, and any active conflict.
+  // Every use-limited ability, wherever it lives: techniques spent by an activation
+  // roll (t.uses), techniques spent by a Use button (t.use.uses), and title/bond
+  // abilities. Several may share one counter via usesKey, so callers de-duplicate.
+  function limitedUses(){
+    var out=[];
+    (S.techniques||[]).forEach(function(t){
+      if(t.uses) out.push({name:t.name, key:t.name, per:t.uses.per});
+      if(t.use && t.use.uses) out.push({name:t.name, key:t.use.usesKey||t.name, per:t.use.uses.per});
+    });
+    (S.titles||[]).concat(S.bonds||[]).forEach(function(x){
+      if(!(x.use && x.use.uses)) return;
+      var n=x.ability||x.name;
+      out.push({name:n, key:x.use.usesKey||n, per:x.use.uses.per});
+    });
+    return out;
+  }
   function sceneReset(){
     if(RO) return;
     if(!st.sceneVoidClaims) st.sceneVoidClaims={};
@@ -351,9 +500,10 @@
       if((st.strife||0)>compHalf){ changes.push("Strife "+(st.strife||0)+" → "+compHalf); st.strife=compHalf; }
       if((st.fatigue||0)>endHalf){ changes.push("Fatigue "+(st.fatigue||0)+" → "+endHalf); st.fatigue=endHalf; }
     }
-    var techReset=[];
-    (S.techniques||[]).forEach(function(t){
-      if(t.uses && /scene/i.test(t.uses.per) && (st.techUses[t.name]||0)>0){ techReset.push(t.name); st.techUses[t.name]=0; }
+    var techReset=[], seenKey={};
+    limitedUses().forEach(function(u){
+      if(!/scene/i.test(u.per) || seenKey[u.key] || !(st.techUses[u.key]||0)) return;
+      seenKey[u.key]=true; techReset.push(u.name); st.techUses[u.key]=0;
     });
     if(techReset.length) changes.push("Recharged: "+techReset.join(", "));
     var claimed=Object.keys(st.sceneVoidClaims);
@@ -363,7 +513,7 @@
     save();
     logEvent("scene","Scene Reset — "+(changes.length?changes.join("; "):"nothing to reset"));
     syncTracker("strife"); syncTracker("fatigue"); syncTracker("void"); syncRoller();
-    renderTechniques();
+    renderTechniques(); renderTitles();
     var cb=root.querySelector(".conflict-body"); if(cb) renderConflict(cb);
   }
 
@@ -411,6 +561,8 @@
         if(to===from) return;
         st[attr]=to; save(); valEl.textContent=to;
         logEvent("social",label+" "+from+" → "+to+" ("+(d>0?"+":"")+d+")",{attr:attr,from:from,to:to,delta:d});
+        // Glory/honor/status ranks scale several abilities, so refresh anything showing them.
+        if(Math.floor(from/10)!==Math.floor(to/10)){ renderTechniques(); renderTitles(); }
       });
     });
     box.querySelector(".soc-stake-btn").addEventListener("click",function(){
@@ -445,15 +597,21 @@
       wireMore(e.querySelector(".et-text"), e.querySelector(".more"));
       return e;
     }
-    var usage = t.uses ? "<span class='tech-uses'>"+(st.techUses[t.name]||0)+"/"+t.uses.max+" per "+t.uses.per+"</span>" : "";
-    e.innerHTML="<div class='et-head'><span class='et-name'>"+t.name+"</span><span class='et-tag'>"+t.tag+"</span>"+ringIcon(t.ring)+usage+"</div>";
+    // When a technique carries a Use control, that control owns the counter chip.
+    var usage = (t.uses && !t.use) ? "<span class='tech-uses'>"+(st.techUses[t.name]||0)+"/"+t.uses.max+" per "+t.uses.per+"</span>" : "";
+    // Kata are classified by rank and form rather than by ring, so t.ring is optional.
+    e.innerHTML="<div class='et-head'><span class='et-name'>"+t.name+"</span><span class='et-tag'>"+t.tag+"</span>"+(t.ring?ringIcon(t.ring):"")+usage+"</div>";
     if(t.activation){
       var a=t.activation;
       var maxed = t.uses && (st.techUses[t.name]||0)>=t.uses.max;
-      var btn=el("button","tech-activate"+(maxed?" spent":""), a.actionType+a.punct+" TN "+a.tn+" "+(SKILL_NAMES[a.skill]||cap(a.skill))+" "+ringIcon(a.ring));
+      // Some techniques have a variable TN (e.g. "the target's vigilance"); those carry
+      // a tnLabel instead of a number, and leave the roller's TN field for the player.
+      var tnTxt=(a.tn!=null?a.tn:(a.tnLabel||"?"));
+      var btn=el("button","tech-activate"+(maxed?" spent":""), a.actionType+a.punct+" TN "+tnTxt+" "+(SKILL_NAMES[a.skill]||cap(a.skill))+" "+ringIcon(a.ring));
       btn.addEventListener("click",function(){ if(RO) return; activateTechnique(t); });
       e.appendChild(btn);
     }
+    if(t.use){ e.appendChild(abilityUse(t.name,t.use,null)); }
     if(t.bloodOfKami){ var bc=el("div"); bc.innerHTML=bloodCallout(t); e.appendChild(bc.firstChild); }
     var body=el("p","et-text collapsed"); body.innerHTML=syms(boldLabels(t.text)); e.appendChild(body);
     var more=el("button","more","Read more"); e.appendChild(more); wireMore(body,more);
@@ -463,7 +621,7 @@
     var a=t.activation; if(!a) return;
     st.ring=a.ring; st.skill=a.skill; save(); syncRing(); syncSkill();
     var rc=document.getElementById("rollerCard"); if(rc) rc.classList.remove("collapsed");
-    var tn=document.getElementById("rTN"); if(tn) tn.value=a.tn;
+    var tn=document.getElementById("rTN"); if(tn && a.tn!=null) tn.value=a.tn;
     var note=document.getElementById("rNote"); if(note && !note.value) note.value=t.name;
     rollCtx={ source:t.name, activation:a.actionType+a.punct, bloodOfKami:!!t.bloodOfKami, schoolRank:(S.rank||1) };
     if(t.uses){ st.techUses[t.name]=(st.techUses[t.name]||0)+1; save(); renderTechniques(); }
@@ -646,7 +804,8 @@
     else { var wasA=st.equipArmor===g.name; st.equipArmor=wasA?null:g.name; verb=wasA?"Removed":"Donned"; }
     save();
     logEvent("gear",verb+" "+g.name,{attr:"equip"});
-    var old=root.querySelector(".sh-card.gear"); if(old) old.replaceWith(buildGearCard());
+    var old=root.querySelector(".sh-card.gear");
+    if(old){ var fresh=buildGearCard(); if(old.id) fresh.id=old.id; old.replaceWith(fresh); }
   }
 
   // Damage + Critical Strike calculators for the readied weapon. The player
@@ -1196,6 +1355,133 @@
     document.getElementById("verSel").addEventListener("change",function(){ switchVersion(this.value); });
   }
 
+  // ===================== SIDE RAILS =====================
+  // Two optional fixed rails flanking the sheet: section nav on the left, live
+  // trackers on the right. They sit outside #sheet so render() does not wipe them,
+  // and CSS hides them when the viewport is too narrow to hold them beside the sheet.
+  var RAILKEY="pf-rails-"+(CURRENT.id||"pc");
+  var railsOn=true;
+  try { var rp=localStorage.getItem(RAILKEY); if(rp!=null) railsOn=(rp==="1"); } catch(e){}
+  var railL=null, railR=null, railBtn=null;
+  var RAIL_SHORT={
+    "Rings & Approach":"Rings", "Distinctions, Adversities, Passions & Anxieties":"Traits",
+    "Weapons, Armour & Possessions":"Gear", "Bushidō & Motivation":"Motivation",
+    "Titles & Bonds":"Titles", "Social Standing":"Standing"
+  };
+
+  function buildRailToggle(){
+    var bar=document.querySelector(".play-bar"); if(!bar) return;
+    var b=el("button","rail-toggle"+(railsOn?" on":""),"&#9707; Rails");
+    railBtn=b;
+    b.setAttribute("aria-pressed", railsOn?"true":"false");
+    b.addEventListener("click",function(){
+      railsOn=!railsOn;
+      try { localStorage.setItem(RAILKEY, railsOn?"1":"0"); } catch(e){}
+      b.classList.toggle("on",railsOn);
+      b.setAttribute("aria-pressed", railsOn?"true":"false");
+      applyRails();
+    });
+    var sp=bar.querySelector(".spacer");
+    if(sp) bar.insertBefore(b,sp); else bar.appendChild(b);
+  }
+  function applyRails(){
+    if(!railL){
+      railL=el("aside","rail rail-left");  railL.setAttribute("aria-label","Sheet sections");
+      railR=el("aside","rail rail-right"); railR.setAttribute("aria-label","Trackers");
+      document.body.appendChild(railL); document.body.appendChild(railR);
+      window.addEventListener("scroll",spyRails,{passive:true});
+      window.addEventListener("resize",function(){ spyRails(); railHint(); },{passive:true});
+      // A media-query listener fires exactly on the threshold crossing, which is what
+      // the toggle's hint cares about; resize alone can be missed or coalesced.
+      try {
+        var mq=window.matchMedia("(min-width:1280px)");
+        var onMQ=function(){ railHint(); spyRails(); };
+        if(mq.addEventListener) mq.addEventListener("change",onMQ);
+        else if(mq.addListener) mq.addListener(onMQ);
+      } catch(e){}
+    }
+    document.body.classList.toggle("rails-on",railsOn);
+    railHint();
+    if(!railsOn) return;
+    renderRailNav(); renderRailTrackers(); spyRails();
+  }
+  // The rails are suppressed on narrow windows. Say so on the toggle rather than
+  // leaving it looking switched on with nothing to show for it.
+  function railHint(){
+    if(!railBtn) return;
+    var hidden = railsOn && railL && getComputedStyle(railL).display==="none";
+    railBtn.classList.toggle("cramped",!!hidden);
+    railBtn.title = hidden
+      ? "Rails are on, but this window is too narrow to show them — widen it past 1280px"
+      : "Show or hide the side rails";
+  }
+  function renderRailNav(){
+    railL.innerHTML="<div class='rail-head'>Sections</div>";
+    var list=el("nav","rail-nav");
+    root.querySelectorAll(".sh-card").forEach(function(c,i){
+      var h=c.querySelector("h2");
+      var label = h ? h.textContent.trim() : (c.classList.contains("roller") ? "Roll & Keep" : null);
+      if(!label) return;
+      if(!c.id) c.id="sec-"+i;
+      var a=el("button","rail-link",RAIL_SHORT[label]||label);
+      a.setAttribute("data-sec",c.id);
+      a.addEventListener("click",function(){
+        var t=document.getElementById(c.id);
+        if(t) t.scrollIntoView({behavior:"smooth",block:"start"});
+      });
+      list.appendChild(a);
+    });
+    railL.appendChild(list);
+  }
+  function railTrk(key,label,max){
+    var v=trkVal(key);
+    var pct=max?Math.min(100,Math.round(v/max*100)):0;
+    return "<div class='rt-row' data-rt='"+key+"'>"
+      +"<div class='rt-lab'>"+label+"<span class='rt-num'>"+v+"/"+max+"</span></div>"
+      +"<div class='rt-bar'><i style='width:"+pct+"%'></i></div></div>";
+  }
+  function renderRailTrackers(){
+    var over = (trkVal("strife")>=S.derived.composure) ? "Compromised"
+             : (trkVal("fatigue")>=S.derived.endurance) ? "Incapacitated" : "";
+    railR.innerHTML="<div class='rail-head'>Condition</div>"
+      +railTrk("strife","Strife",S.trackers.strife.max)
+      +railTrk("fatigue","Fatigue",S.trackers.fatigue.max)
+      +railTrk("void","Void",S.trackers["void"].max)
+      +(over?"<div class='rt-warn'>"+over+"</div>":"")
+      +"<div class='rail-head'>Approach</div>"
+      +"<div class='rt-approach'>"+ringIcon(st.ring)+"<span>"+cap(st.ring)
+        +(st.skill?" · "+(SKILL_NAMES[st.skill]||cap(st.skill)):"")+"</span></div>"
+      +"<div class='rt-stance'>Stance: <b>"+cap(st.stance||"—")+"</b></div>";
+    if(!RO){
+      var b=el("button","rt-roll","Roll &amp; Keep");
+      b.addEventListener("click",function(){
+        var rc=document.getElementById("rollerCard");
+        if(rc){ rc.classList.remove("collapsed"); rc.scrollIntoView({behavior:"smooth",block:"start"}); }
+      });
+      railR.appendChild(b);
+    }
+  }
+  // Keep the rails honest without re-rendering them on every scroll frame.
+  function syncRails(){ if(railsOn && railR) renderRailTrackers(); }
+  function spyRails(){
+    if(!railsOn || !railL) return;
+    var marker=window.innerHeight*0.3;
+    var links=railL.querySelectorAll(".rail-link");
+    // The sheet is a two-column grid, so cards sit side by side and more than one can
+    // cross the marker line at once. Both are equally "where you are", so light both;
+    // fall back to the last card above the line when nothing crosses it.
+    var live=[], lastAbove=null;
+    links.forEach(function(a){
+      var t=document.getElementById(a.getAttribute("data-sec")); if(!t) return;
+      var r=t.getBoundingClientRect();
+      if(r.top<=marker) lastAbove=a;
+      if(r.top<=marker && r.bottom>marker) live.push(a);
+    });
+    if(!live.length && lastAbove) live=[lastAbove];
+    links.forEach(function(a){ a.classList.toggle("on",live.indexOf(a)>=0); });
+  }
+
   buildVersionPicker();
+  buildRailToggle();
   render();
 })();

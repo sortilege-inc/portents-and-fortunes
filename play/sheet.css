@@ -434,3 +434,72 @@
 /* roll result technique source / blood of the kami */
 .r-source{ font-family:var(--disp); font-style:italic; color:var(--crimson); font-size:1rem; margin-top:0.2rem; }
 .r-bok{ font-size:0.9rem; color:#5a4a6e; margin-top:0.15rem; }
+
+/* titles & bonds */
+.title-entry .et-tag, .bond-entry .et-tag{ background:var(--gold-soft); color:var(--ink-2); }
+.title-entry .gearmeta, .bond-entry .gearmeta{ margin-top:0.2rem; }
+.title-entry .tech-blood, .bond-entry .tech-blood{ border-left-color:var(--gold); background:rgba(168,138,68,0.1); }
+
+/* standing wounds — persistent burdens that a scene reset does not clear */
+.afflictions-wrap{ margin-top:0.9rem; }
+.afflictions-wrap h2{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.14em; font-size:0.9rem; color:var(--crimson); margin:0 0 0.6rem; padding-bottom:0.4rem; border-bottom:1px solid var(--gold-soft); }
+.affliction{ font-size:0.9rem; color:var(--ink-2); background:rgba(182,36,50,0.06); border-left:3px solid var(--crimson); border-radius:3px; padding:0.4rem 0.6rem; margin:0 0 0.4rem; }
+.affliction .aff-name{ display:block; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.07em; font-size:0.72rem; color:var(--crimson); }
+
+/* ability use controls (title / bond / no-roll techniques) */
+.ability-use{ display:flex; align-items:center; flex-wrap:wrap; gap:0.5rem; margin:0.35rem 0 0.2rem; }
+.ability-btn{ margin:0; }
+.ability-btn:disabled{ cursor:not-allowed; }
+.ability-use .tech-uses{ margin-left:0; }
+.ability-note{ flex-basis:100%; font-size:0.86rem; color:var(--ink-soft); font-style:italic; }
+.ability-note.locked{ color:var(--crimson); font-style:normal; }
+
+/* ---- side rails: section nav (left) and live trackers (right) ---- */
+.rail-toggle{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em; font-size:0.72rem; color:#cdc0a2; background:rgba(255,255,255,0.06); border:1px solid var(--gold-soft); border-radius:4px; padding:0.2rem 0.6rem; cursor:pointer; }
+.rail-toggle:hover{ color:#fff; border-color:var(--crimson); }
+.rail-toggle.on{ color:#f2e9d4; background:rgba(182,36,50,0.35); border-color:var(--crimson); }
+
+.rail{
+  display:none; position:fixed; top:50%; transform:translateY(-50%); z-index:40;
+  width:11rem; max-height:82vh; overflow-y:auto;
+  padding:0.75rem 0.8rem;
+  background:linear-gradient(180deg, var(--paper-2), #ece0c6);
+  border:1px solid var(--edge); border-radius:3px; box-shadow:var(--shadow-soft);
+}
+/* Sit just outside the centred sheet when the window is wide enough for that, and
+   fall back to hugging the viewport edge when it is not. % (not vw) so the scrollbar
+   is excluded the same way it is for the centred sheet. */
+.rail-left{ left:max(0.75rem, calc(50% - 748px)); }
+.rail-right{ right:max(0.75rem, calc(50% - 748px)); }
+
+/* Rails claim a 12.5rem gutter either side; the sheet gives up width to make room
+   rather than demanding a window wide enough to hold rails *and* a full 1120px sheet. */
+@media (min-width:1280px){
+  body.rails-on .rail{ display:block; }
+  body.rails-on #sheet{ max-width:min(1120px, calc(100% - 25rem)); }
+}
+
+.rail-head{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.14em; font-size:0.66rem; color:var(--crimson); margin:0 0 0.5rem; padding-bottom:0.3rem; border-bottom:1px solid var(--gold-soft); }
+.rail-head + .rt-row, .rail-head ~ .rail-head{ margin-top:0; }
+.rail-right .rail-head:not(:first-child){ margin-top:0.9rem; }
+
+.rail-nav{ display:flex; flex-direction:column; gap:0.1rem; }
+.rail-link{ text-align:left; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.7rem; color:var(--ink-soft); background:none; border:0; border-left:2px solid transparent; border-radius:0; padding:0.28rem 0.5rem; cursor:pointer; transition:.12s; }
+.rail-link:hover{ color:var(--ink); background:rgba(182,36,50,0.06); }
+.rail-link.on{ color:var(--crimson); border-left-color:var(--crimson); font-weight:600; }
+
+.rt-row{ margin:0 0 0.5rem; }
+.rt-lab{ display:flex; justify-content:space-between; align-items:baseline; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.66rem; color:var(--ink-soft); }
+.rt-num{ font-weight:600; color:var(--ink); }
+.rt-bar{ height:5px; margin-top:0.2rem; background:var(--paper-3); border:1px solid var(--edge); border-radius:3px; overflow:hidden; }
+.rt-bar i{ display:block; height:100%; background:linear-gradient(90deg,var(--crimson),var(--crimson-deep)); }
+.rt-row[data-rt="void"] .rt-bar i{ background:linear-gradient(90deg,#6a4f8c,#4b3663); }
+.rt-warn{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.08em; font-size:0.64rem; color:#fff; background:var(--crimson); border-radius:3px; padding:0.15rem 0.4rem; text-align:center; }
+.rt-approach{ display:flex; align-items:center; gap:0.35rem; font-size:0.8rem; color:var(--ink-2); }
+.rt-approach .ring-ico{ width:1.1em; height:1.1em; }
+.rt-stance{ font-size:0.78rem; color:var(--ink-soft); margin-top:0.25rem; }
+.rt-roll{ display:block; width:100%; margin-top:0.75rem; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.08em; font-size:0.72rem; font-weight:600; color:#fff; background:linear-gradient(180deg,var(--crimson),var(--crimson-deep)); border:1px solid var(--crimson-deep); border-radius:4px; padding:0.4rem; cursor:pointer; }
+.rt-roll:hover{ filter:brightness(1.08); }
+
+@media print{ .rail, .rail-toggle{ display:none !important; } }
+.rail-toggle.cramped{ opacity:0.55; text-decoration:line-through; }
