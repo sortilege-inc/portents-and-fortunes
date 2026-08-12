@@ -301,6 +301,7 @@ window.NPCS = [
   // ---- Scholarly Shugenja (core adversary, verbatim) ----
   {
     id: "scholarly-shugenja",
+    portrait: "../assets/npc/scholarly-shugenja.webp",
     template: true,
     name: "Scholarly Shugenja",
     epithet: "Adversary · Subjects of Rokugan",
@@ -343,6 +344,7 @@ window.NPCS = [
   // ---- Trained Ashigaru (core minion, verbatim) ----
   {
     id: "trained-ashigaru",
+    portrait: "../assets/npc/trained-ashigaru.webp",
     template: true,
     name: "Trained Ashigaru",
     epithet: "Minion · Subjects of Rokugan",
@@ -380,6 +382,7 @@ window.NPCS = [
   // ---- Togashi Oharu — bio only (Norikage's lord) ----
   {
     id: "togashi-oharu",
+    portrait: "../assets/npc/togashi-oharu.webp",
     name: "Togashi Oharu",
     epithet: "The Abbot",
     affil: "Togashi · Norikage's lord and master of his temple",
