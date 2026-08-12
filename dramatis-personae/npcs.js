@@ -98,7 +98,8 @@ window.NPCS = [
     epithet: "Adversary · Subjects of Rokugan",
     affil: "A priest who communes with the kami",
     bio: [
-      "Shugenja are holy people, priests who commune with the kami, making invocations to persuade them to cause spectacular and even destructive effects in the Mortal Realm. However, shugenja are rare, and seldom encountered outside of shrines, temples, and libraries."
+      "Shugenja are rare, and are seldom met outside shrines, temples, and libraries — so meeting one anywhere else is itself information about where one is standing. They petition the kami directly, and the kami sometimes answer at a scale nobody nearby can argue with.",
+      "For Norikage the difficulty is not reverence but overlap: a shugenja does by invocation much of what he does by discipline, and the two traditions explain each other's results differently."
     ],
     status: "Type template · use for any shrine, temple, or library priest met on the road",
     stat: {
@@ -139,7 +140,8 @@ window.NPCS = [
     epithet: "Minion · Subjects of Rokugan",
     affil: "Rank-and-file foot soldier",
     bio: [
-      "Ashigaru are the rank-and-file foot soldiers who make up the bulk of Rokugani armies. These foot soldiers are commoners, peasants who have been drafted into military service. Interestingly, once drafted, they are considered to belong to the lowest rank of the buke, the samurai caste, even though they aren’t samurai."
+      "Drafted commoners under arms. Once drafted they count as the lowest rank of the buke — the samurai caste — without being samurai, which is a distinction they are reminded of from both directions. When the service ends most return to farming or a trade; some stay on as guards, scouts, or dōshin to a magistrate.",
+      "Ashigaru in formed ranks mean a clan at war. Ashigaru walking beside carts and families mean something duller, heavier, and harder to refuse."
     ],
     status: "Type template · village guards, drafted levies, a daimyō's escort",
     stat: {
@@ -176,7 +178,7 @@ window.NPCS = [
     statNote: "Built on Togashi Remmu, Sociable Wanderer (Writ of Wilds) with the Temple Abbot title's Soothing Cadence and Status +10 — re-skinned for the Abbot, pending a bespoke build.",
     bio: [
       "Abbot of the Tattooed Order and the authority to whom Norikage answers. It is Oharu who gave the charge that sets this chronicle in motion: to walk east with a village that is being moved, as an observer in a religious capacity — outside the daimyō's chain of command, responsible for none of the moving — and to report back to the temple. What exactly he is to watch for was not specified. Norikage's character sheet first recorded Togashi Oharu as a provincial daimyō he served as \"eyes and ears\"; that role is now understood as the abbot and the temple. Oharu's age, and true reasons, are not yet known.",
-      "Like Norikage, an ise zumi of the Togashi line — the same Blood of the Kami in the tattoos, the same humble bō in hand. What the student sees in the master is a mirror held a lifetime ahead."
+      "Like Norikage, an ise zumi of the Togashi line: the same Blood of the Kami worked into the tattoos, the same plain bō in hand. Norikage has never seen him lose his temper, and has never been sure whether that is discipline or distance."
     ],
     status: "Named but unmet · Norikage's lord and giri",
     stat: {
@@ -208,7 +210,7 @@ window.NPCS = [
     affil: "Brotherhood of Shinsei · the teacher from whom Norikage learned the most",
     statNote: "Built on Jun, Shinseist Monk (Emerald Empire), re-skinned for Kenzan's Yogo / Brotherhood background, pending a bespoke build.",
     bio: [
-      "A monk of the Brotherhood of Shinsei, Scorpion-born under the Yogo name, and the person from whom Norikage says he learned the most. Their conversations shaped how the young Togashi thinks about faith and doubt. Where Kenzan is now, and what he believes, are threads yet to be drawn.",
+      "A monk of the Brotherhood of Shinsei, Scorpion-born under the Yogo name, and the person from whom Norikage says he learned the most. Their conversations shaped how the young Togashi thinks about faith and doubt. Where he is now, and what he has come to believe, Norikage does not know, and has not asked anyone who would.",
       "A flippant manner belies a deep understanding of the Way — the kind of teacher who answers a hard question with a lighter one, and is remarkably difficult to corner in an argument or a conflict."
     ],
     status: "Known · mentor",
