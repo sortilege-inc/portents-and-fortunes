@@ -90,6 +90,205 @@ window.NPCS = [
     }
   },
 
+
+  // ================= THE NINE ELDERS =================
+  // Seven of the nine are statted. Tōbei and Michi are referenced in play but
+  // deliberately unstatted. Villager chassis and the template overlays are from
+  // Path of Waves; ability text is VERBATIM. Bios carry only what is SET —
+  // proposals live behind the veil, not here.
+
+  // ---- Arriving with the column ----
+  {
+    id: "genzo",
+    name: "Genzō",
+    epithet: "Of the village being given up",
+    affil: "Arriving with the column · Fortunist",
+    statNote: "Clever Innkeeper (Path of Waves) under the Desperate NPC Template (Path of Waves): +1 combat rank, +1 Fire, +1 Martial and Social. Card: The Chariot, reversed. Before the move he would have taken the Galvanizing template instead — the swap is the reversal, in one line.",
+    bio: [
+      "The removal has broken him. His farm was in the village being given up, and his ancestors are buried there. His difficulty is practical before it is theological: he is a Fortunist who does not know the spirits of the place he is being sent to, and who no longer has access to his own dead.",
+      "What he was before the order came is legible only in what is left of it."
+    ],
+    status: "Arriving · Fortunist cut off from his ancestors",
+    stat: {
+      kind: "Minion", combatRank: 2, intrigueRank: 2,
+      description: "A man of the emptied village, walking east with what he could carry. He speaks for people who no longer have a place to speak for.",
+      rings: { air:2, earth:2, fire:2, water:2, void:1 },
+      endurance:6, composure:7, focus:3, vigilance:2,
+      honor:20, glory:23, status:9,
+      demeanor:"Shrewd", tnMods:null,
+      skills: { artisan:0, martial:1, scholar:1, social:3, trade:3 },
+      advantages: [ "Indomitable Will: (earth) Interpersonal, Mental" ],
+      disadvantages: [ "Fear of Death: (earth) Mental, Physical" ],
+      weapons: [], gear: [ "Passable clothes", "handful of bu" ],
+      abilities: [ { name:"Overlooked", text:"When the clever innkeeper makes a check targeting a character with a higher status rank, the innkeeper treats the target's vigilance as 1 lower." } ]
+    }
+  },
+
+  {
+    id: "kiyo",
+    name: "Kiyo",
+    epithet: "Widow of the column",
+    affil: "Arriving with the column",
+    statNote: "Clever Innkeeper (Path of Waves) under the Galvanizing NPC Template (Path of Waves): +2 intrigue rank, +1 Water, +1 Scholar and Social, demeanor Assertive. Card: Two of Cups, upright.",
+    bio: [
+      "A widow in her fifties. She holds that the move is logically necessary and is working to see the good in it, which makes her the easiest of the arriving three for a samurai to deal with. A shameless flirt."
+    ],
+    status: "Arriving · argues the move's necessity · the bridge between benches",
+    stat: {
+      kind: "Minion", combatRank: 1, intrigueRank: 4,
+      description: "A widow who has decided, out loud and repeatedly, that this can be borne. Half the column finds that steadying and the other half finds it unbearable.",
+      rings: { air:2, earth:2, fire:1, water:3, void:1 },
+      endurance:6, composure:7, focus:3, vigilance:2,
+      honor:20, glory:23, status:9,
+      demeanor:"Assertive", tnMods:null,
+      skills: { artisan:0, martial:0, scholar:2, social:3, trade:3 },
+      advantages: [ "Inspiring: (water) Interpersonal" ],
+      disadvantages: [ "Softheartedness: (fire) Interpersonal, Mental" ],
+      weapons: [], gear: [ "Passable clothes", "handful of bu" ],
+      abilities: [ { name:"Overlooked", text:"When the clever innkeeper makes a check targeting a character with a higher status rank, the innkeeper treats the target's vigilance as 1 lower." } ]
+    }
+  },
+
+  {
+    id: "rokuro",
+    name: "Rokurō",
+    epithet: "The jovial one",
+    affil: "Arriving with the column",
+    statNote: "Clever Innkeeper (Path of Waves) under the Survivalist NPC Template (Path of Waves): +2 combat rank, +1 Water, +1 Martial and Trade, demeanor Detached. Card: Six of Cups, upright.",
+    bio: [
+      "The most jovial of the nine. He enjoys getting a little high and reminiscing, and does not reliably keep hold of the present while he does it."
+    ],
+    status: "Arriving · good company · an unreliable witness to the current hour",
+    stat: {
+      kind: "Minion", combatRank: 3, intrigueRank: 2,
+      description: "Cheerful, weathered, and most present when talking about a time that is not this one.",
+      rings: { air:2, earth:2, fire:1, water:3, void:1 },
+      endurance:6, composure:7, focus:3, vigilance:2,
+      honor:20, glory:23, status:9,
+      demeanor:"Detached", tnMods:null,
+      skills: { artisan:0, martial:1, scholar:1, social:2, trade:4 },
+      advantages: [ "Wilderness Survival Knowledge: (water) Mental" ],
+      disadvantages: [ "Obtuse: (air) Interpersonal, Mental" ],
+      weapons: [], gear: [ "Passable clothes", "handful of bu" ],
+      abilities: [ { name:"Overlooked", text:"When the clever innkeeper makes a check targeting a character with a higher status rank, the innkeeper treats the target's vigilance as 1 lower." } ]
+    }
+  },
+
+  // ---- Already at White Flower ----
+  {
+    id: "ume",
+    name: "Ume",
+    epithet: "First of the sect",
+    affil: "White Flower Village · Perfect Land Sect · married to Tōbei",
+    statNote: "Clever Innkeeper (Path of Waves) under the Galvanizing NPC Template (Path of Waves), plus the Perfect Land Sect Member title (Path of Waves) for Trustworthy Cadence. The title's −5 status cannot take her below its floor of 15, and she is already beneath it at 9, so status is unchanged. Card: Queen of Wands, reversed.",
+    bio: [
+      "Married to Tōbei. They had a child, and the child died. She is the first convert to the Perfect Land Sect in White Flower Village.",
+      "Demanding and jealous, with little confidence underneath it, and willing to bully people into agreeing with her from a position of pity."
+    ],
+    status: "White Flower · first convert · the sect arrived through her grief",
+    stat: {
+      kind: "Minion", combatRank: 1, intrigueRank: 4,
+      description: "A bereaved mother who stopped waiting for the Fortunes to be fair, and found a doctrine that promised the reward without the waiting.",
+      rings: { air:2, earth:2, fire:1, water:3, void:1 },
+      endurance:6, composure:7, focus:3, vigilance:2,
+      honor:20, glory:23, status:9,
+      demeanor:"Assertive", tnMods:null,
+      skills: { artisan:0, martial:0, scholar:2, social:3, trade:3 },
+      advantages: [ "Indomitable Will: (earth) Interpersonal, Mental" ],
+      disadvantages: [ "Impatience: (earth) Mental" ],
+      weapons: [], gear: [ "Passable clothes", "handful of bu" ],
+      abilities: [
+        { name:"Overlooked", text:"When the clever innkeeper makes a check targeting a character with a higher status rank, the innkeeper treats the target's vigilance as 1 lower." },
+        { name:"Trustworthy Cadence", tag:"Perfect Land", text:"When making a social skill check targeting a character with status 20 or lower, reduce the TN by 1." }
+      ]
+    }
+  },
+
+  {
+    id: "kitsuki-sadao",
+    name: "Kitsuki Sadao",
+    epithet: "The old magistrate",
+    affil: "White Flower Village · Dragon · Kitsuki · Fortunist",
+    statNote: "Kitsuki Noriko, Conflicted Magistrate (Writ of Wilds) as chassis — the Kitsuki family match — with the Wandering NPC Template's advantage, disadvantage and demeanor (Path of Waves). Two deliberate deviations: the template's +2 combat rank is NOT applied, and Endurance is cut from 12 to 5, both for great age (precedent: Kakita Ryoku, Elder Crane, Endurance 4). Card: Knight of Wands, reversed — Impatience is the template's own disadvantage and carries the reversal exactly.",
+    bio: [
+      "A samurai of the Kitsuki, and very old. A Fortunist. Two children, both grown, both living far away.",
+      "Impatience and a mercurial temper have alienated nearly everyone in the village except one neighbour, who is deaf and keeps him company regardless."
+    ],
+    status: "White Flower · the only samurai resident · alienated from almost everyone",
+    stat: {
+      kind: "Adversary", combatRank: 4, intrigueRank: 4,
+      description: "A Kitsuki grown old a long way from anywhere the Kitsuki are needed. The eye is undimmed; everything holding it up is not.",
+      rings: { air:4, earth:3, fire:3, water:5, void:2 },
+      endurance:5, composure:16, focus:7, vigilance:5,
+      honor:55, glory:62, status:47,
+      demeanor:"Gruff", tnMods:"Earth +2, Fire -2",
+      skills: { artisan:0, martial:3, scholar:4, social:4, trade:2 },
+      advantages: [ "Student of Law: (water) Scholar; Mental", "Seasoned: (void) Mental, Interpersonal" ],
+      disadvantages: [ "Conflicted: (fire) Social; Mental", "Impatience: (earth) Mental" ],
+      weapons: [
+        "Katana: Range 1, Damage 4, Deadliness 5/7, Ceremonial, Razor-Edged",
+        "Wakizashi: Range 0–1, Damage 3, Deadliness 5/7, Ceremonial, Razor-Edged"
+      ],
+      gear: [ "Lacquered Armor (Physical 4, Ceremonial, Cumbersome, Wargear)" ],
+      abilities: [ { name:"A Keen Eye", text:"Always uses Focus as base initiative value." } ]
+    }
+  },
+
+  {
+    id: "heisuke",
+    name: "Heisuke",
+    epithet: "The craftsman",
+    affil: "White Flower Village · Perfect Land Sect",
+    statNote: "Traveling Tradesperson (Path of Waves) for its I Can Fix That, plus the Perfect Land Sect Member title (Path of Waves) for Trustworthy Cadence. Two deviations for an expert craftsman who does not travel: Artisan raised 0 → 3, and the base's Worldly Wanderer advantage dropped. The title's −5 status cannot take him below its floor of 15 and he is already beneath it, so status is unchanged. Card: Eight of Pentacles, upright.",
+    bio: [
+      "An expert craftsman, and a convert to the Perfect Land Sect. Never married. Late forties, by far the youngest of the nine elders."
+    ],
+    status: "White Flower · second convert · craft not yet named",
+    stat: {
+      kind: "Minion", combatRank: 1, intrigueRank: 3,
+      description: "The most skilled pair of hands in the village, and the youngest voice on its bench. He works the way the patient work, and he has found a doctrine that says the work was never the point.",
+      rings: { air:3, earth:1, fire:2, water:2, void:1 },
+      endurance:6, composure:8, focus:4, vigilance:3,
+      honor:25, glory:25, status:9,
+      demeanor:"Shrewd", tnMods:null,
+      skills: { artisan:3, martial:0, scholar:2, social:2, trade:3 },
+      advantages: [ "Daikoku's Blessing: (water) Social; Interpersonal, Spiritual" ],
+      disadvantages: [ "Deferential: (water) Social; Interpersonal, Mental" ],
+      weapons: [], gear: [ "Working clothes", "his tools", "handful of bu" ],
+      abilities: [
+        { name:"I Can Fix That", text:"Can remove the Damaged condition from most non-supernatural items (rarity 6 or lower). GM determines repairability, cost, and time." },
+        { name:"Trustworthy Cadence", tag:"Perfect Land", text:"When making a social skill check targeting a character with status 20 or lower, reduce the TN by 1." }
+      ]
+    }
+  },
+
+  {
+    id: "nui",
+    name: "Nui",
+    epithet: "Guide of the pilgrim road",
+    affil: "White Flower Village · Fortunist, Shinseist-leaning · lives with Michi",
+    statNote: "Dai, Fortunist Monk (Emerald Empire) as chassis — the Fortunist match, and her Herbalist ability suits a village's devout woman. One caveat rather than a deviation: Nui is a laywoman who guides pilgrims, not an ordained monk, so her Status 25 reflects standing earned on the road to the shrine rather than a monastic office. Card: The Hermit, upright.",
+    bio: [
+      "A Fortunist who leans to the Shinseist side of it: self-reflection, and enlightenment. She leads pilgrims to Seidō Fukurokujin. Reliable and devout.",
+      "She lives with Michi, a widow."
+    ],
+    status: "White Flower · leads the pilgrim road · the steadiest of the nine",
+    stat: {
+      kind: "Adversary", combatRank: 2, intrigueRank: 4,
+      description: "The woman who knows the way to the shrine and the order of the observances, and who walks it often enough that the walking is itself the practice.",
+      rings: { air:2, earth:3, fire:2, water:3, void:3 },
+      endurance:14, composure:15, focus:4, vigilance:3,
+      honor:50, glory:45, status:25,
+      demeanor:"Assertive", tnMods:"Earth +2, Air -2",
+      skills: { artisan:3, martial:1, scholar:2, social:3, trade:0 },
+      advantages: [ "Indomitable Will: (air) Social; Mental" ],
+      disadvantages: [ "Softheartedness: (fire) Social; Interpersonal" ],
+      weapons: [ "Bō Staff: Range 1–2, Damage 6, Deadliness 2, Mundane" ],
+      gear: [ "Robes (Physical 1)" ],
+      abilities: [ { name:"Herbalist", text:"When Nui makes a Medicine check targeting a character, she may spend (op) as follows: (op)+: The target removes 1 strife for each (op) spent this way." } ]
+    }
+  },
+
   // ---- Scholarly Shugenja (core adversary, verbatim) ----
   {
     id: "scholarly-shugenja",
