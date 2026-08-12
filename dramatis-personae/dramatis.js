@@ -142,7 +142,13 @@
     card.setAttribute("data-id", id);
     var kind = npc.stat ? npc.stat.kind : "Bio";
     var inner = el("div", "tr-inner");
-    inner.appendChild(el("div", "tr-emblem", kindEmblem(kind)));
+    if (npc.portrait) {
+      var pf = el("div", "tr-portrait");
+      pf.appendChild(fz(id + ":portrait", "<img src='" + npc.portrait + "' alt='' loading='lazy'>", "fz-portrait"));
+      inner.appendChild(pf);
+    } else {
+      inner.appendChild(el("div", "tr-emblem", kindEmblem(kind)));
+    }
     var nm = el("div", "tr-name"); nm.appendChild(fz(id + ":name", esc(npc.name), "fz-name")); inner.appendChild(nm);
     if (npc.epithet) { var ep = el("div", "tr-ep"); ep.appendChild(fz(id + ":epithet", esc(npc.epithet), "fz-block")); inner.appendChild(ep); }
     inner.appendChild(el("div", "tr-kind", esc(kind) + (isTpl ? " · template" : "")));
@@ -313,6 +319,11 @@
     var view = npc.stat ? (VIEW[mid] || "play") : "bio";
 
     var head = el("div", "sh-head2");
+    if (npc.portrait) {
+      var hp = el("div", "sh2-portrait");
+      hp.appendChild(fz(baseIdOf(mid) + ":portrait", "<img src='" + npc.portrait + "' alt='' loading='lazy'>", "fz-portrait"));
+      head.appendChild(hp);
+    }
     var idbox = el("div", "sh2-id");
     idbox.appendChild(fz(baseIdOf(mid) + ":name", "<span class='sh2-nm'>" + esc(memberName(mid)) + "</span>", "fz-name"));
     if (npc.epithet) idbox.appendChild(fz(baseIdOf(mid) + ":epithet", "<span class='sh2-ep'>" + esc(npc.epithet) + "</span>", "fz-block"));
@@ -713,7 +724,7 @@
     if (sheet.giri) bio.push("Giri — " + sheet.giri);
     bio.push("A player character. The full interactive sheet in the Play section — Void points, technique activations, strife/fatigue trackers, session history — is authoritative; this card is for quick rolls and reference at the table.");
     return {
-      id: "pc-" + sheet.id, pc: true, name: sheet.name,
+      id: "pc-" + sheet.id, pc: true, name: sheet.name, portrait: sheet.portrait || null,
       epithet: sheet.clan + " · " + sheet.school,
       affil: "Player character · " + sheet.family + " family · " + sheet.role + " · Rank " + sheet.rank,
       sheetFile: file, status: "Player character", bio: bio,

@@ -11,6 +11,7 @@ window.NPCS = [
   // ---- Seiya Mori — provincial daimyō (canonical Venerable Provincial Daimyō chassis) ----
   {
     id: "seiya-mori",
+    portrait: "../assets/npc/seiya-mori.webp",
     name: "Seiya Mori",
     epithet: "Provincial Daimyō",
     affil: "Dragon · Seiya (a vassal family of the Agasha)",
@@ -50,6 +51,7 @@ window.NPCS = [
   // ---- Seiya Fusae — the officer of the escort (canonical Loyal Bushi chassis) ----
   {
     id: "seiya-fusae",
+    portrait: "../assets/npc/seiya-fusae.webp",
     name: "Seiya Fusae",
     epithet: "Officer of the Escort",
     affil: "Dragon · Seiya · Mirumoto Two-Heavens Adept, trained at Iron Mountain Dojo",
@@ -100,6 +102,7 @@ window.NPCS = [
   // ---- Arriving with the column ----
   {
     id: "genzo",
+    portrait: "../assets/npc/genzo.webp",
     name: "Genzō",
     epithet: "Of the village being given up",
     affil: "Arriving with the column · Fortunist",
@@ -126,6 +129,7 @@ window.NPCS = [
 
   {
     id: "kiyo",
+    portrait: "../assets/npc/kiyo.webp",
     name: "Kiyo",
     epithet: "Widow of the column",
     affil: "Arriving with the column",
@@ -151,6 +155,7 @@ window.NPCS = [
 
   {
     id: "rokuro",
+    portrait: "../assets/npc/rokuro.webp",
     name: "Rokurō",
     epithet: "The jovial one",
     affil: "Arriving with the column",
@@ -177,6 +182,7 @@ window.NPCS = [
   // ---- Already at White Flower ----
   {
     id: "ume",
+    portrait: "../assets/npc/ume.webp",
     name: "Ume",
     epithet: "First of the sect",
     affil: "White Flower Village · Perfect Land Sect · married to Tōbei",
@@ -206,6 +212,7 @@ window.NPCS = [
 
   {
     id: "kitsuki-sadao",
+    portrait: "../assets/npc/kitsuki-sadao.webp",
     name: "Kitsuki Sadao",
     epithet: "The old magistrate",
     affil: "White Flower Village · Dragon · Kitsuki · Fortunist",
@@ -236,6 +243,7 @@ window.NPCS = [
 
   {
     id: "heisuke",
+    portrait: "../assets/npc/heisuke.webp",
     name: "Heisuke",
     epithet: "The craftsman",
     affil: "White Flower Village · Perfect Land Sect",
@@ -264,6 +272,7 @@ window.NPCS = [
 
   {
     id: "nui",
+    portrait: "../assets/npc/nui.webp",
     name: "Nui",
     epithet: "Guide of the pilgrim road",
     affil: "White Flower Village · Fortunist, Shinseist-leaning · lives with Michi",
@@ -404,6 +413,7 @@ window.NPCS = [
   // ---- Yogo Kenzan — bio only (mentor) ----
   {
     id: "yogo-kenzan",
+    portrait: "../assets/npc/yogo-kenzan.webp",
     name: "Yogo Kenzan",
     epithet: "“Brother Kenzan”",
     affil: "Brotherhood of Shinsei · the teacher from whom Norikage learned the most",
