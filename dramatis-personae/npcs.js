@@ -11,6 +11,7 @@ window.NPCS = [
   // ---- Seiya Mori — provincial daimyō (canonical Venerable Provincial Daimyō chassis) ----
   {
     id: "seiya-mori",
+    reveal: ["name", "epithet", "portrait", "desc", "bio0"],
     portrait: "../assets/npc/seiya-mori.webp",
     name: "Seiya Mori",
     epithet: "Provincial Daimyō",
@@ -51,6 +52,7 @@ window.NPCS = [
   // ---- Seiya Fusae — the officer of the escort (canonical Loyal Bushi chassis) ----
   {
     id: "seiya-fusae",
+    reveal: ["name", "epithet", "portrait", "desc", "bio0"],
     portrait: "../assets/npc/seiya-fusae.webp",
     name: "Seiya Fusae",
     epithet: "Officer of the Escort",
@@ -107,6 +109,7 @@ window.NPCS = [
   // ---- Arriving with the column ----
   {
     id: "genzo",
+    reveal: ["name", "epithet", "portrait", "desc", "bio0"],
     portrait: "../assets/npc/genzo.webp",
     name: "Genzō",
     epithet: "Of the village being given up",
@@ -134,6 +137,7 @@ window.NPCS = [
 
   {
     id: "kiyo",
+    reveal: ["name", "epithet", "portrait", "desc", "bio0"],
     portrait: "../assets/npc/kiyo.webp",
     name: "Kiyo",
     epithet: "Widow of the column",
@@ -160,13 +164,14 @@ window.NPCS = [
 
   {
     id: "rokuro",
+    reveal: ["name", "epithet", "portrait", "desc", "bio0"],
     portrait: "../assets/npc/rokuro.webp",
     name: "Rokurō",
     epithet: "The jovial one",
     affil: "Arriving with the column",
     statNote: "Clever Innkeeper (Path of Waves) under the Survivalist NPC Template (Path of Waves): +2 combat rank, +1 Water, +1 Martial and Trade, demeanor Detached. Card: Six of Cups, upright.",
     bio: [
-      "The most jovial of the nine. He enjoys getting a little high and reminiscing, and does not reliably keep hold of the present while he does it."
+      "The most jovial of them. He enjoys getting a little high and reminiscing, and does not reliably keep hold of the present while he does it."
     ],
     status: "Arriving · good company · an unreliable witness to the current hour",
     stat: {
@@ -187,6 +192,7 @@ window.NPCS = [
   // ---- Already at White Flower ----
   {
     id: "ume",
+    reveal: ["name", "epithet", "portrait"],
     portrait: "../assets/npc/ume.webp",
     name: "Ume",
     epithet: "First of the sect",
@@ -217,6 +223,7 @@ window.NPCS = [
 
   {
     id: "kitsuki-sadao",
+    reveal: ["name", "epithet", "portrait", "desc", "bio0"],
     portrait: "../assets/npc/kitsuki-sadao.webp",
     name: "Kitsuki Sadao",
     epithet: "The old magistrate",
@@ -248,18 +255,20 @@ window.NPCS = [
 
   {
     id: "heisuke",
+    reveal: ["name", "epithet", "portrait", "desc", "bio0"],
     portrait: "../assets/npc/heisuke.webp",
     name: "Heisuke",
     epithet: "The craftsman",
     affil: "White Flower Village · Perfect Land Sect",
     statNote: "Traveling Tradesperson (Path of Waves) for its I Can Fix That, plus the Perfect Land Sect Member title (Path of Waves) for Trustworthy Cadence. Two deviations for an expert craftsman who does not travel: Artisan raised 0 → 3, and the base's Worldly Wanderer advantage dropped. The title's −5 status cannot take him below its floor of 15 and he is already beneath it, so status is unchanged. Card: Eight of Pentacles, upright.",
     bio: [
-      "An expert craftsman, and a convert to the Perfect Land Sect. Never married. Late forties, by far the youngest of the nine elders."
+      "An expert craftsman. Never married. Late forties, and by far the youngest voice on the village's bench. Large through the shoulders, working apron, a cloth for his hands that ends up over one shoulder. He claps people he approves of.",
+      "A convert to the Perfect Land Sect — and, since the stables, satisfied that Norikage is one as well. Every observation behind that conclusion was accurate. Only the conclusion is wrong."
     ],
-    status: "White Flower · second convert · craft not yet named",
+    status: "White Flower · craftsman · quick to trust · craft not yet named",
     stat: {
       kind: "Minion", combatRank: 1, intrigueRank: 3,
-      description: "The most skilled pair of hands in the village, and the youngest voice on its bench. He works the way the patient work, and he has found a doctrine that says the work was never the point.",
+      description: "The most skilled pair of hands in the village, and the youngest voice on its bench. He works the way the patient work, and is quick to decide he has taken a man's measure.",
       rings: { air:3, earth:1, fire:2, water:2, void:1 },
       endurance:6, composure:8, focus:4, vigilance:3,
       honor:25, glory:25, status:9,
@@ -277,6 +286,7 @@ window.NPCS = [
 
   {
     id: "nui",
+    reveal: ["name", "epithet", "portrait", "desc", "bio0"],
     portrait: "../assets/npc/nui.webp",
     name: "Nui",
     epithet: "Guide of the pilgrim road",
@@ -286,7 +296,7 @@ window.NPCS = [
       "A Fortunist who leans to the Shinseist side of it: self-reflection, and enlightenment. She leads pilgrims to Seidō Fukurokujin. Reliable and devout.",
       "She lives with Michi, a widow."
     ],
-    status: "White Flower · leads the pilgrim road · the steadiest of the nine",
+    status: "White Flower · leads the pilgrim road · the steadiest of them",
     stat: {
       kind: "Adversary", combatRank: 2, intrigueRank: 4,
       description: "The woman who knows the way to the shrine and the order of the observances, and who walks it often enough that the walking is itself the practice.",
@@ -306,6 +316,7 @@ window.NPCS = [
   // ---- Scholarly Shugenja (core adversary, verbatim) ----
   {
     id: "scholarly-shugenja",
+    reveal: ["name", "epithet", "portrait"],
     portrait: "../assets/npc/scholarly-shugenja.webp",
     template: true,
     name: "Scholarly Shugenja",
@@ -349,6 +360,7 @@ window.NPCS = [
   // ---- Trained Ashigaru (core minion, verbatim) ----
   {
     id: "trained-ashigaru",
+    reveal: ["name", "epithet", "portrait"],
     portrait: "../assets/npc/trained-ashigaru.webp",
     template: true,
     name: "Trained Ashigaru",
@@ -387,6 +399,7 @@ window.NPCS = [
   // ---- Togashi Oharu — bio only (Norikage's lord) ----
   {
     id: "togashi-oharu",
+    reveal: ["name", "epithet", "portrait", "desc", "bio0"],
     portrait: "../assets/npc/togashi-oharu.webp",
     name: "Togashi Oharu",
     epithet: "The Abbot",
@@ -421,6 +434,7 @@ window.NPCS = [
   // ---- Yogo Kenzan — bio only (mentor) ----
   {
     id: "yogo-kenzan",
+    reveal: ["name", "epithet", "portrait", "desc", "bio0"],
     portrait: "../assets/npc/yogo-kenzan.webp",
     name: "Yogo Kenzan",
     epithet: "“Brother Kenzan”",

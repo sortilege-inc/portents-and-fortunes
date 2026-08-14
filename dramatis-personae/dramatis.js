@@ -24,7 +24,7 @@
 
   // Player characters live in the Play section; we read their sheet data from
   // those pages so the cards never drift. Add a page here to add a PC.
-  var PC_PAGES = ["index.html", "setsuna.html"];
+  var PC_PAGES = ["index.html"];
   var CAST = NPCS.slice();   // PCs get prepended once loaded
   var SKILLLBL = function (k) { var m = { unarmed:"Martial Arts [Unarmed]", melee:"Martial Arts [Melee]", ranged:"Martial Arts [Ranged]" }; return m[k] || (k ? cap(k) : "(ring only)"); };
 
@@ -78,11 +78,22 @@
   function nowStr() { try { return new Date().toLocaleString(); } catch (e) { return ""; } }
 
   // ---- fuzzable fact ----
+  // A fact is public if the GM says so, if it belongs to a PC, if it has been
+  // authored as revealed in npcs.js (so the reveal reaches the player's own
+  // device), or if this browser uncovered it. Authored reveals are not
+  // clickable — there is nothing left to discover.
+  function authoredReveal(fid) {
+    var i = String(fid).indexOf(":"); if (i < 0) return false;
+    var npc = byId(fid.slice(0, i)); if (!npc || !npc.reveal) return false;
+    var field = fid.slice(i + 1);
+    return npc.reveal.indexOf(field) >= 0 || npc.reveal.indexOf(field.split(":")[0]) >= 0;
+  }
   function fz(fid, inner, extraCls) {
-    var isRev = gm || revealed[fid] || /^pc-/.test(fid);   // players know their own PCs — never fuzz them
+    var open = /^pc-/.test(fid) || authoredReveal(fid);   // players know their own PCs, and what play has revealed
+    var isRev = gm || open || revealed[fid];
     var span = el("span", "fz " + (extraCls || "") + (isRev ? " revealed" : " fuzzed"));
     span.setAttribute("data-fid", fid); span.innerHTML = inner;
-    if (!gm) {
+    if (!gm && !open) {
       span.setAttribute("role","button"); span.setAttribute("tabindex","0");
       span.title = revealed[fid] ? "Discovered — click to conceal again" : "Click to reveal (discovered)";
       span.addEventListener("click", function (ev) { ev.stopPropagation(); toggleReveal(fid, span); });
@@ -353,8 +364,8 @@
   function buildBio(npc) {
     var wrap = el("div", "dp-bio");
     (npc.bio || []).forEach(function (p, i) { var para = el("p", "dp-bp"); para.appendChild(fz(npc.id + ":bio" + i, esc(p), "fz-block")); wrap.appendChild(para); });
-    if (npc.statNote) wrap.appendChild(el("p", "dp-statnote", "&#9873; " + esc(npc.statNote)));
-    if (npc.status) wrap.appendChild(el("p", "dp-meta", esc(npc.status)));
+    if (npc.statNote) { var sn = el("p", "dp-statnote"); sn.appendChild(fz(npc.id + ":statNote", "&#9873; " + esc(npc.statNote), "fz-block")); wrap.appendChild(sn); }
+    if (npc.status) { var stx = el("p", "dp-meta"); stx.appendChild(fz(npc.id + ":status", esc(npc.status), "fz-block")); wrap.appendChild(stx); }
     if (!npc.stat) wrap.appendChild(el("p", "dp-meta dp-nostat", "No statblock yet — bio only."));
     return wrap;
   }
