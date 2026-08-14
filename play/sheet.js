@@ -411,11 +411,11 @@
     return wrap;
   }
 
+  var TNAMES={strife:"Strife",fatigue:"Fatigue","void":"Void points"};
   function tracker(key,name,max,limit,warnAt){
     var wrap=el("div","trk"); wrap.setAttribute("data-key",key);
     wrap.innerHTML="<div class='trk-top'><span class='trk-name'>"+name+" <span class='warn' data-warn></span></span><span class='trk-val'></span></div>";
     var pips=el("div","pips");
-    var TNAMES={strife:"Strife",fatigue:"Fatigue","void":"Void points"};
     for(var i=1;i<=max;i++){ (function(n){ var p=el("div","pip"); p.addEventListener("click",function(){
       if(RO) return;
       var from=st[key]||0, to=(from===n?n-1:n);
@@ -434,7 +434,17 @@
     var pips=wrap.querySelector(".pips");
     var base=wrap.querySelectorAll(".pip:not(.overflow)").length;
     wrap.querySelectorAll(".pip.overflow").forEach(function(p){ p.remove(); });   // clear old overflow
-    for(var j=base;j<v;j++){ pips.appendChild(el("div","pip overflow on")); }      // beyond-max strife/fatigue
+    for(var j=base;j<v;j++){ (function(n){                                        // beyond-max strife/fatigue
+      var p=el("div","pip overflow on");
+      p.title="Over maximum — click to set to "+n;
+      if(!RO) p.addEventListener("click",function(){
+        var from=st[key]||0, to=(from===n?n-1:n);
+        if(to===from) return;
+        st[key]=to; save(); syncTracker(key);
+        logEvent(key,(TNAMES[key]||key)+" "+from+" → "+to,{attr:key,from:from,to:to,delta:to-from});
+      });
+      pips.appendChild(p);
+    })(j+1); }
     wrap.querySelectorAll(".pip:not(.overflow)").forEach(function(p,i){ p.classList.toggle("on", i<v); });
     wrap.querySelector(".trk-val").textContent=v+" / "+base+(v>base?" (over)":"");
     var warn=wrap.querySelector("[data-warn]"); warn.textContent="";
@@ -1282,7 +1292,7 @@
 
   function keepResults(strifeAmt, su, op, stfRolled, tn, pass, bokBonus){
     if(RO) return;
-    st.strife=Math.min(S.trackers.strife.max, (st.strife||0)+strifeAmt); save(); syncTracker("strife");
+    st.strife=(st.strife||0)+strifeAmt; save(); syncTracker("strife");   // no upper clamp — strife may exceed its maximum
     var kept=pool.filter(function(d){ return d.kept; });
     var keptBaseCount=kept.filter(function(d){ return !d.bonus; }).length;
     var bonusKept=kept.filter(function(d){ return d.bonus; }).length;

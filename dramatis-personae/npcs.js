@@ -94,6 +94,11 @@ window.NPCS = [
 
 
   // ================= THE NINE ELDERS =================
+  // Seven are statted. Tōbei and Michi are referenced in play but deliberately
+  // unstatted. NOTE (13 Aug): play established White Flower is administered by FOUR
+  // elders — Kitsuki Sadao, Ume, Heisuke, Nui. Tōbei is not an elder; he is married
+  // to Ume. Michi is not corroborated by play. The arriving three are unchanged.
+  // Superseded line kept below for the audit trail:
   // Seven of the nine are statted. Tōbei and Michi are referenced in play but
   // deliberately unstatted. Villager chassis and the template overlays are from
   // Path of Waves; ability text is VERBATIM. Bios carry only what is SET —
