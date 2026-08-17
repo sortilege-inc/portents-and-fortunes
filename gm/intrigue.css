@@ -1,0 +1,88 @@
+/* intrigue.css — Session Three intrigue tracker. Live play aid, GM-only. */
+
+.itr-bar{
+  display:flex; flex-wrap:wrap; gap:0.6rem; align-items:center;
+  margin:0 0 1.6rem; padding:0.7rem 0.9rem;
+  background:var(--paper-2); border:1px solid var(--edge); border-radius:3px;
+}
+.itr-bar .sp{ flex:1 1 auto; }
+.itr-btn{
+  font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em;
+  font-size:0.72rem; font-weight:600; cursor:pointer;
+  padding:0.42rem 0.85rem; border-radius:3px;
+  border:1px solid var(--edge); background:var(--paper-3); color:var(--ink-2);
+  transition:.15s;
+}
+.itr-btn:hover{ border-color:var(--crimson); color:var(--crimson-deep); }
+.itr-btn.danger{ border-color:rgba(182,36,50,0.4); color:var(--crimson-deep); }
+
+/* ---------------- objectives ---------------- */
+.obj{
+  background:var(--paper-2); border:1px solid var(--edge);
+  border-left:3px solid var(--gold); border-radius:3px;
+  padding:0.9rem 1.1rem; margin:0 0 1rem;
+}
+.obj.met{ border-left-color:var(--jade); background:rgba(79,125,92,0.09); }
+.obj h4{ margin:0 0 0.15rem; font-size:1.12rem; }
+.obj .kind{
+  font-family:var(--caps); text-transform:uppercase; letter-spacing:0.12em;
+  font-size:0.66rem; color:var(--ink-dim);
+}
+.obj .aim{ margin:0.45rem 0 0.7rem; font-size:0.95rem; color:var(--ink-2); }
+.obj .aim b{ color:var(--ink); }
+.pips{ display:flex; flex-wrap:wrap; gap:0.3rem; align-items:center; }
+.pip{
+  width:1.5rem; height:1.5rem; border-radius:3px; cursor:pointer;
+  border:1px solid var(--edge); background:var(--paper-3);
+  display:inline-flex; align-items:center; justify-content:center;
+  font-family:var(--caps); font-size:0.66rem; color:var(--ink-dim);
+  transition:.12s; padding:0;
+}
+.pip:hover{ border-color:var(--crimson); }
+.pip.on{ background:var(--crimson); border-color:var(--crimson-deep); color:#fff; }
+.obj.met .pip.on{ background:var(--jade); border-color:var(--jade); }
+.pip.past{ opacity:0.55; }
+.tally{
+  font-family:var(--caps); letter-spacing:0.08em; font-size:0.78rem;
+  color:var(--ink-soft); margin-left:0.55rem; white-space:nowrap;
+}
+.tally b{ font-size:1.05rem; color:var(--ink); }
+.obj.met .tally b{ color:var(--jade); }
+
+/* ---------------- TN table ---------------- */
+.tnwrap{ overflow-x:auto; }
+table.tn{ width:100%; border-collapse:collapse; font-size:0.92rem; }
+table.tn th, table.tn td{ padding:0.4rem 0.5rem; border-bottom:1px solid var(--edge-soft); text-align:center; }
+table.tn th{
+  font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em;
+  font-size:0.66rem; color:var(--ink-soft); font-weight:600; white-space:nowrap;
+}
+table.tn td.who, table.tn th.who{ text-align:left; white-space:nowrap; }
+table.tn td.who b{ font-size:1rem; }
+table.tn tr.pc{ background:rgba(154,123,63,0.08); }
+.tnval{ font-family:var(--caps); font-size:1.05rem; font-weight:600; color:var(--ink); }
+.tnval.easy{ color:var(--jade); }
+.tnval.hard{ color:var(--crimson-deep); }
+.demtog{
+  font-family:var(--caps); text-transform:uppercase; letter-spacing:0.08em;
+  font-size:0.62rem; cursor:pointer; padding:0.22rem 0.5rem; border-radius:3px;
+  border:1px solid var(--edge); background:var(--paper-3); color:var(--ink-dim);
+  white-space:nowrap;
+}
+.demtog.on{ background:var(--gold); border-color:var(--gold); color:#fff; }
+.demtog.enne.on{ background:var(--jade); border-color:var(--jade); }
+.mods{ font-size:0.74rem; color:var(--ink-dim); white-space:nowrap; }
+
+/* ---------------- demeanor reference ---------------- */
+table.dem{ width:100%; border-collapse:collapse; font-size:0.9rem; }
+table.dem th, table.dem td{ padding:0.35rem 0.5rem; border-bottom:1px solid var(--edge-soft); text-align:left; }
+table.dem th{
+  font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em;
+  font-size:0.66rem; color:var(--ink-soft);
+}
+table.dem code{ white-space:nowrap; }
+
+@media (max-width:620px){
+  .pip{ width:1.3rem; height:1.3rem; }
+  table.tn{ font-size:0.84rem; }
+}
