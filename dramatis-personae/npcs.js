@@ -200,7 +200,8 @@ window.NPCS = [
     statNote: "Clever Innkeeper (Path of Waves) under the Galvanizing NPC Template (Path of Waves), plus the Perfect Land Sect Member title (Path of Waves) for Trustworthy Cadence. The title's −5 status cannot take her below its floor of 15, and she is already beneath it at 9, so status is unchanged. Card: Queen of Wands, reversed.",
     bio: [
       "Married to Tōbei. They had a child, and the child died. She is the first convert to the Perfect Land Sect in White Flower Village.",
-      "Demanding and jealous, with little confidence underneath it, and willing to bully people into agreeing with her from a position of pity."
+      "Demanding and jealous, with little confidence underneath it, and willing to bully people into agreeing with her from a position of pity.",
+      "Sour-faced, and strongly and vocally against the arrival — she argued it with Sadao in front of an outside monk on the first day."
     ],
     status: "White Flower · first convert · the sect arrived through her grief",
     stat: {
@@ -231,7 +232,8 @@ window.NPCS = [
     statNote: "Kitsuki Noriko, Conflicted Magistrate (Writ of Wilds) as chassis — the Kitsuki family match — with the Wandering NPC Template's advantage, disadvantage and demeanor (Path of Waves). Two deliberate deviations: the template's +2 combat rank is NOT applied, and Endurance is cut from 12 to 5, both for great age (precedent: Kakita Ryoku, Elder Crane, Endurance 4). Card: Knight of Wands, reversed — Impatience is the template's own disadvantage and carries the reversal exactly.",
     bio: [
       "A samurai of the Kitsuki, and very old. A Fortunist. Two children, both grown, both living far away.",
-      "Impatience and a mercurial temper have alienated nearly everyone in the village except one neighbour, who is deaf and keeps him company regardless."
+      "Impatience and a mercurial temper have alienated nearly everyone in the village except one neighbour, who is deaf and keeps him company regardless.",
+      "Seventies or eighties, hunched over a stout walking stick. The wakizashi at his belt is what marks him samurai in a village of peasants. Formerly something like a regional administrator; he has worked this province his whole career and dislikes travel. The two children are in the southern Dragon lands — one in the Kitsuki provinces, one an Emerald Magistrate whose letters arrive from as far as Crab lands. His temper flares and then goes out of him, too tired to reach outrage. It is not personal."
     ],
     status: "White Flower · the only samurai resident · alienated from almost everyone",
     stat: {
@@ -294,7 +296,8 @@ window.NPCS = [
     statNote: "Dai, Fortunist Monk (Emerald Empire) as chassis — the Fortunist match, and her Herbalist ability suits a village's devout woman. One caveat rather than a deviation: Nui is a laywoman who guides pilgrims, not an ordained monk, so her Status 25 reflects standing earned on the road to the shrine rather than a monastic office. Card: The Hermit, upright.",
     bio: [
       "A Fortunist who leans to the Shinseist side of it: self-reflection, and enlightenment. She leads pilgrims to Seidō Fukurokujin. Reliable and devout.",
-      "She lives with Michi, a widow."
+      "She lives with Michi, a widow.",
+      "She escorts pilgrims to the shrine north of the village and back, and coaches them on what crafts to make as offerings."
     ],
     status: "White Flower · leads the pilgrim road · the steadiest of them",
     stat: {
