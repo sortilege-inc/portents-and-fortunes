@@ -402,3 +402,90 @@ blockquote{
 .sealed[open] > summary{ border-bottom:1px solid var(--gold-soft); }
 .sealed .sealed-body{ padding:0.4rem 1.1rem 1.1rem; }
 .sealed .sealed-warn{ font-family:var(--disp); font-style:italic; color:var(--ink-soft); margin:0.8rem 0 0; }
+
+/* ------------------------------------------------------------ source citations
+   <code> is used for corpus filenames in Behind the Veil. Left unstyled it
+   inherits the body's 19px, and monospace at the serif's own px reads larger
+   than the prose around it — a citation should recede, not shout. */
+code{
+  font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size:0.78em;
+  color:var(--ink-2);
+  background:rgba(60,40,18,0.06);
+  border:1px solid var(--edge-soft);
+  border-radius:2px;
+  padding:0.1em 0.36em;
+  white-space:nowrap;
+}
+
+/* ------------------------------------------------------------ section rail
+   Sticky table of contents for long documents. Built at load from the
+   headings inside the target column, so nothing needs hand-authored anchors.
+   Lives in the dead margin beside .col; below that width it becomes a
+   floating toggle that slides the same list in as an overlay. */
+.rail{
+  position:fixed;
+  top:calc(var(--rail-top,4.6rem));
+  left:max(0.6rem, calc(50% - 602px));
+  width:176px;
+  max-height:calc(100vh - var(--rail-top,4.6rem) - 2rem);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  font-family:var(--caps);
+  font-size:0.72rem;
+  letter-spacing:0.06em;
+  z-index:40;
+  padding-right:0.4rem;
+}
+.rail::-webkit-scrollbar{ width:6px; }
+.rail::-webkit-scrollbar-thumb{ background:var(--edge); border-radius:3px; }
+.rail-title{
+  text-transform:uppercase; letter-spacing:0.18em; font-size:0.64rem;
+  color:var(--ink-dim); padding:0 0 0.55rem 0.7rem;
+  border-bottom:1px solid var(--edge-soft); margin-bottom:0.5rem;
+}
+.rail ul{ list-style:none; margin:0; padding:0; }
+.rail .rail-strat{
+  text-transform:uppercase; letter-spacing:0.16em; font-size:0.6rem;
+  color:var(--gold); padding:0.9rem 0 0.35rem 0.7rem;
+}
+.rail a{
+  display:block; text-decoration:none; color:var(--ink-soft);
+  padding:0.26rem 0.5rem 0.26rem 0.7rem;
+  border-left:2px solid transparent;
+  text-transform:uppercase;
+  line-height:1.25;
+  transition:color 0.15s, border-color 0.15s;
+}
+.rail a:hover{ color:var(--crimson); }
+.rail .r-h3 a{
+  padding-left:1.35rem; text-transform:none; letter-spacing:0.02em;
+  font-family:var(--serif); font-size:0.8rem; color:var(--ink-dim);
+}
+.rail a.on{ color:var(--crimson-deep); border-left-color:var(--crimson); font-weight:600; }
+.rail .r-h3{ display:none; }
+.rail .r-grp.open .r-h3{ display:block; }
+
+.rail-toggle{
+  position:fixed; left:0.9rem; bottom:1.1rem; z-index:41;
+  display:none; align-items:center; gap:0.45rem;
+  font-family:var(--caps); text-transform:uppercase; letter-spacing:0.12em;
+  font-size:0.7rem; color:var(--paper-2);
+  background:var(--lacquer); border:1px solid var(--gold-soft);
+  border-radius:3px; padding:0.5rem 0.8rem; cursor:pointer;
+  box-shadow:0 3px 14px rgba(0,0,0,0.3);
+}
+.rail-toggle:hover{ border-color:var(--gold-lit); }
+
+@media (max-width:1240px){
+  .rail{
+    left:0; top:0; width:min(19rem,82vw); max-height:none; height:100vh;
+    background:var(--paper-2); border-right:1px solid var(--edge);
+    box-shadow:6px 0 26px rgba(0,0,0,0.22);
+    padding:5rem 0.6rem 2rem 0.6rem;
+    transform:translateX(-102%); transition:transform 0.25s ease;
+  }
+  .rail.open{ transform:none; }
+  .rail-toggle{ display:flex; }
+}
+@media print{ .rail, .rail-toggle{ display:none; } }
