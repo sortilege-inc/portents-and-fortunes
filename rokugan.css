@@ -333,7 +333,6 @@ blockquote{
 .tag-mine{ background:#5a4a6e; color:#f0eafc; }
 .tag-note{ background:#6e5f48; color:#f5ece0; }
 .tag-set{ background:#2f6b3f; color:#eafcef; }
-.tag-super{ background:#4a4a4a; color:#e6e6e6; }
 
 /* tables */
 .tablewrap{ overflow-x:auto; margin:1.4rem 0; border:1px solid var(--edge); }
