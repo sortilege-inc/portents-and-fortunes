@@ -13,6 +13,11 @@ rhythm is easier to catch than to describe.
 The short version: **an informed observer, writing down what is so, in the present tense, without
 flourish — and letting the facts do the work that adjectives usually get asked to do.**
 
+For anything under `gm/`, load the **`gm-prep-notes`** skill as well
+(`~/Working/Custom-Claude-Skills/gm-prep-notes/SKILL.md`, symlinked into `~/.claude/skills/`). It
+governs what belongs in a GM document at all; this file governs how the sentences sound. Where they
+disagree about `gm/`, that one wins.
+
 ## The four things that make it work
 
 ### 1. Fact, then consequence
@@ -69,7 +74,8 @@ observation. It is unearned when it is a mood applied to the surface of a thing.
 
 - **Present tense** for the standing state of the world. Past tense only for history and events.
 - **Third person, no address.** No *you*, no *we*, no rhetorical questions, no exclamation. World-facing
-  prose does not know the reader exists. (The GM page is the deliberate exception — see below.)
+  prose does not know the reader exists. This now holds on the GM page too — it was formerly the
+  exception, and that carve-out is retired.
 - **Paragraphs of 2–5 sentences**, one idea each.
 - **Rhythm:** mostly medium declaratives; occasionally a longer sentence carrying a clause of
   consequence; then a short one to land it. Vary it, but do not perform the variation.
@@ -90,7 +96,7 @@ the usual failure mode, so check which one you're in before writing.
 | `lore/`, `atlas/` | Full gazetteer voice. The default described above. |
 | `dramatis-personae/` bios (`npcs.js`) | Gazetteer voice, one step closer. Describe the person as the world sees them; note what is *not yet known* to Norikage rather than asserting it. |
 | `chronicle/` | Narrative register. Same discipline — concrete, unhedged, no purple — but it follows one man through time, may render his reasoning and his doubt, and uses past tense for events. Still no second person. |
-| `gm/` (Behind the Veil) | Analytical. Addresses the owner directly, second person is fine, everything is tagged (`AGREED` / `SOURCE` / `YOURS` / `OPEN` / `MINE` / `NOTE`), and prose gives way to structure where structure is clearer. |
+| `gm/` (Behind the Veil) | **Reference, not essay** — governed by the `gm-prep-notes` skill, which outranks this file for that surface. Everything is tagged (`SET` / `AGREED` / `SOURCE` / `YOURS` / `OPEN` / `MINE` / `NOTE`) and structure beats prose where structure is clearer. No second person, no first person, no commentary about the document. |
 | `play/`, `character/` | Mechanical. Rules text is **verbatim** — see hard constraints. |
 
 ## Hard constraints inherited from the project
@@ -133,6 +139,14 @@ Each of these is something that will actually show up if you're not watching for
 - **Explaining the theme.** If a passage tells the reader what it means, cut that sentence. The
   emptied village and the leaning torii do not need a paragraph explaining that they rhyme.
 - **Second person leaking in** from GM notes into world-facing pages.
+- **The document describing itself.** *This section is the one that is true. What stays on this page
+  is only what a card cannot hold.* Never, on any surface. See `gm-prep-notes` rule 1.
+- **Keeping the corpse.** Struck-through text, `SUPERSEDED` markers, *prep had X, now Y*. Correct the
+  fact and delete the old one; git is the history.
+- **Arguing for the material.** *Why Earth is the right element…* A GM page carries the decision, not
+  its defence.
+- **Saying it four ways.** A fact, then a "the consequence is…" paragraph, then a numbered taxonomy,
+  then an OPEN restating it. Pick the usable form and stop.
 
 ## Before you call it done
 
@@ -143,6 +157,8 @@ Each of these is something that will actually show up if you're not watching for
 - At most one lyric image in this section, and is it a real observation?
 - Numbers concrete, tense consistent, macrons consistent?
 - Any rules text reproduced **verbatim**?
+- On `gm/`: nothing struck through, nothing describing the document, nothing arguing for its own
+  ideas, no claim made twice in two registers?
 
 ## A worked example
 
