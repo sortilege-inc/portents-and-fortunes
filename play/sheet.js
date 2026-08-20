@@ -97,7 +97,7 @@
     b.addEventListener("click",function(){
       var n=rollLog.length;
       if(!confirm("Reset this sheet?\n\nThis discards everything stored in THIS browser for "
-        +(CURRENT.name||"this character")+":\n  • trackers (strife, fatigue, Void), conditions, social standing\n"
+        +(CURRENT.name||"this character")+":\n  • trackers (strife, fatigue, Void), conditions, social standing, XP\n"
         +"  • stance, conflict, equipped weapon/armour, technique uses\n"
         +"  • the roll and event log"+(n?" ("+n+" entries)":"")
         +"\n\nThe sheet reloads exactly as authored. This cannot be undone — export first if you want a copy.")) return;
@@ -224,6 +224,7 @@
 
     // --- Social (Honor / Glory / Status) ---
     grid.appendChild(buildSocial());
+    grid.appendChild(buildXP());
 
     // --- Skills ---
     var cSk = el("div","sh-card");
@@ -601,6 +602,51 @@
       if(!amt) return;
       logEvent("stake","Staked "+amt+" "+label+" (holding "+socialVal(attr)+")",{attr:attr,amount:amt});
       inp.value="";
+    });
+    return box;
+  }
+
+  // ===================== EXPERIENCE =====================
+  // Authored totals live in SHEET.xp; local adjustments override them the
+  // same way the social attributes do, so Reset returns to the authored value.
+  function xpVal(k){
+    var authored=(S.xp&&S.xp[k])||0;
+    if(RO) return authored;
+    var key="xp"+k.charAt(0).toUpperCase()+k.slice(1);
+    return st[key]!=null?st[key]:authored;
+  }
+  function buildXP(){
+    var c=el("div","sh-card xp-card");
+    c.appendChild(el("h2",null,"Experience"));
+    var row=el("div","social-row xp-row");
+    row.appendChild(xpAttr("earned","Earned"));
+    row.appendChild(xpAttr("spent","Spent"));
+    var av=el("div","soc-attr avail");
+    av.innerHTML="<div class='soc-lab'>Available</div><div class='soc-main'><span class='soc-val' id='xpAvail'>"
+      +(xpVal("earned")-xpVal("spent"))+"</span></div>";
+    row.appendChild(av);
+    c.appendChild(row);
+    c.appendChild(el("p","trk-note","Every change is written to the roll log. Reset restores the authored totals."));
+    return c;
+  }
+  function xpAttr(k,label){
+    var box=el("div","soc-attr"); box.setAttribute("data-xp",k);
+    box.innerHTML="<div class='soc-lab'>"+label+"</div>"
+      +"<div class='soc-main'><button class='soc-adj' data-d='-1'>&minus;</button><span class='soc-val'>"+xpVal(k)+"</span><button class='soc-adj' data-d='1'>+</button></div>";
+    if(RO){ box.querySelectorAll("button").forEach(function(x){ x.disabled=true; }); return box; }
+    var valEl=box.querySelector(".soc-val");
+    var key="xp"+k.charAt(0).toUpperCase()+k.slice(1);
+    box.querySelectorAll(".soc-adj").forEach(function(b){
+      b.addEventListener("click",function(){
+        var d=parseInt(b.getAttribute("data-d"),10);
+        var from=xpVal(k), to=Math.max(0,from+d);
+        if(to===from) return;
+        st[key]=to; save(); valEl.textContent=to;
+        var av=document.getElementById("xpAvail");
+        if(av) av.textContent=xpVal("earned")-xpVal("spent");
+        logEvent("xp","XP "+label.toLowerCase()+" "+from+" \u2192 "+to+" ("+(d>0?"+":"")+d+")",
+                 {field:k,from:from,to:to,delta:d});
+      });
     });
     return box;
   }

@@ -506,3 +506,7 @@
 
 @media print{ .rail, .rail-toggle{ display:none !important; } }
 .rail-toggle.cramped{ opacity:0.55; text-decoration:line-through; }
+
+/* experience — reuses the social attribute controls */
+.xp-row{ grid-template-columns:repeat(3,1fr); }
+.xp-row .soc-attr.avail .soc-val{ color:var(--crimson); }
