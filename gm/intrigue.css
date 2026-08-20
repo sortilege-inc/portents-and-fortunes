@@ -86,3 +86,23 @@ table.dem code{ white-space:nowrap; }
   .pip{ width:1.3rem; height:1.3rem; }
   table.tn{ font-size:0.84rem; }
 }
+
+/* ---------------- scene bar, cast picker, objective builder ---------------- */
+.scene-lab{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.12em; font-size:0.68rem; color:var(--ink-soft); }
+.scene-in{ font-family:var(--serif); font-size:0.95rem; padding:0.35rem 0.55rem; border:1px solid var(--edge); border-radius:3px; background:var(--paper); color:var(--ink); min-width:16rem; }
+.cast-pick{ display:flex; flex-wrap:wrap; gap:0.4rem; margin:0 0 1.4rem; }
+.cast-chip{
+  font-family:var(--caps); text-transform:uppercase; letter-spacing:0.07em; font-size:0.68rem;
+  padding:0.35rem 0.7rem; border-radius:3px; cursor:pointer;
+  border:1px solid var(--edge); background:var(--paper-3); color:var(--ink-dim); transition:.13s;
+}
+.cast-chip:hover{ border-color:var(--crimson); color:var(--crimson-deep); }
+.cast-chip.on{ background:var(--crimson); border-color:var(--crimson-deep); color:#fff; }
+.obj-add{ display:flex; flex-wrap:wrap; gap:0.45rem; align-items:center; margin:0.9rem 0 1.6rem; padding:0.7rem 0.8rem; background:var(--paper-3); border:1px solid var(--edge-soft); border-radius:3px; }
+.obj-add input[type=text]{ font-family:var(--serif); font-size:0.9rem; padding:0.32rem 0.5rem; border:1px solid var(--edge); border-radius:3px; background:var(--paper); color:var(--ink); }
+.obj-add #oWho{ min-width:11rem; } .obj-add #oAim{ flex:1 1 14rem; min-width:11rem; }
+.obj-add select{ font-family:var(--serif); font-size:0.9rem; padding:0.32rem 0.4rem; border:1px solid var(--edge); border-radius:3px; background:var(--paper); color:var(--ink); }
+.obj-add input[type=number]{ width:4rem; font-family:var(--caps); font-size:0.95rem; text-align:center; padding:0.32rem 0.3rem; border:1px solid var(--edge); border-radius:3px; background:var(--paper); color:var(--ink); }
+.obj h4{ display:flex; align-items:center; gap:0.5rem; }
+.obj-x{ margin-left:auto; border:1px solid var(--edge); background:var(--paper-3); color:var(--ink-dim); border-radius:3px; width:1.5rem; height:1.5rem; line-height:1; cursor:pointer; font-size:1rem; }
+.obj-x:hover{ border-color:var(--crimson); color:var(--crimson-deep); }

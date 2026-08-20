@@ -109,17 +109,18 @@ window.NPCS = [
   // ---- Arriving with the column ----
   {
     id: "genzo",
-    reveal: ["name", "epithet", "portrait", "desc", "bio0"],
+    reveal: ["name", "epithet", "portrait", "desc", "bio0", "bio2"],
     portrait: "../assets/npc/genzo.webp",
     name: "Genzō",
     epithet: "Of the village being given up",
-    affil: "Arriving with the column · Fortunist",
+    affil: "Arriving with the column · Perfect Land Sect",
     statNote: "Clever Innkeeper (Path of Waves) under the Desperate NPC Template (Path of Waves): +1 combat rank, +1 Fire, +1 Martial and Social. Card: The Chariot, reversed. Before the move he would have taken the Galvanizing template instead — the swap is the reversal, in one line.",
     bio: [
       "The removal has broken him. His farm was in the village being given up, and his ancestors are buried there. His difficulty is practical before it is theological: he is a Fortunist who does not know the spirits of the place he is being sent to, and who no longer has access to his own dead.",
-      "What he was before the order came is legible only in what is left of it."
+      "What he was before the order came is legible only in what is left of it.",
+      "He is a devotee of the Perfect Land Sect. Norikage read the kie off his lips at a distance, given back to Ume in greeting — which is how a line of carts became a welcome without anyone in authority deciding anything."
     ],
-    status: "Arriving · Fortunist cut off from his ancestors",
+    status: "Arriving · cut off from his ancestors · took the kie",
     stat: {
       kind: "Minion", combatRank: 2, intrigueRank: 2,
       description: "A man of the emptied village, walking east with what he could carry. He speaks for people who no longer have a place to speak for.",
@@ -201,9 +202,10 @@ window.NPCS = [
     bio: [
       "Married to Tōbei. They had a child, and the child died. She is the first convert to the Perfect Land Sect in White Flower Village.",
       "Demanding and jealous, with little confidence underneath it, and willing to bully people into agreeing with her from a position of pity.",
-      "Sour-faced, and strongly and vocally against the arrival — she argued it with Sadao in front of an outside monk on the first day."
+      "Sour-faced, and strongly and vocally against the arrival — she argued it with Sadao in front of an outside monk on the first day.",
+      "She reversed herself the moment she found her own faith among the newcomers, walked the line taking the measure of all three arriving elders, and ended the argument herself: they are staying. She stands at Sadao's shoulder as his equal in public, which a commoner does not do, and he does not dispute it."
     ],
-    status: "White Flower · first convert · the sect arrived through her grief",
+    status: "White Flower · first convert · opened the village to the newcomers",
     stat: {
       kind: "Minion", combatRank: 1, intrigueRank: 4,
       description: "A bereaved mother who stopped waiting for the Fortunes to be fair, and found a doctrine that promised the reward without the waiting.",
@@ -233,9 +235,10 @@ window.NPCS = [
     bio: [
       "A samurai of the Kitsuki, and very old. A Fortunist. Two children, both grown, both living far away.",
       "Impatience and a mercurial temper have alienated nearly everyone in the village except one neighbour, who is deaf and keeps him company regardless.",
+      "A Fortunist of the ordinary observant sort — no formal training, but decades of drinking with pilgrims on the road north, and the vocabulary of a man for whom the celestial order is simply how things are. He does not know the sect is inside his village.",
       "Seventies or eighties, hunched over a stout walking stick. The wakizashi at his belt is what marks him samurai in a village of peasants. Formerly something like a regional administrator; he has worked this province his whole career and dislikes travel. The two children are in the southern Dragon lands — one in the Kitsuki provinces, one an Emerald Magistrate whose letters arrive from as far as Crab lands. His temper flares and then goes out of him, too tired to reach outrage. It is not personal."
     ],
-    status: "White Flower · the only samurai resident · alienated from almost everyone",
+    status: "White Flower · the only samurai resident · a Fortunist who has not noticed the sect",
     stat: {
       kind: "Adversary", combatRank: 4, intrigueRank: 4,
       description: "A Kitsuki grown old a long way from anywhere the Kitsuki are needed. The eye is undimmed; everything holding it up is not.",
