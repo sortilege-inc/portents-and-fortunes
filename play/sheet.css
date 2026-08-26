@@ -28,6 +28,11 @@
 #sheet.readonly .pip{ cursor:default; }
 #sheet.readonly .ring, #sheet.readonly .skrow, #sheet.readonly .stbtn{ cursor:default; }
 #sheet.readonly .sh-head::after{ content:"archived"; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.16em; font-size:0.6rem; color:var(--gold); align-self:flex-start; }
+/* Controls that only make sense on the live sheet are disabled while an archived
+   snapshot is shown; make them read that way instead of merely not responding.
+   "Read more" stays enabled, so expanding text still works on an archive. */
+#sheet.readonly button:disabled{ opacity:0.45; cursor:default; filter:grayscale(0.4); }
+#sheet.readonly button:disabled:hover{ filter:grayscale(0.4); border-color:var(--edge); }
 
 #sheet{ max-width:1120px; margin:0 auto; padding:1.4rem clamp(1rem,4vw,2.4rem); }
 

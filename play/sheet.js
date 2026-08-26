@@ -75,6 +75,10 @@
 
   // ---- export / import (state + roll log) ----
   function buildIO(){
+    // Export, import and reset all act on the live character's stored state, so they
+    // are withheld while an archived snapshot is on screen — Reset in particular would
+    // wipe the live sheet from behind the archive.
+    if(RO) return el("div","sh-iocol");
     var wrap=el("div","sh-io");
     var ex=el("button","io-tri export","▼"); ex.title="Export JSON (state + log)"; ex.setAttribute("aria-label","Export JSON");
     var im=el("button","io-tri import","▲"); im.title="Import JSON"; im.setAttribute("aria-label","Import JSON");
@@ -472,6 +476,7 @@
     (S.peculiarities||[]).filter(function(p){ return typeof p.strife==="number"; }).forEach(function(p){
       var d=p.strife;
       var b=el("button","strife-btn "+(d<0?"heal":"harm"), p.name+" ("+(d>0?"+":"")+d+")");
+      if(RO) b.disabled=true;
       b.addEventListener("click",function(){
         if(RO) return;
         var from=st.strife||0, to=Math.max(0, from+d);   // no upper clamp — strife may exceed maximum
@@ -554,8 +559,10 @@
     var wrap=el("div","conditions-wrap");
     wrap.appendChild(el("h2",null,"Conditions"));
     var chips=el("div","cond-chips");
+    var active = RO ? ((SNAP&&SNAP.conditions)||[]) : st.conditions;
     CONDITIONS.forEach(function(c){
-      var b=el("button","cond-chip"+(st.conditions.indexOf(c)>=0?" on":""),c);
+      var b=el("button","cond-chip"+(active.indexOf(c)>=0?" on":""),c);
+      if(RO) b.disabled=true;
       b.addEventListener("click",function(){
         if(RO) return;
         var i=st.conditions.indexOf(c);
@@ -685,6 +692,7 @@
       // a tnLabel instead of a number, and leave the roller's TN field for the player.
       var tnTxt=(a.tn!=null?a.tn:(a.tnLabel||"?"));
       var btn=el("button","tech-activate"+(maxed?" spent":""), a.actionType+a.punct+" TN "+tnTxt+" "+(SKILL_NAMES[a.skill]||cap(a.skill))+" "+ringIcon(a.ring));
+      if(RO) btn.disabled=true;
       btn.addEventListener("click",function(){ if(RO) return; activateTechnique(t); });
       e.appendChild(btn);
     }
