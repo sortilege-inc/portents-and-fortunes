@@ -599,7 +599,15 @@
     wrap.appendChild(rr);
     var stats = el("div", "dp-stats");
     stats.appendChild(statCol("Societal", [["Honor",s.honor,id+":honor"],["Glory",s.glory,id+":glory"],["Status",s.status,id+":status"]]));
-    stats.appendChild(statCol("Personal", [["Endurance",s.endurance,id+":endurance"],["Composure",s.composure,id+":composure"],["Focus",s.focus,id+":focus"],["Vigilance",s.vigilance,id+":vigilance"]]));
+    var personal = [["Endurance",s.endurance,id+":endurance"],["Composure",s.composure,id+":composure"],["Focus",s.focus,id+":focus"],["Vigilance",s.vigilance,id+":vigilance"]];
+    if (s.silhouette != null) personal.push(["Silhouette",s.silhouette,id+":silhouette"]);
+    stats.appendChild(statCol("Personal", personal));
+    // Resistance reduces damage before it is defended against, so it belongs
+    // beside the other numbers rather than buried in the gear line.
+    if (s.resist) stats.appendChild(statCol("Resistance", [
+      ["Physical", s.resist.physical || 0, id+":resphys"],
+      ["Supernatural", s.resist.supernatural || 0, id+":ressup"]
+    ]));
     wrap.appendChild(stats);
     if (s.demeanor || s.tnMods) {
       var dm = el("div", "dp-demeanor");

@@ -319,6 +319,43 @@ window.NPCS = [
     }
   },
 
+  // ---- Forest Troll (core adversary, verbatim — core p.321) ----
+  {
+    id: "forest-troll",
+    reveal: [],
+    name: "Forest Troll",
+    epithet: "Out of its country",
+    affil: "Spirits and Strange Beings · Otherworldly",
+    statNote: "Core Forest Troll (core p.321), unmodified. Silhouette 4 per its own Ancient and Powerful ability, which overrides the silhouette table's listing of trolls at 3.",
+    bio: [
+      "Trolls are rare inside the Empire and enter it through the Shinomen Mori on the western border — not through the Dragon mountains. One on a mountain road east of nowhere is a thing that was somewhere else and is not there now, which is the same shape as the disturbed earth kami and the neglected shrines.",
+      "Intelligent, unpredictable, and not above eating rude humans."
+    ],
+    status: "Unmet · on the road west",
+    stat: {
+      kind: "Adversary", combatRank: 7, intrigueRank: 4,
+      description: "Inside the Empire, trolls are quite rare, but they occasionally enter via the great forest of the Shinomen Mori on Rokugan’s western border. They are intelligent but unpredictable, and not above eating rude humans.",
+      rings: { air:2, earth:4, fire:5, water:4, void:3 },
+      endurance:16, composure:9, focus:4, vigilance:3,
+      honor:30, glory:10, status:5,
+      silhouette:4,
+      resist: { physical:1, supernatural:1 },
+      demeanor:"Assertive", tnMods:"Earth +2, Air -2",
+      skills: { artisan:1, martial:3, scholar:3, social:2, trade:1 },
+      advantages: [ "Brute Strength: (fire) Martial; Physical" ],
+      disadvantages: [ "Insatiable Appetite: (water) Social; Physical" ],
+      weapons: [
+        "Massive Cudgel: Range 2, Damage 9, Deadliness 5, Cumbersome",
+        "Rending Grip: Range 1, Damage 4, Deadliness 6"
+      ],
+      gear: [ "Scaled hide (Physical 1, Supernatural 1)", "animal-pelt clothes", "polished skull collection" ],
+      abilities: [
+        { name:"Ancient and Powerful", text:"A troll is an Otherworldly being of silhouette 4." },
+        { name:"Sorcerous Scales", text:"After a troll suffers damage from a physical or supernatural source, increase its resistance to that damage type by 4. This effect persists until it suffers damage from a source of a different type." }
+      ]
+    }
+  },
+
   // ---- Scholarly Shugenja (core adversary, verbatim) ----
   {
     id: "scholarly-shugenja",
