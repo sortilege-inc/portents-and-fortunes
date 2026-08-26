@@ -35,12 +35,12 @@
   function saveRevealed() { try { localStorage.setItem(REVKEY, JSON.stringify(revealed)); } catch (e) {} }
   function setGM(on) { gm = on; try { localStorage.setItem(GMKEY, on ? "1" : "0"); } catch (e) {} }
 
-  var scene = { members:[], selected:null, inConflict:false, conflictType:"skirmish", conflictName:"", counters:{} };
+  var scene = { members:[], selected:null, inConflict:false, conflictType:"skirmish", conflictName:"", counters:{}, objectives:[] };
   try { var sv = JSON.parse(localStorage.getItem(SCENEKEY)); if (sv) Object.assign(scene, sv); } catch (e) {}
   function saveScene() { try { localStorage.setItem(SCENEKEY, JSON.stringify(scene)); } catch (e) {} }
 
   function engKey(mid) { return "pf-dp-eng-" + mid; }
-  function getEng(mid) { var d = { stance:"void", ring:"earth", group:"martial", oppTable:"conflict", strife:0, fatigue:0 }; try { var s = JSON.parse(localStorage.getItem(engKey(mid))); if (s) Object.assign(d, s); } catch (e) {} return d; }
+  function getEng(mid) { var d = { stance:"void", ring:"earth", group:"martial", oppTable:"conflict", strife:0, fatigue:0, demOff:false, disc:false }; try { var s = JSON.parse(localStorage.getItem(engKey(mid))); if (s) Object.assign(d, s); } catch (e) {} return d; }
   function saveEng(mid, e) { try { localStorage.setItem(engKey(mid), JSON.stringify(e)); } catch (er) {} }
 
   // scene log (one log for the whole scene, tagged by member)
@@ -227,6 +227,143 @@
     return box;
   }
 
+  // ---------------- intrigue: objectives and Persuade TNs ----------------
+  // Objective difficulty is a momentum threshold read from the target's own
+  // numbers; demeanor never touches it. The Persuade TN is a different number
+  // — the target's vigilance, moved by demeanor and the skill/status discount,
+  // floored at 1.
+  var OBJ_KINDS = [
+    { id:"appeal",    name:"Appeal to a Person or Group", from:"focus" },
+    { id:"discern",   name:"Discern Someone's Qualities", from:"vigilance" },
+    { id:"discredit", name:"Discredit Someone",           from:null },
+    { id:"rumor",     name:"Spread a Rumor",              from:"topVig" }
+  ];
+  function parseTnMods(str) {
+    var out = {};
+    (str || "").split(",").forEach(function (part) {
+      var m = /\s*([A-Za-z]+)\s*([+\-−]\s*\d+)/.exec(part);
+      if (m) out[m[1].toLowerCase()] = parseInt(m[2].replace(/−/g, "-").replace(/\s/g, ""), 10);
+    });
+    return out;
+  }
+  function persuadeTN(mid, ring) {
+    var npc = memberNpc(mid); if (!npc || !npc.stat) return null;
+    var e = getEng(mid);
+    var mods = e.demOff ? {} : parseTnMods(npc.stat.tnMods);
+    return Math.max(1, (npc.stat.vigilance || 0) + (mods[ring] || 0) + (e.disc ? -1 : 0));
+  }
+  function suggestDifficulty(kind, mid) {
+    var k = OBJ_KINDS.filter(function (x) { return x.id === kind; })[0];
+    if (!k || !k.from) return 0;
+    if (k.from === "topVig") {
+      var top = null;
+      scene.members.forEach(function (m) { var n = memberNpc(m); if (n && n.stat && (!top || n.stat.status > top.stat.status)) top = n; });
+      return top ? top.stat.vigilance : 0;
+    }
+    var npc = memberNpc(mid);
+    return (npc && npc.stat) ? (npc.stat[k.from] || 0) : 0;
+  }
+
+  function buildIntrigueTools() {
+    var box = el("div", "ss-block intrigue-tools");
+    box.appendChild(el("div", "ss-lab", "❉ Social objectives"));
+
+    var list = el("div", "obj-list");
+    if (!scene.objectives.length) list.appendChild(el("p", "conf-note", "No objectives yet."));
+    scene.objectives.forEach(function (o, idx) {
+      var kind = OBJ_KINDS.filter(function (x) { return x.id === o.kind; })[0];
+      var met = o.diff > 0 && (o.mo || 0) >= o.diff;
+      var card = el("div", "objx" + (met ? " met" : ""));
+      var head = el("div", "objx-head");
+      head.appendChild(el("span", "objx-who", o.who));
+      head.appendChild(el("span", "objx-kind", (kind ? kind.name : o.kind) + (o.targetName ? " · " + o.targetName : "")));
+      var x = el("button", "objx-x", "×"); x.title = "Remove";
+      x.addEventListener("click", function () { scene.objectives.splice(idx, 1); saveScene(); renderScene(); });
+      head.appendChild(x); card.appendChild(head);
+      if (o.aim) card.appendChild(el("p", "objx-aim", o.aim));
+      if (o.diff > 0) {
+        var pips = el("div", "objx-pips");
+        for (var i = 1; i <= o.diff; i++) (function (n) {
+          var b = el("button", "objx-pip" + (n <= (o.mo || 0) ? " on" : ""), String(n));
+          b.addEventListener("click", function () {
+            var was = o.mo || 0;
+            o.mo = (was === n) ? n - 1 : n; saveScene();
+            logEvent(null, "conflict", o.who + " — momentum " + was + " → " + o.mo + " / " + o.diff
+              + (o.mo >= o.diff ? " (achieved)" : ""));
+            renderScene();
+          });
+          pips.appendChild(b);
+        })(i);
+        var tal = el("span", "objx-tally"); tal.innerHTML = "<b>" + (o.mo || 0) + "</b> / " + o.diff + (met ? " — achieved" : "");
+        pips.appendChild(tal); card.appendChild(pips);
+      } else card.appendChild(el("p", "objx-aim", "Completes when the target becomes Compromised."));
+      list.appendChild(card);
+    });
+    box.appendChild(list);
+
+    var add = el("div", "obj-add-row");
+    var who = el("input", "obj-in"); who.type = "text"; who.placeholder = "whose objective";
+    var kindSel = el("select", "obj-sel");
+    OBJ_KINDS.forEach(function (k) { var o = el("option", null, k.name); o.value = k.id; kindSel.appendChild(o); });
+    var tgtSel = el("select", "obj-sel");
+    scene.members.forEach(function (m) { var o = el("option", null, memberName(m)); o.value = m; tgtSel.appendChild(o); });
+    var other = el("option", null, "— other —"); other.value = ""; tgtSel.appendChild(other);
+    var diff = el("input", "obj-diff"); diff.type = "number"; diff.min = "0"; diff.max = "30";
+    var aim = el("input", "obj-in aim"); aim.type = "text"; aim.placeholder = "what they want (optional)";
+    function refreshDiff() { diff.value = suggestDifficulty(kindSel.value, tgtSel.value); }
+    kindSel.addEventListener("change", refreshDiff); tgtSel.addEventListener("change", refreshDiff); refreshDiff();
+    var go = el("button", "roll-btn ghost", "Add");
+    go.addEventListener("click", function () {
+      if (!who.value.trim()) { who.focus(); return; }
+      scene.objectives.push({ who: who.value.trim(), kind: kindSel.value, target: tgtSel.value,
+        targetName: tgtSel.value ? memberName(tgtSel.value) : "", diff: parseInt(diff.value, 10) || 0,
+        aim: aim.value.trim(), mo: 0 });
+      saveScene(); logEvent(null, "conflict", "Objective set — " + who.value.trim()); renderScene();
+    });
+    [who, kindSel, tgtSel, diff, aim, go].forEach(function (n) { add.appendChild(n); });
+    box.appendChild(add);
+
+    if (scene.members.length) {
+      box.appendChild(el("div", "ss-lab", "⚄ Persuade target numbers"));
+      var wrap = el("div", "tnmx-wrap");
+      var t = el("table", "tnmx");
+      var hr = el("tr");
+      ["Target", "Demeanor"].forEach(function (h) { hr.appendChild(el("th", null, h)); });
+      RINGS.forEach(function (r) { hr.appendChild(el("th", null, cap(r))); });
+      hr.appendChild(el("th", null, "−1"));
+      t.appendChild(hr);
+      scene.members.forEach(function (mid) {
+        var npc = memberNpc(mid); if (!npc || !npc.stat) return;
+        var e = getEng(mid), tr = el("tr");
+        var td = el("td", "tnmx-who"); td.appendChild(el("b", null, memberName(mid)));
+        td.appendChild(el("span", "tnmx-sub", " vig " + npc.stat.vigilance + " · focus " + npc.stat.focus));
+        tr.appendChild(td);
+        var dtd = el("td");
+        if (npc.stat.demeanor) {
+          var db = el("button", "tnmx-tog" + (e.demOff ? "" : " on"), npc.stat.demeanor);
+          db.title = npc.stat.tnMods || "no modifiers";
+          db.addEventListener("click", function () { var en = getEng(mid); en.demOff = !en.demOff; saveEng(mid, en); renderScene(); });
+          dtd.appendChild(db);
+        } else dtd.appendChild(el("span", "tnmx-sub", "—"));
+        tr.appendChild(dtd);
+        RINGS.forEach(function (r) {
+          var v = persuadeTN(mid, r), c = el("td");
+          c.appendChild(el("span", "tnmx-v" + (v <= 2 ? " easy" : v >= 6 ? " hard" : ""), String(v)));
+          tr.appendChild(c);
+        });
+        var std = el("td");
+        var sb = el("button", "tnmx-tog" + (e.disc ? " on" : ""), e.disc ? "−1" : "off");
+        sb.title = "Persuade skill discount: Courtesy when every target outranks the speaker, Command when every target is lower, other skills when equal.";
+        sb.addEventListener("click", function () { var en = getEng(mid); en.disc = !en.disc; saveEng(mid, en); renderScene(); });
+        std.appendChild(sb); tr.appendChild(std);
+        t.appendChild(tr);
+      });
+      wrap.appendChild(t); box.appendChild(wrap);
+      box.appendChild(el("p", "conf-note", "TN of a Persuade check is the target's vigilance, moved by their demeanor and the skill discount, never below 1. Objective difficulty is a separate number and demeanor does not touch it."));
+    }
+    return box;
+  }
+
   // ---------------- scene-wide settings ----------------
   function buildSceneSettings() {
     var box = el("div", "scene-settings");
@@ -249,6 +386,7 @@
       cf.appendChild(el("p", "conf-note", (L5RD.conflicts[scene.conflictType] || {}).name + " · initiative: " + ((L5RD.conflicts[scene.conflictType] || {}).initSkill || "—") + " · each NPC picks a stance on its page."));
     }
     box.appendChild(cf);
+    if (scene.inConflict && scene.conflictType === "intrigue") box.appendChild(buildIntrigueTools());
 
     // scene reset + log tools
     var tools = el("div", "ss-tools");
