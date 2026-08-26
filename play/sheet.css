@@ -457,14 +457,19 @@
 .ability-note{ flex-basis:100%; font-size:0.86rem; color:var(--ink-soft); font-style:italic; }
 .ability-note.locked{ color:var(--crimson); font-style:normal; }
 
-/* ---- side rails: section nav (left) and live trackers (right) ---- */
-.rail-toggle{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em; font-size:0.72rem; color:#cdc0a2; background:rgba(255,255,255,0.06); border:1px solid var(--gold-soft); border-radius:4px; padding:0.2rem 0.6rem; cursor:pointer; }
-.rail-toggle:hover{ color:#fff; border-color:var(--crimson); }
-.rail-toggle.on{ color:#f2e9d4; background:rgba(182,36,50,0.35); border-color:var(--crimson); }
+/* ---- side rails: section nav (left) and live trackers (right) ----
+   Namespaced sh-rail-* on purpose. rokugan.css owns a different .rail (the
+   document table-of-contents used on the GM page); when these shared the name,
+   its left: offset landed on .sh-rail-right, over-constrained the box, and the
+   Condition rail rendered on the left on top of the nav rail. */
+.sh-rail-toggle{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em; font-size:0.72rem; color:#cdc0a2; background:rgba(255,255,255,0.06); border:1px solid var(--gold-soft); border-radius:4px; padding:0.2rem 0.6rem; cursor:pointer; }
+.sh-rail-toggle:hover{ color:#fff; border-color:var(--crimson); }
+.sh-rail-toggle.on{ color:#f2e9d4; background:rgba(182,36,50,0.35); border-color:var(--crimson); }
 
-.rail{
+.sh-rail{
   display:none; position:fixed; top:50%; transform:translateY(-50%); z-index:40;
-  width:11rem; max-height:82vh; overflow-y:auto;
+  left:auto; right:auto;
+  width:11rem; max-height:82vh; overflow-y:auto; overscroll-behavior:contain;
   padding:0.75rem 0.8rem;
   background:linear-gradient(180deg, var(--paper-2), #ece0c6);
   border:1px solid var(--edge); border-radius:3px; box-shadow:var(--shadow-soft);
@@ -472,24 +477,24 @@
 /* Sit just outside the centred sheet when the window is wide enough for that, and
    fall back to hugging the viewport edge when it is not. % (not vw) so the scrollbar
    is excluded the same way it is for the centred sheet. */
-.rail-left{ left:max(0.75rem, calc(50% - 748px)); }
-.rail-right{ right:max(0.75rem, calc(50% - 748px)); }
+.sh-rail-left{ left:max(0.75rem, calc(50% - 748px)); right:auto; }
+.sh-rail-right{ right:max(0.75rem, calc(50% - 748px)); left:auto; }
 
 /* Rails claim a 12.5rem gutter either side; the sheet gives up width to make room
    rather than demanding a window wide enough to hold rails *and* a full 1120px sheet. */
 @media (min-width:1280px){
-  body.rails-on .rail{ display:block; }
-  body.rails-on #sheet{ max-width:min(1120px, calc(100% - 25rem)); }
+  body.sh-rails-on .sh-rail{ display:block; }
+  body.sh-rails-on #sheet{ max-width:min(1120px, calc(100% - 25rem)); }
 }
 
-.rail-head{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.14em; font-size:0.66rem; color:var(--crimson); margin:0 0 0.5rem; padding-bottom:0.3rem; border-bottom:1px solid var(--gold-soft); }
-.rail-head + .rt-row, .rail-head ~ .rail-head{ margin-top:0; }
-.rail-right .rail-head:not(:first-child){ margin-top:0.9rem; }
+.sh-rail-head{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.14em; font-size:0.66rem; color:var(--crimson); margin:0 0 0.5rem; padding-bottom:0.3rem; border-bottom:1px solid var(--gold-soft); }
+.sh-rail-head + .rt-row, .sh-rail-head ~ .sh-rail-head{ margin-top:0; }
+.sh-rail-right .sh-rail-head:not(:first-child){ margin-top:0.9rem; }
 
-.rail-nav{ display:flex; flex-direction:column; gap:0.1rem; }
-.rail-link{ text-align:left; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.7rem; color:var(--ink-soft); background:none; border:0; border-left:2px solid transparent; border-radius:0; padding:0.28rem 0.5rem; cursor:pointer; transition:.12s; }
-.rail-link:hover{ color:var(--ink); background:rgba(182,36,50,0.06); }
-.rail-link.on{ color:var(--crimson); border-left-color:var(--crimson); font-weight:600; }
+.sh-rail-nav{ display:flex; flex-direction:column; gap:0.1rem; }
+.sh-rail-link{ text-align:left; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.7rem; color:var(--ink-soft); background:none; border:0; border-left:2px solid transparent; border-radius:0; padding:0.28rem 0.5rem; cursor:pointer; transition:.12s; }
+.sh-rail-link:hover{ color:var(--ink); background:rgba(182,36,50,0.06); }
+.sh-rail-link.on{ color:var(--crimson); border-left-color:var(--crimson); font-weight:600; }
 
 .rt-row{ margin:0 0 0.5rem; }
 .rt-lab{ display:flex; justify-content:space-between; align-items:baseline; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.66rem; color:var(--ink-soft); }
@@ -504,8 +509,8 @@
 .rt-roll{ display:block; width:100%; margin-top:0.75rem; font-family:var(--caps); text-transform:uppercase; letter-spacing:0.08em; font-size:0.72rem; font-weight:600; color:#fff; background:linear-gradient(180deg,var(--crimson),var(--crimson-deep)); border:1px solid var(--crimson-deep); border-radius:4px; padding:0.4rem; cursor:pointer; }
 .rt-roll:hover{ filter:brightness(1.08); }
 
-@media print{ .rail, .rail-toggle{ display:none !important; } }
-.rail-toggle.cramped{ opacity:0.55; text-decoration:line-through; }
+@media print{ .sh-rail, .sh-rail-toggle{ display:none !important; } }
+.sh-rail-toggle.cramped{ opacity:0.55; text-decoration:line-through; }
 
 /* experience — reuses the social attribute controls */
 .xp-row{ grid-template-columns:repeat(3,1fr); }

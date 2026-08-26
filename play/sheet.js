@@ -1471,7 +1471,7 @@
 
   function buildRailToggle(){
     var bar=document.querySelector(".play-bar"); if(!bar) return;
-    var b=el("button","rail-toggle"+(railsOn?" on":""),"&#9707; Rails");
+    var b=el("button","sh-rail-toggle"+(railsOn?" on":""),"&#9707; Rails");
     railBtn=b;
     b.setAttribute("aria-pressed", railsOn?"true":"false");
     b.addEventListener("click",function(){
@@ -1486,8 +1486,8 @@
   }
   function applyRails(){
     if(!railL){
-      railL=el("aside","rail rail-left");  railL.setAttribute("aria-label","Sheet sections");
-      railR=el("aside","rail rail-right"); railR.setAttribute("aria-label","Trackers");
+      railL=el("aside","sh-rail sh-rail-left");  railL.setAttribute("aria-label","Sheet sections");
+      railR=el("aside","sh-rail sh-rail-right"); railR.setAttribute("aria-label","Trackers");
       document.body.appendChild(railL); document.body.appendChild(railR);
       window.addEventListener("scroll",spyRails,{passive:true});
       window.addEventListener("resize",function(){ spyRails(); railHint(); },{passive:true});
@@ -1500,7 +1500,7 @@
         else if(mq.addListener) mq.addListener(onMQ);
       } catch(e){}
     }
-    document.body.classList.toggle("rails-on",railsOn);
+    document.body.classList.toggle("sh-rails-on",railsOn);
     railHint();
     if(!railsOn) return;
     renderRailNav(); renderRailTrackers(); spyRails();
@@ -1516,14 +1516,14 @@
       : "Show or hide the side rails";
   }
   function renderRailNav(){
-    railL.innerHTML="<div class='rail-head'>Sections</div>";
-    var list=el("nav","rail-nav");
+    railL.innerHTML="<div class='sh-rail-head'>Sections</div>";
+    var list=el("nav","sh-rail-nav");
     root.querySelectorAll(".sh-card").forEach(function(c,i){
       var h=c.querySelector("h2");
       var label = h ? h.textContent.trim() : (c.classList.contains("roller") ? "Roll & Keep" : null);
       if(!label) return;
       if(!c.id) c.id="sec-"+i;
-      var a=el("button","rail-link",RAIL_SHORT[label]||label);
+      var a=el("button","sh-rail-link",RAIL_SHORT[label]||label);
       a.setAttribute("data-sec",c.id);
       a.addEventListener("click",function(){
         var t=document.getElementById(c.id);
@@ -1543,12 +1543,12 @@
   function renderRailTrackers(){
     var over = (trkVal("strife")>=S.derived.composure) ? "Compromised"
              : (trkVal("fatigue")>=S.derived.endurance) ? "Incapacitated" : "";
-    railR.innerHTML="<div class='rail-head'>Condition</div>"
+    railR.innerHTML="<div class='sh-rail-head'>Condition</div>"
       +railTrk("strife","Strife",S.trackers.strife.max)
       +railTrk("fatigue","Fatigue",S.trackers.fatigue.max)
       +railTrk("void","Void",S.trackers["void"].max)
       +(over?"<div class='rt-warn'>"+over+"</div>":"")
-      +"<div class='rail-head'>Approach</div>"
+      +"<div class='sh-rail-head'>Approach</div>"
       +"<div class='rt-approach'>"+ringIcon(st.ring)+"<span>"+cap(st.ring)
         +(st.skill?" · "+(SKILL_NAMES[st.skill]||cap(st.skill)):"")+"</span></div>"
       +"<div class='rt-stance'>Stance: <b>"+cap(st.stance||"—")+"</b></div>";
@@ -1566,7 +1566,7 @@
   function spyRails(){
     if(!railsOn || !railL) return;
     var marker=window.innerHeight*0.3;
-    var links=railL.querySelectorAll(".rail-link");
+    var links=railL.querySelectorAll(".sh-rail-link");
     // The sheet is a two-column grid, so cards sit side by side and more than one can
     // cross the marker line at once. Both are equally "where you are", so light both;
     // fall back to the last card above the line when nothing crosses it.
