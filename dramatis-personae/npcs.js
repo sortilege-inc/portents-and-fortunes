@@ -322,16 +322,17 @@ window.NPCS = [
   // ---- Forest Troll (core adversary, verbatim — core p.321) ----
   {
     id: "forest-troll",
-    reveal: [],
+    reveal: ["name", "epithet", "desc", "bio0", "bio2"],
     name: "Forest Troll",
     epithet: "Out of its country",
     affil: "Spirits and Strange Beings · Otherworldly",
     statNote: "Core Forest Troll (core p.321), unmodified. Silhouette 4 per its own Ancient and Powerful ability, which overrides the silhouette table's listing of trolls at 3.",
     bio: [
       "Trolls are rare inside the Empire and enter it through the Shinomen Mori on the western border — not through the Dragon mountains. One on a mountain road east of nowhere is a thing that was somewhere else and is not there now, which is the same shape as the disturbed earth kami and the neglected shrines.",
-      "Intelligent, unpredictable, and not above eating rude humans."
+      "Intelligent, unpredictable, and not above eating rude humans.",
+      "Eight feet of it, greenish and solid, carrying a rock — which on dangerous ground is what a man's hand on his sword amounts to. It speaks, in something that may be Rokugani and may not. It did not mean to attack: the two of them frightened each other, and when offered a way to stop it took the way. It sat, patted the ground, talked for a quarter of an hour at a monk who understood none of it, then rose satisfied that an accord had been reached and walked back up the road toward White Flower."
     ],
-    status: "Unmet · on the road west",
+    status: "Met on the road west · parted without blood · walked back toward White Flower",
     stat: {
       kind: "Adversary", combatRank: 7, intrigueRank: 4,
       description: "Inside the Empire, trolls are quite rare, but they occasionally enter via the great forest of the Shinomen Mori on Rokugan’s western border. They are intelligent but unpredictable, and not above eating rude humans.",
