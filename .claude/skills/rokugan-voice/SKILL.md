@@ -129,6 +129,20 @@ These are not stylistic preferences and they outrank everything above.
 Each of these is something that will actually show up if you're not watching for it.
 
 - **Adjective stacking.** *Ancient, mysterious, timeless mountains.* Pick the one true detail instead.
+- **The antithesis pair.** *Is the mountain sleeping because of you, or merely alongside you?* The
+  second half is the first half negated, with an adverb (*merely*, *only*, *really*) doing the
+  sneer. It sounds like a distinction and carries none. Ask the plain question.
+- **The escalating second question.** A fair question, then a more intimate one about whether the
+  subject has admitted it: *…Have you ever said the difference out loud? · Which do you use more?*
+  One question is the question.
+- **The doom tail.** *…and he does not know it yet. · …a question you never asked him, and now
+  can't.* A clause appended to promise consequences the scene has not earned.
+- **The recursive self-knowledge move.** *a belief you have never tested, and know you have never
+  tested.* Awareness folded back on itself to sound deep.
+- **Abstract nouns where a plain one exists.** *said the difference out loud · where does that
+  ordering come from.* You cannot say a difference out loud.
+- **The narrator rating its own material.** *Now enormously pointed. · He noted, and it matters,
+  that…* If it is pointed, it will be pointed without the label.
 - **Summary in place of specifics.** *The village was struggling.* → *Perhaps one in three terraces is worked. The rest have gone to thistle and stonecrop, their walls bowed and spilled.*
 - **The narrator having feelings.** *Tragically, the village would not survive.* The prose does not editorialise; the facts are permitted to be sad on their own.
 - **Hedging as a tic.** *Perhaps, maybe, some might say* used to sound careful. Hedge only by
@@ -153,7 +167,9 @@ Each of these is something that will actually show up if you're not watching for
 - Is every descriptive sentence load-bearing — could someone act on it or infer from it?
 - Is every metaphysical or contested claim attributed to someone who holds it?
 - Is each in-world term glossed on first use, and bare thereafter?
-- No second person, no rhetorical questions, no exclamation (outside `gm/`)?
+- No second person, no rhetorical questions, no exclamation? (The one exception is a question
+  bank on `gm/` — questions written to be put to the player aloud. Everything else on `gm/`,
+  including the prose around such a list, is third person.)
 - At most one lyric image in this section, and is it a real observation?
 - Numbers concrete, tense consistent, macrons consistent?
 - Any rules text reproduced **verbatim**?
