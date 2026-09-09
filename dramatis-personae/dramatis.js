@@ -29,11 +29,34 @@
   var SKILLLBL = function (k) { var m = { unarmed:"Martial Arts [Unarmed]", melee:"Martial Arts [Melee]", ranged:"Martial Arts [Ranged]" }; return m[k] || (k ? cap(k) : "(ring only)"); };
 
   // ---------------- persisted mode / discovery ----------------
-  var GMKEY = "pf-dp-gm", REVKEY = "pf-dp-revealed", SCENEKEY = "pf-dp-scene", SLOGKEY = "pf-dp-scene-log";
+  var GMKEY = "pf-dp-gm", REVKEY = "pf-dp-revealed", SCENEKEY = "pf-dp-scene", SLOGKEY = "pf-dp-scene-log", HIDEKEY = "pf-dp-hidden";
   var gm = false; try { gm = localStorage.getItem(GMKEY) === "1"; } catch (e) {}
   var revealed = {}; try { revealed = JSON.parse(localStorage.getItem(REVKEY)) || {}; } catch (e) {}
   function saveRevealed() { try { localStorage.setItem(REVKEY, JSON.stringify(revealed)); } catch (e) {} }
   function setGM(on) { gm = on; try { localStorage.setItem(GMKEY, on ? "1" : "0"); } catch (e) {} }
+
+  // Characters hidden from the carousel. They collapse into a single card at the
+  // end of the strip; anyone actually on the table is shown regardless.
+  var hidden = {}; try { hidden = JSON.parse(localStorage.getItem(HIDEKEY)) || {}; } catch (e) {}
+  function saveHidden() { try { localStorage.setItem(HIDEKEY, JSON.stringify(hidden)); } catch (e) {} }
+  function baseOf(mid) { return String(mid).split("#")[0]; }
+  function atTable(npc) { return npc.template ? instanceCount(npc.id) > 0 : inScene(npc.id); }
+  function isHidden(npc) { return !!hidden[npc.id] && !atTable(npc); }
+
+  // The carousel is rebuilt wholesale on every render, so its scroll position has
+  // to be carried across by hand or the strip jumps. focusCard centres one card
+  // instead — used when a card has just moved because it joined or left the table.
+  var carScroll = 0, focusCard = null;
+  function keepCarousel() { var t = document.getElementById("dpCarousel"); if (t) carScroll = t.scrollLeft; }
+  function restoreCarousel() {
+    var t = document.getElementById("dpCarousel"); if (!t) return;
+    if (focusCard) {
+      var c = t.querySelector('.tarot[data-id="' + focusCard + '"]');
+      focusCard = null;
+      if (c) { t.scrollLeft = Math.max(0, c.offsetLeft - (t.clientWidth - c.offsetWidth) / 2); carScroll = t.scrollLeft; return; }
+    }
+    t.scrollLeft = carScroll;
+  }
 
   var scene = { members:[], selected:null, inConflict:false, conflictType:"skirmish", conflictName:"", counters:{}, objectives:[] };
   try { var sv = JSON.parse(localStorage.getItem(SCENEKEY)); if (sv) Object.assign(scene, sv); } catch (e) {}
@@ -114,11 +137,13 @@
     // prune stale selection
     if (scene.selected && scene.members.indexOf(scene.selected) < 0) scene.selected = scene.members[0] || null;
     if (!scene.selected && scene.members.length) scene.selected = scene.members[0];
+    keepCarousel();
     root.innerHTML = "";
     root.appendChild(buildModeBar());
     root.appendChild(buildCarousel());
     var sc = el("div", "dp-scene"); sc.id = "dpScene"; root.appendChild(sc);
     renderScene();
+    restoreCarousel();
   }
 
   function buildModeBar() {
@@ -136,13 +161,51 @@
     var prev = el("button", "car-nav prev", "&#8249;"); prev.setAttribute("aria-label","Previous");
     var next = el("button", "car-nav next", "&#8250;"); next.setAttribute("aria-label","Next");
     var track = el("div", "dp-carousel"); track.id = "dpCarousel";
-    CAST.forEach(function (npc) { track.appendChild(tarotCard(npc)); });
+    var shown = orderedCast().filter(function (npc) { return !isHidden(npc); });
+    shown.forEach(function (npc) { track.appendChild(tarotCard(npc)); });
+    var away = CAST.filter(isHidden);
+    if (away.length) track.appendChild(hiddenCard(away));
     prev.addEventListener("click", function () { track.scrollBy({ left:-cardStep(track), behavior:"smooth" }); });
     next.addEventListener("click", function () { track.scrollBy({ left: cardStep(track), behavior:"smooth" }); });
     wrap.appendChild(prev); wrap.appendChild(track); wrap.appendChild(next);
     return wrap;
   }
   function cardStep(track) { var c = track.querySelector(".tarot"); return c ? (c.offsetWidth + 18) : 300; }
+
+  // Anyone on the table sorts to the front, in the order the scene lists them;
+  // everyone else keeps the cast order. Template instances sort by their base card.
+  function orderedCast() {
+    var seen = {}, front = [];
+    scene.members.forEach(function (mid) {
+      var b = baseOf(mid);
+      if (seen[b]) return;
+      seen[b] = 1;
+      for (var i = 0; i < CAST.length; i++) if (CAST[i].id === b) { front.push(CAST[i]); break; }
+    });
+    return front.concat(CAST.filter(function (n) { return !seen[n.id]; }));
+  }
+
+  // The hidden characters, collapsed into one card at the end of the strip.
+  function hiddenCard(away) {
+    var card = el("article", "tarot tarot-hidden");
+    card.setAttribute("data-id", "__hidden");
+    var inner = el("div", "tr-inner");
+    inner.appendChild(el("div", "th-h", "Hidden"));
+    var list = el("div", "th-list");
+    away.forEach(function (npc) {
+      var b = el("button", "th-name", esc(npc.name));
+      b.title = "Show " + npc.name + " in the carousel again";
+      b.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        delete hidden[npc.id]; saveHidden(); focusCard = npc.id; render();
+      });
+      list.appendChild(b);
+    });
+    inner.appendChild(list);
+    card.appendChild(inner);
+    card.appendChild(el("div", "tr-table", away.length + (away.length === 1 ? " character hidden" : " characters hidden")));
+    return card;
+  }
 
   function tarotCard(npc) {
     var id = npc.id;
@@ -173,6 +236,12 @@
     card.appendChild(bar);
     // + to add another instance (templates only)
     if (isTpl) { var plus = el("button", "tr-plus", "+"); plus.title = "Add another " + npc.name + " to the scene"; plus.addEventListener("click", function (ev) { ev.stopPropagation(); addInstance(id); }); card.appendChild(plus); }
+    // hide this character from the carousel; they collapse into the card at the end
+    var hide = el("button", "tr-hide", "&#8856;");
+    hide.title = onTable ? "On the table — take them off it first to hide the card" : "Hide " + npc.name + " from the carousel";
+    hide.disabled = onTable;
+    hide.addEventListener("click", function (ev) { ev.stopPropagation(); hidden[id] = true; saveHidden(); render(); });
+    card.appendChild(hide);
 
     card.addEventListener("click", function () { primaryAdd(npc); });
     return card;
@@ -181,16 +250,16 @@
 
   function primaryAdd(npc) {
     if (npc.template) { addInstance(npc.id); return; }
-    if (inScene(npc.id)) { removeMember(npc.id); } else { scene.members.push(npc.id); scene.selected = npc.id; saveScene(); render(); }
+    if (inScene(npc.id)) { removeMember(npc.id); } else { scene.members.push(npc.id); scene.selected = npc.id; saveScene(); focusCard = npc.id; render(); }
   }
   function addInstance(baseId) {
     var n = (scene.counters[baseId] || 0) + 1; scene.counters[baseId] = n;
-    var mid = baseId + "#" + n; scene.members.push(mid); scene.selected = mid; saveScene(); render();
+    var mid = baseId + "#" + n; scene.members.push(mid); scene.selected = mid; saveScene(); focusCard = baseId; render();
   }
   function removeMember(mid) {
     scene.members = scene.members.filter(function (m) { return m !== mid; });
     if (scene.selected === mid) scene.selected = scene.members[0] || null;
-    saveScene(); render();
+    saveScene(); focusCard = baseOf(mid); render();
   }
 
   // ============================ scene panel ============================

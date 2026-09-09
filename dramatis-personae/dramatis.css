@@ -66,6 +66,27 @@ body:not(.gm-on) .fz.revealed{ background:rgba(79,125,92,0.12); }
 .tr-plus{ position:absolute; bottom:0.28rem; right:0.45rem; z-index:3; width:1.45rem; height:1.45rem; border-radius:50%; border:1px solid var(--gold-soft); background:var(--paper-2); color:var(--crimson); font-size:1rem; line-height:1; cursor:pointer; box-shadow:var(--shadow-soft); display:flex; align-items:center; justify-content:center; padding:0; }
 .tr-plus:hover{ background:#fff; border-color:var(--crimson); }
 
+/* hide control — top-right of every card, mirroring .tr-plus at the bottom */
+.tr-hide{ position:absolute; top:0.42rem; right:0.42rem; z-index:3; width:1.35rem; height:1.35rem; border-radius:50%;
+  border:1px solid var(--edge-soft); background:rgba(250,245,232,0.82); color:var(--ink-soft);
+  font-size:0.8rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  padding:0; opacity:0; transition:opacity .14s, color .14s, border-color .14s; }
+.tarot:hover .tr-hide, .tr-hide:focus-visible{ opacity:1; }
+.tr-hide:hover{ color:var(--crimson); border-color:var(--crimson); background:#fff; }
+.tr-hide:disabled{ display:none; }
+
+/* the collapsed card of hidden characters, last in the strip */
+.tarot-hidden{ cursor:default; background:linear-gradient(160deg,#efe7d4,#e2d7bd); }
+.tarot-hidden:hover{ transform:none; box-shadow:var(--shadow-soft); }
+.tarot-hidden .tr-inner{ justify-content:flex-start; align-items:stretch; text-align:left; padding:0.6rem 0.5rem 0; min-height:0; }
+.th-h{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.16em; font-size:0.66rem;
+  color:var(--ink-soft); padding-bottom:0.4rem; margin-bottom:0.5rem; border-bottom:1px solid var(--gold-soft); }
+.th-list{ display:flex; flex-direction:column; gap:0.12rem; overflow-y:auto; min-height:0; }
+.th-name{ text-align:left; font-family:var(--serif); font-size:0.92rem; color:var(--ink);
+  background:none; border:0; border-left:2px solid transparent; border-radius:0;
+  padding:0.24rem 0.4rem; cursor:pointer; transition:.12s; }
+.th-name:hover{ color:var(--crimson); border-left-color:var(--crimson); background:rgba(182,36,50,0.06); }
+
 /* ================= scene panel ================= */
 .dp-scene{ margin-top:0.4rem; }
 .scene-empty{ font-size:0.92rem; color:var(--ink-soft); font-style:italic; background:var(--paper-2); border:1px dashed var(--gold-soft); border-radius:6px; padding:0.9rem 1rem; }
