@@ -436,6 +436,44 @@ window.NPCS = [
     }
   },
 
+  // ---- Moon Cultist — type template, built on the core recipe ----
+  {
+    id: "moon-cultist",
+    template: true,
+    reveal: ["name", "epithet", "desc", "bio0"],
+    name: "Moon Cultist",
+    epithet: "Servant of the hungry father",
+    affil: "No clan \u00b7 a cult of Onnotangu, Lord Moon",
+    statNote: "Built on the core recipe (core p.318 profile, GM chapter): \u201cFor the Moon Cultist profile, use the Wicked Mah\u014d-tsukai but replace their mah\u014d with these invocations: By the Light of the Lord Moon, Summon Fog, Tempest of Air, and Vapor of Nightmares.\u201d Numbers, demeanor, skills and conflict ranks are the chassis unchanged. Three deviations, all for the same reason \u2014 this is Onnotangu\u2019s servant, not Jigoku\u2019s: the Whispers of Fu Leng advantage is dropped, and with it Mark of Desecration and Seeker of Vile Lore, so this cultist raises no dead and is not a Tainted being. Dark Secret replaces the chassis\u2019s Rotting from Within, because Dark Secret is the disadvantage the Moon Cultist title itself assigns. Honor 1 suits a devotee with nothing left to lose; a cultist embedded in society keeps their own standing instead, with the title\u2019s \u22125 to a floor of 15.",
+    bio: [
+      "Acolytes of Lord Moon come in every form, from the lowliest hinin to members of Imperial families. Becoming one asks nothing but practising the faith without question and reminding others that there is perfection in chaos.",
+      "Cults are held to be fringe at best and blasphemy deserving of eradication at worst, so they are secretive in the extreme and can operate at any level of society. Those who keep this one hold that Lord Moon is the preeminent divine figure, and their devotions seek to empower him and hasten his judgment upon his children.",
+      "They are as paranoid as their patron. Meetings and rituals happen in moonlight, well away from any town or village \u2014 which in the Dragon mountains is most of the map, and which means the evidence of one is a place rather than a person: a cleared ring somewhere no one had reason to go."
+    ],
+    status: "Type template \u00b7 use for any devotee of Lord Moon \u00b7 hidden inside whatever else they are",
+    stat: {
+      kind: "Adversary",
+      combatRank: 4, intrigueRank: 3,
+      description: "Acolytes of Lord Moon come in all manner of forms, from the lowliest hinin to members of Imperial families. All a person needs to do to become a diligent servant of the hungry father is practice their faith unquestioningly and remind others that there is perfection in chaos.",
+      rings: { air:3, earth:4, fire:3, water:3, void:2 },
+      endurance:14, composure:8, focus:7, vigilance:3,
+      honor:1, glory:15, status:0,
+      demeanor:"Ambitious", tnMods:"Fire +2, Water -2",
+      skills: { artisan:0, martial:1, scholar:3, social:2, trade:1 },
+      advantages: [ "Excellent Liar: (air) Social; Interpersonal" ],
+      disadvantages: [ "Dark Secret: (void) Social; Interpersonal" ],
+      weapons: [ "Ritual Knife: Range 0, Damage 2, Deadliness 6, Concealable, Razor-Edged" ],
+      gear: [ "Concealing mask or cowl" ],
+      gearOther: [ "Set of vile scrolls", "Several bu" ],
+      abilities: [
+        { name:"By the Light of the Lord Moon", tag:"Invocation \u00b7 Rank 1", text:"Activation: As a Scheme action, you may make a TN 2 Theology (Air) check targeting an area at range 0\u20132 of you.\n\nEffects: If you succeed, you scry for each hidden character and concealed object (such as secret compartments, trap doors, and concealed weapons) in the targeted area, revealing it with an illusory, luminous outline that only you can perceive. This invocation only reveals objects and people concealed by mundane means.\n\nNew Opportunities \u2014 Air (op)+: If you succeed, you may also reveal up to one magically concealed object per (op) spent this way.\nAir (op)(op)+: Choose one additional character at range 0\u20131 per (op)(op) spent this way. The chosen characters can also see the objects." },
+        { name:"Summon Fog", tag:"Invocation \u00b7 Rank 2", text:"Activation: As a Support action, you may make a TN 2 Theology (Air) check targeting one position at range 0\u20134.\n\nEffects: If you succeed, you summon a fog bank that fills an area extending 1 range band around the target position. This fog bank counts as Obscuring terrain.\n\nNew Opportunities \u2014 Air (op): You may choose a character instead of a position. The fog bank follows that character.\nAir (op)+: The fog bank encompasses 1 additional range band per (op) spent this way (to a maximum of range 6).\nAir (op)(op): The fog bank becomes a freezing ice storm, causing it to become Dangerous terrain as well." },
+        { name:"Tempest of Air", tag:"Invocation \u00b7 Rank 1", text:"Activation: As an Attack action, you may make a TN 3 Theology (Air) check targeting each character at range 2\u20133.\n\nEffects: If you succeed, blasts of wind smite each target. Each target suffers supernatural damage equal to your Air Ring and must resist with a TN 4 Fitness check (Earth 5, Fire 2) or suffer the Disoriented condition.\n\nNew Opportunities \u2014 Air (op)+: Each target who fails their Fitness check is also pushed 1 range band away from you per (op) spent this way." },
+        { name:"Vapor of Nightmares", tag:"Invocation \u00b7 Rank 3", text:"Activation: As an Attack action, you may make a TN 4 Theology (Air) check targeting one character at range 2\u20133.\n\nEffects: If you succeed, you summon an illusion of your target\u2019s greatest fear. Your target must resist with a TN 4 Meditation check (Earth 5, Fire 2) to see through against this phantasm; if they fail, they suffer strife equal to your Air Ring plus your bonus successes, and must immediately unmask if they become Compromised this way. If they unmask in the presence of the phantasm, they focus their attentions on the phantasm, attacking it, fleeing from it, or unleashing harsh words upon it (rather than dealing with you or anyone else). The phantasm persists for a number of rounds equal to your Air Ring.\n\nNew Opportunities \u2014 Air (op): If a target fails the Meditation check, they also suffer the Disoriented condition." }
+      ]
+    }
+  },
+
   // ---- Togashi Oharu — bio only (Norikage's lord) ----
   {
     id: "togashi-oharu",
