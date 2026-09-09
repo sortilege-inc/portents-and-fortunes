@@ -445,7 +445,7 @@ window.NPCS = [
     affil: "Togashi · Norikage's lord and master of his temple",
     statNote: "Built on Togashi Remmu, Sociable Wanderer (Writ of Wilds) with the Temple Abbot title's Soothing Cadence and Status +10 — re-skinned for the Abbot, pending a bespoke build.",
     bio: [
-      "Abbot of the Tattooed Order and the authority to whom Norikage answers. It is Oharu who gave the charge that sets this chronicle in motion: to walk east with a village that is being moved, as an observer in a religious capacity — outside the daimyō's chain of command, responsible for none of the moving — and to report back to the temple. What exactly he is to watch for was not specified. Norikage's character sheet first recorded Togashi Oharu as a provincial daimyō he served as \"eyes and ears\"; that role is now understood as the abbot and the temple. Oharu's age, and true reasons, are not yet known.",
+      "Abbot of the Tattooed Order and the authority to whom Norikage answers. It is Oharu who gave the charge that sets this chronicle in motion: to walk east with a village that is being moved, as an observer in a religious capacity — outside the daimyō's chain of command, responsible for none of the moving — and to report back to the temple. What exactly he is to watch for was not specified. Oharu's age, and true reasons, are not yet known.",
       "Like Norikage, an ise zumi of the Togashi line: the same Blood of the Kami worked into the tattoos, the same plain bō in hand. Norikage has never seen him lose his temper, and has never been sure whether that is discipline or distance."
     ],
     status: "Named but unmet · Norikage's lord and giri",
