@@ -95,16 +95,12 @@ window.NPCS = [
   },
 
 
-  // ================= THE NINE ELDERS =================
-  // Seven are statted. Tōbei and Michi are referenced in play but deliberately
-  // unstatted. NOTE (13 Aug): play established White Flower is administered by FOUR
-  // elders — Kitsuki Sadao, Ume, Heisuke, Nui. Tōbei is not an elder; he is married
-  // to Ume. Michi is not corroborated by play. The arriving three are unchanged.
-  // Superseded line kept below for the audit trail:
-  // Seven of the nine are statted. Tōbei and Michi are referenced in play but
-  // deliberately unstatted. Villager chassis and the template overlays are from
-  // Path of Waves; ability text is VERBATIM. Bios carry only what is SET —
-  // proposals live behind the veil, not here.
+  // ================= THE VILLAGERS =================
+  // White Flower is administered by FOUR elders — Kitsuki Sadao, Ume, Heisuke, Nui
+  // — plus the three arriving with the column. Tōbei is not an elder; he is married
+  // to Ume, and is the one villager deliberately left unstatted. Villager chassis
+  // and the template overlays are from Path of Waves; ability text is VERBATIM.
+  // Bios carry only what is SET — proposals live behind the veil, not here.
 
   // ---- Arriving with the column ----
   {
@@ -295,11 +291,10 @@ window.NPCS = [
     portrait: "../assets/npc/nui.webp",
     name: "Nui",
     epithet: "Guide of the pilgrim road",
-    affil: "White Flower Village · Fortunist, Shinseist-leaning · lives with Michi",
+    affil: "White Flower Village · Fortunist, Shinseist-leaning · leads the pilgrim road",
     statNote: "Dai, Fortunist Monk (Emerald Empire) as chassis — the Fortunist match, and her Herbalist ability suits a village's devout woman. One caveat rather than a deviation: Nui is a laywoman who guides pilgrims, not an ordained monk, so her Status 25 reflects standing earned on the road to the shrine rather than a monastic office. Card: The Hermit, upright.",
     bio: [
       "A Fortunist who leans to the Shinseist side of it: self-reflection, and enlightenment. She leads pilgrims to Seidō Fukurokujin. Reliable and devout.",
-      "She lives with Michi, a widow.",
       "She escorts pilgrims to the shrine north of the village and back, and coaches them on what crafts to make as offerings."
     ],
     status: "White Flower · leads the pilgrim road · the steadiest of them",
