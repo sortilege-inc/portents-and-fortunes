@@ -436,6 +436,43 @@ window.NPCS = [
     }
   },
 
+  // ---- Brotherhood Monk — type template ----
+  {
+    id: "brotherhood-monk",
+    template: true,
+    reveal: ["name", "epithet", "desc", "bio0"],
+    name: "Brotherhood Monk",
+    epithet: "Sibling of the Little Teacher",
+    affil: "No clan \u00b7 Brotherhood of Shinsei \u00b7 a guest in a Togashi house",
+    statNote: "Jun, Shinseist Monk (Emerald Empire p.191) as chassis, unmodified \u2014 the same block Yogo Kenzan is built on, which is the point of keeping this one generic: Kenzan is that profile re-skinned for a particular man, this is the profile as it comes. The gold lotus pendant is the chassis\u2019s and can be dropped without touching anything else. For a young initiate rather than a settled monk, Chikako, Initiate Monk (Emerald Empire p.192) is the better block: combat 1 / intrigue 3, Void 3, Detached.",
+    bio: [
+      "A monk of the Brotherhood of Shinsei, which is less an order than the connective tissue between most of the temples in the Empire. Priests and shugenja practise the worship of the gods and the Fortunes; monks follow the Tao of Shinsei, and the ones who do form a religion within the religion. The Brotherhood welcomes all genders, has no leader, and is made of many orders \u2014 academic ones that write and debate and teach rich patrons, martial ones that study weapons in order to defend Shinseists who will not fight, medicinal ones that keep infirmaries where people can reach them, and exorcists who keep spirits at bay.",
+      "Monks address each other as siblings, and the head of an order is sometimes called abbot. The terms are doing work: a monk has left one family and joined another, and the words say where the new duty lies. Expulsion is possible for serious transgressions, and is held to be worse than death.",
+      "Where a Fortunist priest will not touch the subject, Shinseist monks are the Empire\u2019s foremost experts on dying. Death is not unclean to them, only the next part of the cycle, and preparing retired samurai for the end of their lives is one of the order\u2019s purposes. Their funeral rite exists to cut death\u2019s influence away from the family and give them a way to mourn without losing face \u2014 it is sometimes said that the Shinseist funeral is for the living, not the dead.",
+      "In the Dragon lands the Togashi keep the temples rather than the Brotherhood, and the two orders have long been comfortable in each other\u2019s houses; Brotherhood monks attend Dragon temples as visitors and sometimes stay for good. A monk in that position is a guest with no clan, no lord, and standing that does not come from either.",
+      "Peasants and samurai alike trust monks in spiritual matters, and no lord may challenge that however rich or well-placed they are. Everyone below the Emperor defers to the Brotherhood on such questions \u2014 and in Rokugan the list of matters that are entirely outside spiritual concern is short."
+    ],
+    status: "Type template \u00b7 use for any Brotherhood monk met at a temple or on the road",
+    stat: {
+      kind: "Adversary",
+      combatRank: 4, intrigueRank: 2,
+      description: "A Shinseist monk with a flippant demeanor that belies his deep understanding of the Way. His attunement to Shinsei's teachings makes him remarkably difficult to overcome in conflict.",
+      rings: { air:4, earth:2, fire:2, water:3, void:3 },
+      endurance:10, composure:12, focus:6, vigilance:4,
+      honor:55, glory:45, status:25,
+      demeanor:"Flippant", tnMods:"Fire +2, Air -2",
+      skills: { artisan:0, martial:2, scholar:3, social:3, trade:0 },
+      advantages: [ "Subtle Observer: (air) Social; Interpersonal" ],
+      disadvantages: [ "Bluntness: (air) Social; Interpersonal" ],
+      weapons: [ "Walking Staff: Range 1\u20132, Damage 6, Deadliness 2, Mundane" ],
+      gear: [ "Monk's robes (Physical 1)" ],
+      gearOther: [ "Gold lotus pendant (When performing a Meditation check add one rolled Ring die showing (op) result)" ],
+      abilities: [
+        { name:"Attuned to the Way", text:"When a character succeeds on an Attack or Scheme action targeting this monk, reduce their bonus successes by 3, to a minimum of 0." }
+      ]
+    }
+  },
+
   // ---- Moon Cultist — type template, built on the core recipe ----
   {
     id: "moon-cultist",
