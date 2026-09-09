@@ -399,5 +399,20 @@
 </div>
 </div>
 <footer class="foot"><span class="mark">❖</span>Portents &amp; Fortunes · Legend of the Five Rings</footer>
+<script src="../rail.js"></script>
+<script>
+/* Sessions are the collapsible groups, scenes the entries inside them. A session
+   title on its own reads as an unattached phrase, so the rail label pairs it with
+   the session number from the same heading block. */
+PF.rail({
+  panel: ".col", group: "h2.sess-t", entry: "h3.sec-h",
+  title: "Sessions", toggle: "Sessions",
+  label: function (h) {
+    if (!h.matches("h2.sess-t")) return h.textContent;
+    var n = h.parentElement.querySelector(".sess-n");
+    return (n ? n.textContent.replace(/^Session\s+/i, "") + " \u00b7 " : "") + h.textContent;
+  }
+});
+</script>
 </body>
 </html>

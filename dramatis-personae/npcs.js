@@ -317,7 +317,8 @@ window.NPCS = [
   // ---- Forest Troll (core adversary, verbatim — core p.321) ----
   {
     id: "forest-troll",
-    reveal: ["name", "epithet", "desc", "bio0", "bio2"],
+    reveal: ["name", "epithet", "portrait", "desc", "bio0", "bio2"],
+    portrait: "../assets/npc/forest-troll.webp",
     name: "Forest Troll",
     epithet: "Out of its country",
     affil: "Spirits and Strange Beings · Otherworldly",
@@ -466,6 +467,57 @@ window.NPCS = [
         { name:"Blood of the Kami", text:"When Oharu successfully uses a kihō, they are considered to have three bonus successes for the purposes of resolving the effects of that kihō." },
         { name:"Drawing From Within", text:"Choose four kihō from those listed beginning on page 182 of the Core Rulebook, which Oharu can use. Each is linked to an appropriate tattoo, so they benefit from Blood of the Kami." },
         { name:"Soothing Cadence", tag:"Abbot", text:"When making a skill check to communicate with a group of three or more people, you may keep up to one extra die. If your check succeeds, each other character in the scene removes strife equal to your bonus successes." }
+      ]
+    }
+  },
+
+  // ---- Kaito Juri — Phoenix ishiken, built from her character file ----
+  {
+    id: "kaito-juri",
+    reveal: ["name", "epithet", "portrait", "desc", "bio0"],
+    portrait: "../assets/npc/kaito-juri.webp",
+    name: "Kaito Juri",
+    epithet: "Sent from the Phoenix",
+    affil: "Phoenix \u00b7 Kaito \u00b7 Ishiken Initiate School, rank 1 \u00b7 Sage",
+    statNote: "Converted from her rank-1 character file into the published NPC profile shape (core p.310\u2013312): rings, derived attributes and social standing are hers unchanged; individual skills are collapsed to skill groups at her best rank in each, which is what the NPC format rolls. The spread the collapse loses \u2014 Theology 3, Fitness 2, Culture 1, Medicine 1, every other skill 0 \u2014 is the truth of her, so Scholar 3 should not be read as Government 3. Conflict ranks estimated: combat 1 for a sage with Martial Arts 0 and no armor, intrigue 2 for a mediator by office whose Social skills are all 0. Demeanor is the one thing the file does not set; Detached is the core Sage template\u2019s own option (p.312) and its Void \u20132 is the opening Norikage is equipped to use.",
+    bio: [
+      "A Kaito of the Phoenix, sent into the Dragon mountains with an introduction to the abbot of Norikage\u2019s temple. Her fingers move across manuscript pages with a precision that looks like hesitation, deliberate enough that someone watching would wonder whether she knows what she is looking for. She is twenty-odd and holds no office anyone at the temple would recognize.",
+      "Her lord is the Phoenix Champion, by way of Kaito Utamuro, and her charge is to mediate disputes inside the clan\u2019s temples where both parties claim righteousness. She discharges it by declining to declare either party wrong, which satisfies nobody. She preserved the Asako library\u2019s disputed manuscripts that way, copying each into the archive exactly as written while the two factions watched her work in silence. Her teachers have begun assigning her the hardest cases for the same reason.",
+      "She is an ishiken \u2014 one of the vanishingly rare who can call on the Void directly, trained at the Starry Heaven Sanctuary. Few people in Rokugan know ishiken exist, fewer understand what they do, and to most peasants the abilities look like a sinister practice; ishiken are taught to use discretion. She has not told anyone in the Dragon lands what she is.",
+      "An unfamiliar medical or theological text takes her five readings where another scholar needs one, and she knows her teachers watch her struggle. She is going to a shrine of the Fortune of Wisdom.",
+      "What she wants is to stop being asked to mediate at all \u2014 one temple\u2019s garden and its records, with no dispute crossing the threshold. She holds Righteousness paramount and Sincerity least, and she is aware those two sit badly together in her."
+    ],
+    status: "Arriving at the temple \u00b7 an audience with Oharu \u00b7 bound for Seid\u014d Fukurokujin",
+    stat: {
+      kind: "Adversary",
+      combatRank: 1, intrigueRank: 2,
+      description: "A Kaito sage of the Ishiken Initiate School. She mediates disputes between people who both believe they are in the right, and does it by refusing to name a loser \u2014 a method that has made her useful to her clan and exhausting to everyone she is sent to.",
+      rings: { air:1, earth:3, fire:2, water:1, void:3 },
+      endurance:10, composure:8, focus:3, vigilance:1,
+      honor:47, glory:45, status:30,
+      demeanor:"Detached", tnMods:"Earth +1, Fire +1, Void -2",
+      skills: { artisan:0, martial:1, scholar:3, social:0, trade:0 },
+      advantages: [
+        "Traditional Adherent: (earth) Artisan; Mental",
+        "Syncretic Philosophy: (water) Social; Interpersonal, Mental",
+        "Local Flare for Dragon Lands: (earth) Scholar; Interpersonal"
+      ],
+      disadvantages: [
+        "Fukurokujin\u2019s Curse: (fire) Scholar; Mental, Spiritual",
+        "Whispers of Failure: (fire) Social; Interpersonal, Infamy",
+        "Softheartedness: (fire) Martial; Interpersonal, Mental"
+      ],
+      weapons: [
+        "B\u014d (staff): Range 1\u20132, Damage 6, Deadliness 2, Mundane",
+        "Wakizashi: Range 0\u20131, Damage 3, Deadliness 5/7, Ceremonial, Razor-Edged"
+      ],
+      gear: [ "Sanctified robes (Physical 1, Supernatural 3, Ceremonial)" ],
+      gearOther: [ "Inconspicuous garb", "Scroll satchel", "Traveling pack" ],
+      abilities: [
+        { name:"Way of the Void", tag:"School Ability", text:"When you make a check using your Void Ring, after rolling dice, you may receive fatigue up to your school rank. If you push, choose that many blank dice and alter each to a non-blank result of your choice. If you pull, choose that many non-blank dice and alter each to blank." },
+        { name:"One within the Void", tag:"Inversion", text:"Activation: As a Support action, you may make a TN 2 Sentiment (Void) check targeting yourself and one other character at range 0\u20133.\n\nEffects: If you succeed, you augment all targets with the ability to communicate with each other without words, making their intentions clear even if they do not speak the same language. When any target makes a check, one other target may receive 2 fatigue to provide assistance on the check regardless of distance. This effect lasts until the end of the scene.\n\nNew Opportunities \u2014 (op)+: Choose one additional target per (op) spent this way.\n\nMagnitude 1+: When a target is dealt strife, one other target of your choice may receive that strife instead.\nMagnitude 3+: Choose a ring or skill. When any target makes a check using that ring or skill, they may use any other target\u2019s rank in that ring or skill instead of their own." },
+        { name:"Divination", tag:"Ritual", text:"Activation: As a downtime activity, you may make a TN 2 Theology (Void) check targeting one character to see glimpses of their future.\n\nEffects: If you succeed, choose one of the following omens that you see in the target\u2019s near future:\n\nOmen of the Azure Dragon: The next time the target performs a check using a skill from the Artisan skill group this game session, the target adds a kept (ring) set to an (op) (st) result.\nOmen of the Black Tortoise: The next time the target performs a check using a skill from the Scholar skill group this game session, the target adds a kept (ring) set to an (op) (st) result.\nOmen of the White Tiger: The next time the target performs a check using a skill from the Martial skill group this game session, the target adds a kept (ring) set to an (op) (st) result.\nOmen of the Vermilion Bird: The next time the target performs a check using a skill from the Social skill group this game session, the target adds a kept (ring) set to an (op) (st) result.\nOmen of the Weaver and the Cowherd: The next time the target performs a check using a skill from the Trade skill group this game session, the target adds a kept (ring) set to an (op) (st) result.\n\nIf you fail, the GM chooses one of the above omens instead. The target cannot receive another divination until the next game session." },
+        { name:"Truth Burns through Lies", tag:"Sh\u016bji", text:"Activation: When making a Scholar skill (Fire) check to assess a character\u2019s story, you may spend (op) in the following way:\n\nFire (op): If there is a single statement upon which the character\u2019s story hinges, you determine what it is and what you would need to do to verify or disprove it." }
       ]
     }
   },
