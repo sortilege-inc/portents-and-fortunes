@@ -436,6 +436,40 @@ window.NPCS = [
     }
   },
 
+  // ---- Brother Ujiyasu — met at Reisui-ji, Session Five ----
+  {
+    id: "brother-ujiyasu",
+    reveal: ["name", "epithet", "desc", "bio0", "bio1"],
+    name: "Brother Ujiyasu",
+    epithet: "Every verse and no ear",
+    affil: "Brotherhood of Shinsei \u00b7 visiting Reisui-ji",
+    statNote: "The Brotherhood Monk template unchanged \u2014 Jun, Shinseist Monk (Emerald Empire p.191) \u2014 with one deviation: demeanor Detached rather than the chassis\u2019s Flippant, because a man who answers a point by reciting at you is not flippant. Earth +1, Fire +1, Void \u22122 accordingly.",
+    bio: [
+      "A monk of the Brotherhood, early twenties, visiting Reisui-ji rather than resident in it. He came over to watch Norikage do calligraphy, saw the hesitation and the correction, and offered a reading of it: that it is common for the passions of the heart, and compassion, to cloud the mind to the truth \u2014 and that the truth is not always friendly to us.",
+      "He knows the Tao thoroughly and holds it rigidly. Pressed on the point, he listened for the place to stop rather than for the argument, then answered with passages: the well-known ones, in order, the way a student recites what he has been given. He has the rudiments completely and no finesse at all.",
+      "The rigidity was earned. His last real debate was against a moon cultist who knew the teachings at least as well as he did and drew conclusions from them that he could not answer \u2014 a hedonist who goaded him on purpose. He has been holding the line hard ever since.",
+      "Norikage stopped arguing and began reciting the passages along with him, in cadence, then agreed with all of it and said so. Ujiyasu braced for a throw that did not come. What he said at the end of it was that he would meditate on Norikage\u2019s wisdom."
+    ],
+    status: "Reisui-ji \u00b7 visiting \u00b7 went away to think about it",
+    stat: {
+      kind: "Adversary",
+      combatRank: 4, intrigueRank: 2,
+      description: "A Shinseist monk with a deep and entirely rigid knowledge of the Way. He has every verse and no ear for when a verse is not the answer.",
+      rings: { air:4, earth:2, fire:2, water:3, void:3 },
+      endurance:10, composure:12, focus:6, vigilance:4,
+      honor:55, glory:45, status:25,
+      demeanor:"Detached", tnMods:"Earth +1, Fire +1, Void -2",
+      skills: { artisan:0, martial:2, scholar:3, social:3, trade:0 },
+      advantages: [ "Subtle Observer: (air) Social; Interpersonal" ],
+      disadvantages: [ "Bluntness: (air) Social; Interpersonal" ],
+      weapons: [ "Walking Staff: Range 1\u20132, Damage 6, Deadliness 2, Mundane" ],
+      gear: [ "Monk's robes (Physical 1)" ],
+      abilities: [
+        { name:"Attuned to the Way", text:"When a character succeeds on an Attack or Scheme action targeting Ujiyasu, reduce their bonus successes by 3, to a minimum of 0." }
+      ]
+    }
+  },
+
   // ---- Brotherhood Monk — type template ----
   {
     id: "brotherhood-monk",
@@ -562,7 +596,7 @@ window.NPCS = [
       "An unfamiliar medical or theological text takes her five readings where another scholar needs one, and she knows her teachers watch her struggle. She is going to a shrine of the Fortune of Wisdom.",
       "What she wants is to stop being asked to mediate at all \u2014 one temple\u2019s garden and its records, with no dispute crossing the threshold. She holds Righteousness paramount and Sincerity least, and she is aware those two sit badly together in her."
     ],
-    status: "Arriving at the temple \u00b7 an audience with Oharu \u00b7 bound for Seid\u014d Fukurokujin",
+    status: "Met \u00b7 her audience with Oharu is over \u00b7 Norikage is charged with escorting her",
     stat: {
       kind: "Adversary",
       combatRank: 1, intrigueRank: 2,

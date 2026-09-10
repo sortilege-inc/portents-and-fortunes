@@ -518,5 +518,12 @@
 .sh-rail-toggle.cramped{ opacity:0.55; text-decoration:line-through; }
 
 /* experience — reuses the social attribute controls */
+.xp-ledger{ margin:0.7rem 0 0; border-top:1px solid var(--gold-soft); padding-top:0.5rem; }
+.xp-led-row{ display:flex; align-items:baseline; gap:0.6rem; padding:0.18rem 0; font-size:0.9rem; color:var(--ink); }
+.xp-led-row + .xp-led-row{ border-top:1px dotted var(--edge-soft); }
+.xl-cost{ font-family:var(--disp); font-weight:700; font-size:1.02rem; color:var(--crimson); min-width:1.4rem; text-align:right; flex-shrink:0; }
+.xl-what{ flex:1; }
+.xl-what em{ color:var(--ink-soft); font-size:0.86rem; }
+.xl-when{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.62rem; color:var(--ink-soft); flex-shrink:0; }
 .xp-row{ grid-template-columns:repeat(3,1fr); }
 .xp-row .soc-attr.avail .soc-val{ color:var(--crimson); }

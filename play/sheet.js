@@ -633,6 +633,22 @@
       +(xpVal("earned")-xpVal("spent"))+"</span></div>";
     row.appendChild(av);
     c.appendChild(row);
+    // What the spend bought, so the sheet answers "on what?" and not only "how much?".
+    var spentOn = (S.xp && S.xp.spentOn) || [];
+    if (spentOn.length){
+      var led=el("div","xp-ledger");
+      spentOn.forEach(function(e){
+        var r=el("div","xp-led-row");
+        r.appendChild(el("span","xl-cost",String(e.cost)));
+        var what=el("span","xl-what");
+        what.appendChild(document.createTextNode(e.what));
+        if(e.note){ what.appendChild(document.createTextNode(" ")); var em=el("em"); em.textContent=e.note; what.appendChild(em); }
+        r.appendChild(what);
+        if(e.when) r.appendChild(el("span","xl-when",e.when));
+        led.appendChild(r);
+      });
+      c.appendChild(led);
+    }
     c.appendChild(el("p","trk-note","Every change is written to the roll log. Reset restores the authored totals."));
     return c;
   }
