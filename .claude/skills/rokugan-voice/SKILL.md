@@ -5,7 +5,7 @@ description: The house style and writing voice for the Portents & Fortunes campa
 
 # The Rokugan voice
 
-The site's prose is modelled on the `.lore` files in `~/Working/Titterpig DSL/titterpig-dsl-l5r5e/0.4/`
+The site's prose is modelled on the `.lore` files in `~/Sortilege/Titterpig/DSL/titterpig-dsl-l5r5e/0.4/`
 — gazetteer prose written from inside the world's own scholarly tradition. Read a section of
 `writ-of-wilds-wilderness.lore` or `writ-of-wilds-dragon-clan.lore` before a large piece of work; the
 rhythm is easier to catch than to describe.
@@ -14,7 +14,7 @@ The short version: **an informed observer, writing down what is so, in the prese
 flourish — and letting the facts do the work that adjectives usually get asked to do.**
 
 For anything under `gm/`, load the **`gm-prep-notes`** skill as well
-(`~/Working/Custom-Claude-Skills/gm-prep-notes/SKILL.md`, symlinked into `~/.claude/skills/`). It
+(`~/Personal/Projects/Custom-Claude-Skills/gm-prep-notes/SKILL.md`, symlinked into `~/.claude/skills/`). It
 governs what belongs in a GM document at all; this file governs how the sentences sound. Where they
 disagree about `gm/`, that one wins.
 
@@ -105,7 +105,7 @@ These are not stylistic preferences and they outrank everything above.
 
 - **Never paraphrase rules text.** Spells, techniques, statblock traits and actions, opportunity
   tables, condition effects and severity tables are reproduced **verbatim** from the L5R5e corpus at
-  `~/Working/Titterpig DSL/titterpig-dsl-l5r5e/0.4`. Whitespace, HTML escaping, and dice-glyph
+  `~/Sortilege/Titterpig/DSL/titterpig-dsl-l5r5e/0.4`. Whitespace, HTML escaping, and dice-glyph
   substitution are the only permitted transforms. Own prose *about* the rules is free.
 - **Never invent canon that the corpus already settles.** Check the corpus before describing a
   place, family, title, creature, or practice. If it is genuinely undefined there, it is yours to
