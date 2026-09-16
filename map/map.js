@@ -18,7 +18,7 @@
       shapes:[[[16,7],[30,3],[52,3],[60,9],[60,18],[46,22],[34,21],[24,19],[16,13]]],
       label:[38,12],
       pins:[
-        { x:20.5,y:28, name:"Kyūden Togashi", href:"../atlas/index.html#kyuden-togashi" },
+        { x:21.5,y:26.8, name:"Kyūden Togashi", href:"../atlas/index.html#kyuden-togashi" },
         { x:35,y:27.3, name:"Reisui-ji", href:"../atlas/index.html#reisui-ji" },
         { x:41,y:23.1, name:"White Flower Village", href:"../atlas/index.html#white-flower-village" },
         { x:41,y:20.5, name:"Seidō Fukurokujin", href:"../atlas/index.html#seido-fukurokujin" },
