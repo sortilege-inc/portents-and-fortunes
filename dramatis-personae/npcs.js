@@ -295,9 +295,10 @@ window.NPCS = [
     statNote: "Dai, Fortunist Monk (Emerald Empire) as chassis — the Fortunist match, and her Herbalist ability suits a village's devout woman. One caveat rather than a deviation: Nui is a laywoman who guides pilgrims, not an ordained monk, so her Status 25 reflects standing earned on the road to the shrine rather than a monastic office. Card: The Hermit, upright.",
     bio: [
       "A Fortunist who leans to the Shinseist side of it: self-reflection, and enlightenment. She leads pilgrims to Seidō Fukurokujin. Reliable and devout.",
-      "She escorts pilgrims to the shrine north of the village and back, and coaches them on what crafts to make as offerings."
+      "She escorts pilgrims to the shrine north of the village and back, and coaches them on what crafts to make as offerings.",
+      "She was killed at the shrine with five others and laid out in a circle on the offering stone. Togashi Norikage found her two days later and knew her by the small Fortunist talisman at her neck, of a kind made in White Flower, and buried her under stone below the torii. The village has not been told."
     ],
-    status: "White Flower · leads the pilgrim road · the steadiest of them",
+    status: "Dead · killed at Seidō Fukurokujin · the village has not been told",
     stat: {
       kind: "Adversary", combatRank: 2, intrigueRank: 4,
       description: "The woman who knows the way to the shrine and the order of the observances, and who walks it often enough that the walking is itself the practice.",
@@ -596,7 +597,7 @@ window.NPCS = [
       "An unfamiliar medical or theological text takes her five readings where another scholar needs one, and she knows her teachers watch her struggle. She is going to a shrine of the Fortune of Wisdom.",
       "What she wants is to stop being asked to mediate at all \u2014 one temple\u2019s garden and its records, with no dispute crossing the threshold. She holds Righteousness paramount and Sincerity least, and she is aware those two sit badly together in her."
     ],
-    status: "Met \u00b7 her audience with Oharu is over \u00b7 Norikage is charged with escorting her",
+    status: "On the road with Norikage \u00b7 she cleansed the shrine after the killing \u00b7 he calls her a prophet",
     stat: {
       kind: "Adversary",
       combatRank: 1, intrigueRank: 2,
