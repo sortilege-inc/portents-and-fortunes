@@ -141,6 +141,29 @@ real controls (PLAYBOOK §5) before the next begins.
 | 25 | **(owner, 2026-09-23): round up by default; round down only where the text says so.** The Path of Waves tiny-kami strife, briefly changed to "rounded up", is back to its printed "(rounded down)" (confirmed against the PDF's text layer, pp. 250–252; corpus `413e02d` reverts `57072fd`). Vigilance stays "(rounded up)" — the book states no rounding there (core-traits 0.5.2). The corpus's only "rounded down" is those four printed rules and their lore | The source's explicit rounding wins; the default applies where it is silent. |
 | 7 | Four shape assertions were scoped wrong at first and were corrected to what the corpus writes: CURRICULUM and STARTING_TECHNIQUES also sit on titles, a pregen and 13 errata MODIFYs of schools; a `Ring Increase` writes its CHOOSE after a fixed field or on the next line; GUIDANCE sits at a file's top level (449 ENTRYs, 386 with CONCERNS), never inside the DEF it concerns | The data was right each time; the independent scan was too narrow. |
 
+## Instances (2026-09-23)
+
+An **instance** is a campaign repo that is a fork of this VTT: it merges this repo at its root
+as `upstream`, owns a folder of its own (`campaign/`) and a short list of per-deployment root
+files, and never edits anything else. The first is Portents & Fortunes
+(`sortilege-inc/portents-and-fortunes`, branch `vtt-instance`); its `campaign/PLAN.md` holds the
+owner's decisions for the pattern and its `campaign/INSTANCE-PLAYBOOK.md` the process. What the
+pattern needs from upstream is built here, on branch `instance-hooks`:
+
+| # | Milestone | Proof |
+|---|---|---|
+| I1 | **The instance hooks** (Portents M2): `engine/instance.js` loads an instance's scripts at stages the four pages mark; `build/build_layer.py` builds an instance's DSL layer as one more book, gated as the books are; every page takes its name from `VttConfig.title`; the shelf shelves a layer first | **landed 2026-09-23** — upstream's gate after the change: `verify_data: 31713 strings (74137 occurrences) — 0 uncovered · 0 short · 0 unsourced`, `check_shape: OK (75 assertions)`, and the rebuild leaves `data/` byte-identical. The fixture layer (`build/fixtures/layer/`, one NPC on the corpus's NPC chassis) builds and passes all three layer gates — *9 strings, 0 / 0 / 0*; *ids: 1, none of them the corpus's (4666)*; *every id the layer points at resolves* — and each gate was made to fail: a mistyped chassis id → *REFERENCES … #t4540de6f35155c46f41fX*, exit 1; a layer entity on Loyal Bushi's id → *IDS … #L5RNSYqNiaIsD00qkid7td*; tampered data → the invented sentence *unsourced* and the replaced one *uncovered*. In the browser on 8740 with a temporary instance config (removed after): the site titled *Fixture Instance — the books*, its brand the same; the registered *Fixture tab* rendered and read the layer's records; the shelf opened on *This campaign* → *Fixture layer*, the masthead *31 books … 4,667 entries out of 239 files*; the NPCs tab listed *Fixture Adversary* from its record while its book was **not yet loaded**, and opening it loaded the layer and drew *NPC · Minion · combat 1 · intrigue 1*; the GM's table titled and branded *Fixture Instance*, the *Fixture panel* in the nav and mounted, and the Cast's *Every NPC* opened on *Fixture Adversary · Minion · Fixture layer*. With the config restored (no instance): the site, the GM's table, the map table and the player's page as before — *30 books … 4,666 entries out of 238 files*, four shelf groups, ten tabs with content, eight panels. 0 errors throughout |
+
+| # | Decision | Why |
+|---|---|---|
+| I-1 | An instance declares its scripts in `engine/config.js` (`instance: {styles, stages: {data, site, gm, table, play}}`); upstream's config documents the key and sets it to `null` | `config.js` is already the one file a deployment edits, so the instance owns it and never touches a page. |
+| I-2 | The loader **writes** the declared scripts into the page at each stage tag (`document.write`), rather than loading them asynchronously | A written script runs in order before the next upstream script, so a layer merged at `data` is already in the index when `system/l5r5e/data.js` evaluates (it reads the index at load), and a tab pushed at `site` is there when the site first renders. An async loader would need every start sequence to wait and every load-time read to be redone. Same-origin scripts only. |
+| I-3 | A layer is **one more book**: `<id>.js` (entities, on demand) and `index.js` (its index record and records, loaded with the page) — the books' own split | List views read records and never load a book; a layer must be no different, or every view would need to know about it. |
+| I-4 | Three gates on a layer: verify_data's two-way count over the layer's files (the same code, `strings_of`), its ids never the corpus's, and every id it points at resolving in the layer or the corpus | The references gate is what homebrew needs most: an NPC on a mistyped chassis fails at build, not at the table. |
+| I-5 | A layer's book and records go **first** | The Cast lists 150 of its NPCs; appended after the corpus's 389, a campaign's own were past the cut (found in the browser: index 389 of 390). The shelf already leads with the campaign. |
+| I-6 | Every page takes its title from `VttConfig.title` (the site, the GM's table and the player's page now; the map table already did) | An instance names its pages in its config, never in upstream HTML. |
+| I-7 | `build/build_art.sh` reads the art from `portents-and-fortunes/campaign/assets` | Portents' site moved under `campaign/` when it became an instance; the rebuilt art is byte-identical (29 files, same sha256 list). |
+
 ## STOPPED HERE — to resume
 
 **M0–M5 landed 2026-09-23**, each committed and pushed. Nothing is deployed: the repo is private,

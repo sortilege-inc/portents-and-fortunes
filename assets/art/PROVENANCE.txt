@@ -1,4 +1,4 @@
-Copied by build/build_art.sh from /home/hewhocutsdown/Sortilege/Campaigns/2026 Portents & Fortunes/portents-and-fortunes/assets on 2026-09-23; do not edit.
+Copied by build/build_art.sh from /home/hewhocutsdown/Sortilege/Campaigns/2026 Portents & Fortunes/portents-and-fortunes/campaign/assets on 2026-09-23; do not edit.
 d6551197dae6ff26cb5379537940b54b46233c6274c7d6864dc8c7099f650692  ./dice/ring_blank.svg
 32834d441cb3d98fa8d1cbaa6f8b7903a1778c052af2f1ab6dbaffd466d67b9f  ./dice/ring_et.svg
 fa21b9de37af6a38856980f32dd2411cd0ea5963749b87902f4509709cc7f522  ./dice/ring_o.svg
