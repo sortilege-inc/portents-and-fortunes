@@ -152,7 +152,8 @@ window.L5RSheet = (function () {
   // ── the sheet, drawn from the declaration ──
   function ringTiles(v, onChange, o) {
     const ro = !onChange;
-    return el('div', { class: 'rings-row' }, RINGS.map((r) => el('div', { class: 'ring-tile' + (o && o.stance === r ? ' stance' : ''), title: r }, [
+    const def = (o && o.deficient) || [];
+    return el('div', { class: 'rings-row' }, RINGS.map((r) => el('div', { class: 'ring-tile' + (o && o.stance === r ? ' stance' : '') + (def.indexOf(r) !== -1 ? ' deficient' : ''), title: r + (def.indexOf(r) !== -1 ? ' — deficient (Elemental Deficiency)' : '') }, [
       Dice.ringIcon(r),
       ro ? el('div', { class: 'v' }, [String((v.Rings || {})[r] == null ? '—' : v.Rings[r])])
         : el('input', { class: 'text num small', type: 'number', min: 1, max: 5, value: (v.Rings || {})[r] || 1, oninput: (ev) => onChange('Rings', Object.assign({}, v.Rings, { [r]: parseInt(ev.target.value || '1', 10) })) }),
@@ -265,11 +266,15 @@ window.L5RSheet = (function () {
     if (!obj || typeof obj !== 'object') throw new Error('Not a character file.');
     return complete(obj.kind === FILE_KIND && obj.character ? obj.character : obj);
   }
-  function fileOf(v, live) {
-    return { kind: FILE_KIND, version: 1, system: 'l5r5e', templateId: (actor() || {}).id || null, exported: new Date().toISOString(), name: v.Name || '', character: v, live: live || undefined };
+  // The file carries the character, its live values, its versions and its log (rolls and events):
+  // the record travels with it, and loading it back brings them all.
+  function fileOf(v, live, extra) {
+    const x = extra || {};
+    return { kind: FILE_KIND, version: 1, system: 'l5r5e', templateId: (actor() || {}).id || null, exported: new Date().toISOString(), name: v.Name || '', character: v, live: live || undefined,
+      versions: x.versions && x.versions.length ? x.versions : undefined, log: x.log && x.log.length ? x.log : undefined, portrait: x.portrait || undefined };
   }
-  function download(v, live) {
-    const blob = new Blob([JSON.stringify(fileOf(v, live), null, 2)], { type: 'application/json' });
+  function download(v, live, extra) {
+    const blob = new Blob([JSON.stringify(fileOf(v, live, extra), null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = (v.Name || 'samurai').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.l5r5e-character.json';
@@ -277,11 +282,20 @@ window.L5RSheet = (function () {
     a.click();
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
   }
-  function memberFrom(v, source, live) {
-    return { id: State().genId('pc'), templateId: (actor() || {}).id || 'l5r5e-samurai', name: v.Name || 'Unnamed', source: source || { kind: 'file' }, character: v, live: live || {}, notes: '', playerNotes: '' };
+  function memberFrom(v, source, live, extra) {
+    const x = extra || {};
+    const m = { id: State().genId('pc'), templateId: (actor() || {}).id || 'l5r5e-samurai', name: v.Name || 'Unnamed', source: source || { kind: 'file' }, character: v, live: live || {}, notes: '', playerNotes: '' };
+    if (x.versions) m.versions = x.versions;
+    if (x.log) m.history = x.log.map((e) => Object.assign({}, e, { memberId: undefined }));
+    if (x.portrait) m.portrait = x.portrait;
+    return m;
   }
-  const readMember = (obj, fileName) => memberFrom(readFile(obj), { kind: 'file', name: fileName || null }, obj && obj.live);
-  const downloadMember = (m) => download(m.character || blank(), m.live || {});
+  const readMember = (obj, fileName) => memberFrom(readFile(obj), { kind: 'file', name: fileName || null }, obj && obj.live, obj && obj.kind === FILE_KIND ? obj : null);
+  // An archived version on screen withholds the file: it acts on the live character.
+  function downloadMember(m) {
+    if (isViewingArchive(m)) { window.alert('An archived version is on screen. Return to Current to download the character.'); return false; }
+    return download(m.character || blank(), m.live || {}, { versions: versionsOf(m), log: logOf(m).map((e) => Object.assign({}, e, { memberId: undefined })), portrait: m.portrait });
+  }
   const memberFromEntity = (e) => memberFrom(fromEntity(e), { kind: 'pregen', id: e.id, book: e.book });
 
   // ── play: the live values, the conditions, the checks ──
@@ -297,16 +311,16 @@ window.L5RSheet = (function () {
     const v = complete(m.character || {});
     return conditionRules().filter((r) => current(m, r.over) > value(v, r.limit)).map((r) => r.state);
   }
-  const tokenText = (m) => ['Strife ' + current(m, 'Strife'), 'Fatigue ' + current(m, 'Fatigue')].concat(conditions(m)).join(' · ');
+  const tokenText = (m) => ['Strife ' + current(m, 'Strife'), 'Fatigue ' + current(m, 'Fatigue')].concat(conditions(m), ((m.live || {}).conditions || [])).join(' · ');
   const memberNow = (id, fallback) => (State().state.party || []).find((x) => x.id === id) || fallback;
 
   // Every change to a tracker is logged as an event: "Strife 2 → 5", and what caused it.
-  const TRACKED = { Fatigue: 'Fatigue', Strife: 'Strife', voidPoints: 'Void points' };
+  const TRACKED = { Fatigue: 'Fatigue', Strife: 'Strife', voidPoints: 'Void points', Honor: 'Honor', Glory: 'Glory', Status: 'Status', xpEarned: 'XP earned', xpSpent: 'XP spent' };
   // `always`: log the cause even when no tracker moved (a Void point the rules grant at its maximum)
   function change(m, p, why, always) {
     const mm = memberNow(m.id, m);
     const lines = Object.keys(p).filter((k) => TRACKED[k]).map((k) => {
-      const from = current(mm, k === 'voidPoints' ? 'Void Points' : k);
+      const from = k === 'xpEarned' || k === 'xpSpent' ? xp(mm)[k === 'xpEarned' ? 'earned' : 'spent'] : current(mm, k === 'voidPoints' ? 'Void Points' : k);
       return from === p[k] ? null : TRACKED[k] + ' ' + from + ' → ' + p[k];
     }).filter(Boolean);
     State().commit('setPartyLive', [mm.id, p]);
@@ -462,36 +476,197 @@ window.L5RSheet = (function () {
     return r;
   }
 
+  // ── the record: conditions, standing, experience, versions, the header ──
+  // Conditions are the corpus's own: the children of `^"Condition"` (core-systems), each with its
+  // EFFECTS and REMOVED_WHEN. The ones the Samurai ACTOR derives from its RULES (Compromised,
+  // Incapacitated) stay derived; the rest are toggled, each change logged.
+  function conditionDefs() {
+    const c = D.named('Condition', 'core');
+    return c ? D.children(c.id).map((k) => {
+      const eff = D.block(k, 'EFFECTS');
+      const rem = D.block(k, 'REMOVED_WHEN');
+      const txt = (b) => (b ? (b.body || []).map((x) => x.s).filter(Boolean).concat((b.args || []).map((a) => a.s).filter(Boolean)).join('\n\n') : '');
+      return { name: k.name, id: k.id, effects: txt(eff), removed: txt(rem) };
+    }) : [];
+  }
+  const liveConditions = (m) => ((m.live || {}).conditions || []).slice();
+  function toggleCondition(m, name) {
+    const mm = memberNow(m.id, m);
+    const list = liveConditions(mm);
+    const i = list.indexOf(name);
+    if (i === -1) list.push(name);
+    else list.splice(i, 1);
+    State().commit('setPartyLive', [mm.id, { conditions: list }]);
+    State().commit('appendLog', [{ at: new Date().toISOString(), kind: 'event', who: mm.name, memberId: mm.id, text: name + (i === -1 ? ' — gained' : ' — removed'), why: 'condition' }]);
+  }
+  function conditionsBlock(m, ro) {
+    const derivedStates = conditionRules().map((r) => r.state.toLowerCase());
+    const on = liveConditions(m);
+    return el('div', { class: 'chiprow tight conditions' }, [el('span', { class: 'track-name' }, ['Conditions']), conditionDefs().filter((c) => derivedStates.indexOf(c.name.toLowerCase()) === -1).map((c) =>
+      el('button', { class: 'cond-toggle' + (on.indexOf(c.name) !== -1 ? ' on' : ''), type: 'button', disabled: ro || null, title: c.effects + (c.removed ? '\n\nRemoved when: ' + c.removed : ''), onclick: ro ? null : () => toggleCondition(m, c.name) }, [c.name]))]);
+  }
+
+  // Honor, Glory and Status move in play: the live value overrides the sheet's, each change logged;
+  // staking one wagers an amount and logs it (the stake is settled by adjusting afterwards).
+  const SOCIAL = ['Honor', 'Glory', 'Status'];
+  function socialBlock(m, ro) {
+    return el('div', { class: 'social-row' }, SOCIAL.map((k) => {
+      const cur = current(m, k);
+      const stake = el('input', { class: 'text num small', type: 'number', min: 1, placeholder: 'stake', disabled: ro || null });
+      return el('div', { class: 'soc' }, [
+        el('span', { class: 'track-name' }, [k]),
+        ro ? null : button('−', () => change(m, { [k]: Math.max(0, cur - 1) }), 'ghost tiny'),
+        el('b', { class: 'num' }, [String(cur)]),
+        ro ? null : button('+', () => change(m, { [k]: Math.min(100, cur + 1) }), 'ghost tiny'),
+        ro ? null : stake,
+        ro ? null : button('Stake', () => {
+          const n = parseInt(stake.value || '0', 10);
+          if (!(n > 0)) return;
+          const mm = memberNow(m.id, m);
+          State().commit('appendLog', [{ at: new Date().toISOString(), kind: 'event', who: mm.name, memberId: mm.id, text: 'Staked ' + n + ' ' + k + ' (holding ' + current(mm, k) + ')', why: 'stake' }]);
+          stake.value = '';
+        }, 'ghost tiny'),
+      ]);
+    }));
+  }
+
+  // Experience: the ACTOR's `Experience` is XP earned (as the instance conversion reads it); XP
+  // spent and what it bought are the sheet's record — a spend adds its cost to spent and a line to
+  // the ledger, logged. Available is earned less spent.
+  function xp(m) {
+    const lv = m.live || {};
+    const v = complete(m.character || {});
+    const earned = lv.xpEarned != null ? lv.xpEarned : (v.Experience || 0);
+    const spent = lv.xpSpent != null ? lv.xpSpent : (v['Experience Spent'] || 0);
+    return { earned, spent, available: earned - spent, ledger: lv.xpLedger || v._xpLedger || [] };
+  }
+  function xpBlock(m, ro) {
+    const x = xp(m);
+    const cost = el('input', { class: 'text num small', type: 'number', min: 1, placeholder: 'cost' });
+    const what = el('input', { class: 'text small', type: 'text', placeholder: 'on what (a technique, Water 1 → 2…)' });
+    const note = el('input', { class: 'text small', type: 'text', placeholder: 'note' });
+    const adj = (key, d) => change(m, { [key]: Math.max(0, xp(memberNow(m.id, m))[key === 'xpEarned' ? 'earned' : 'spent'] + d) });
+    return el('div', { class: 'xp' }, [
+      el('div', { class: 'social-row' }, [
+        el('div', { class: 'soc' }, [el('span', { class: 'track-name' }, ['XP earned']), ro ? null : button('−', () => adj('xpEarned', -1), 'ghost tiny'), el('b', { class: 'num' }, [String(x.earned)]), ro ? null : button('+', () => adj('xpEarned', 1), 'ghost tiny')]),
+        el('div', { class: 'soc' }, [el('span', { class: 'track-name' }, ['spent']), ro ? null : button('−', () => adj('xpSpent', -1), 'ghost tiny'), el('b', { class: 'num' }, [String(x.spent)]), ro ? null : button('+', () => adj('xpSpent', 1), 'ghost tiny')]),
+        el('div', { class: 'soc' }, [el('span', { class: 'track-name' }, ['available']), el('b', { class: 'num' }, [String(x.available)])]),
+      ]),
+      x.ledger.length ? el('ul', { class: 'items xp-ledger' }, x.ledger.map((e) => el('li', {}, [el('b', { class: 'num' }, [String(e.cost)]), ' ', e.what, e.note ? el('em', { class: 'muted' }, [' ' + e.note]) : null, e.when ? el('span', { class: 'muted small' }, [' · ' + e.when]) : null]))) : null,
+      ro ? null : el('div', { class: 'chiprow tight' }, [cost, what, note, button('Spend', () => {
+        const n = parseInt(cost.value || '0', 10);
+        if (!(n > 0) || !what.value.trim()) return;
+        const mm = memberNow(m.id, m);
+        const cur = xp(mm);
+        const line = { cost: n, what: what.value.trim(), note: note.value.trim() || null, when: new Date().toISOString().slice(0, 10) };
+        State().commit('setPartyLive', [mm.id, { xpLedger: cur.ledger.concat([line]) }]);
+        change(mm, { xpSpent: cur.spent + n }, 'spent on ' + line.what + (line.note ? ' (' + line.note + ')' : ''));
+      }, 'ghost tiny')]),
+    ]);
+  }
+
+  // Versions: an archived copy of the character and its trackers, read-only; the picker shows one
+  // in place of the live sheet (a local view — the party member does not change). Archiving is an
+  // op (system/l5r5e/ops.js), so the room keeps it with the member.
+  const viewing = {};
+  const versionsOf = (m) => m.versions || [];
+  function archive(m) {
+    const mm = memberNow(m.id, m);
+    const n = versionsOf(mm).length + 1;
+    const label = window.prompt('Name this version (it is kept read-only):', 'Version ' + n);
+    if (!label) return;
+    const snap = JSON.parse(JSON.stringify({ character: mm.character || {}, live: mm.live || {} }));
+    const ver = { id: State().genId('v'), label, date: new Date().toISOString().slice(0, 10), character: snap.character, live: snap.live };
+    State().commit('archivePartyVersion', [mm.id, ver]);
+    State().commit('appendLog', [{ at: new Date().toISOString(), kind: 'event', who: mm.name, memberId: mm.id, text: 'Archived this version as “' + label + '”', why: 'version' }]);
+  }
+  const isViewingArchive = (m) => !!viewing[m.id] && versionsOf(m).some((x) => x.id === viewing[m.id]);
+  function versionPicker(m, redraw) {
+    const vs = versionsOf(m);
+    const sel = el('select', { class: 'scope tiny', title: 'Versions of this character: the live sheet, or an archived one (read-only)' },
+      [el('option', { value: '' }, ['Current'])].concat(vs.map((x) => el('option', { value: x.id, selected: viewing[m.id] === x.id || null }, [x.label + (x.date ? ' · ' + x.date : '')]))));
+    sel.addEventListener('change', () => { viewing[m.id] = sel.value || null; redraw(); });
+    return el('span', { class: 'chiprow tight' }, [sel, button('Archive this version…', () => archive(m), 'ghost tiny')]);
+  }
+
+  // The header: a portrait an instance provides (window.L5RPortraits, keyed by the character's
+  // source entity id; or the member's own `portrait`), the clan mon from the art, and the deficient
+  // ring marked — the ring of an Elemental Deficiency the character holds.
+  const portraitOf = (m, v) => m.portrait || ((window.L5RPortraits || {})[(v._source || {}).id]) || null;
+  function monOf(v) {
+    const clan = String(v.Clan || '').replace(/\s+Clan$/, '').trim().toLowerCase();
+    return clan ? el('img', { class: 'mon', src: 'assets/art/mon/' + clan + '.svg', alt: v.Clan + ' mon', title: v.Clan, onerror: (ev) => ev.target.remove() }) : null;
+  }
+  const deficientRings = (v) => traits(v).filter((t) => t.type === 'Adversity' && /^Elemental Deficiency\b/.test(t.name) && t.ring).map((t) => t.ring);
+  function header(m, v, extra) {
+    const pic = portraitOf(m, v);
+    return el('div', { class: 'sheet-head' }, [
+      pic ? el('img', { class: 'portrait', src: pic, alt: v.Name || m.name }) : null,
+      el('div', { class: 'head-text' }, [el('h2', {}, [monOf(v), m.name]), el('div', { class: 'muted small' }, [sentence(v)]), extra || null]),
+    ]);
+  }
+
   function live(m, opts) {
     const o = opts || {};
+    const redraw = () => window.VttBus.emit('state:remote', { view: true }, { local: true });
+    // an archived version, read-only, in place of the live sheet
+    if (isViewingArchive(m)) {
+      const ver = versionsOf(m).find((x) => x.id === viewing[m.id]);
+      const av = complete(ver.character || {});
+      const am = { id: m.id, name: m.name, character: ver.character, live: ver.live, portrait: m.portrait };
+      const ad = derived(av);
+      const box = el('div', { class: 'sheet live archived' });
+      box.appendChild(header(am, av, versionPicker(m, redraw)));
+      box.appendChild(el('div', { class: 'archive-banner' }, ['Viewing “' + ver.label + '”' + (ver.date ? ' (' + ver.date + ')' : '') + ' — archived, read-only. Downloading its file waits until you return to Current.']));
+      box.appendChild(el('div', { class: 'chiprow tight' }, [ringTiles(av, null, { stance: (ver.live || {}).stance, deficient: deficientRings(av) })]));
+      box.appendChild(track('Fatigue', current(am, 'Fatigue'), value(av, 'Endurance'), null));
+      box.appendChild(track('Strife', current(am, 'Strife'), value(av, 'Composure'), null));
+      box.appendChild(track('Void points', current(am, 'Void Points'), ad.voidMax, null));
+      box.appendChild(conditionsBlock(am, true));
+      box.appendChild(socialBlock(am, true));
+      box.appendChild(xpBlock(am, true));
+      box.appendChild(render(Object.assign({}, av, { Honor: current(am, 'Honor'), Glory: current(am, 'Glory'), Status: current(am, 'Status') }), null, { stance: (ver.live || {}).stance }));
+      return box;
+    }
     const v = complete(m.character || {});
     const d = derived(v);
     const lv = m.live || {};
     const box = el('div', { class: 'sheet live' });
     const roller = rollerFor(m, v);
-    box.appendChild(el('div', { class: 'sheet-head' }, [el('h2', {}, [m.name]), el('div', { class: 'muted small' }, [sentence(v)])]));
+    box.appendChild(header(m, v, versionPicker(m, redraw)));
     const conds = conditions(m);
-    box.appendChild(el('div', { class: 'chiprow tight' }, [ringTiles(v, null, { stance: lv.stance }), conds.map((c) => el('span', { class: 'cond', title: 'the Samurai type’s own rule' }, [c]))]));
+    box.appendChild(el('div', { class: 'chiprow tight' }, [ringTiles(v, null, { stance: lv.stance, deficient: deficientRings(v) }), conds.map((c) => el('span', { class: 'cond', title: 'the Samurai type’s own rule' }, [c]))]));
     box.appendChild(track('Fatigue', current(m, 'Fatigue'), value(v, 'Endurance'), (n) => patch(m, { Fatigue: n })));
     box.appendChild(track('Strife', current(m, 'Strife'), value(v, 'Composure'), (n) => patch(m, { Strife: n })));
     box.appendChild(track('Void points', current(m, 'Void Points'), d.voidMax, (n) => patch(m, { voidPoints: Math.min(n, d.voidMax || n) })));
-    box.appendChild(traitButtons(m, v));
-    box.appendChild(el('div', { class: 'muted small' }, ['Focus ' + value(v, 'Focus') + ' · Vigilance ' + value(v, 'Vigilance') + ' · Honor ' + (v.Honor == null ? '—' : v.Honor) + ' · Glory ' + (v.Glory == null ? '—' : v.Glory) + ' · Status ' + (v.Status == null ? '—' : v.Status)]));
+    box.appendChild(conditionsBlock(m, false));
+    const inPlay = traitButtons(m, v);   // none for a character with no passion or anxiety
+    if (inPlay) box.appendChild(inPlay);
+    box.appendChild(el('div', { class: 'muted small' }, ['Focus ' + value(v, 'Focus') + ' · Vigilance ' + value(v, 'Vigilance')]));
+    box.appendChild(socialBlock(m, false));
+    box.appendChild(xpBlock(m, false));
     box.appendChild(el('h4', {}, ['A check', el('span', { class: 'muted small' }, [' · pick a skill below, a ring, the TN'])]));
     box.appendChild(roller);
     const onRoll = (skill, rank) => roller.set({ skill, skillRank: rank });
-    box.appendChild(render(v, null, { onRoll, stance: lv.stance }));
+    box.appendChild(render(Object.assign({}, v, { Honor: current(m, 'Honor'), Glory: current(m, 'Glory'), Status: current(m, 'Status') }), null, { onRoll, stance: lv.stance }));
     const rollLog = el('div', { class: 'roll-log' });
-    (((State().state || {}).log) || []).filter((x) => (x.kind === 'roll' || x.kind === 'event') && x.memberId === m.id).slice(-8).reverse().forEach((x) => rollLog.appendChild(Dice.logLine(x)));
+    logOf(m).slice(-8).reverse().forEach((x) => rollLog.appendChild(Dice.logLine(x)));
     // an advantage from a book not yet loaded: load it, then draw again with its type and ring
     ensureTraits(v).then((loaded) => { if (loaded) window.VttBus.emit('state:remote', { loaded: true }, { local: true }); });
     box.appendChild(rollLog);
     return box;
+  }
+  // a character's log: what its file brought (earlier sessions), then this table's entries
+  function logOf(m) {
+    const here = (((State().state || {}).log) || []).filter((x) => (x.kind === 'roll' || x.kind === 'event') && x.memberId === m.id);
+    const seen = new Set(here.map((x) => x.at + '|' + x.kind));
+    return (m.history || []).filter((x) => !seen.has(x.at + '|' + x.kind)).concat(here);
   }
 
   return {
     ACTOR, FILE_KIND, spec, skills, skillGroups, formula, evaluate, derived, conditionRules, blank, complete, value,
     fromEntity, fromEntityView, sentence, render, readFile, fileOf, download, memberFrom, readMember, downloadMember,
     memberFromEntity, current, conditions, tokenText, live, rollerFor, traits, rerollModes, gainVoid, change,
+    conditionDefs, xp, logOf, isViewingArchive, deficientRings,
   };
 })();
