@@ -158,6 +158,18 @@ strife* and *Tip of the Tongue +3 strife, +1 Void* read from their rules. Not ye
 strife default (19, M4d), the scene boundary that resets an anxiety's once-per-scene Void (12, M4c
 — the claim is keyed to `live.scene`, which *End scene* will advance).
 
+**M4b landed 2026-09-23** — upstream `590550e` / `2a5e2c9`, proof in upstream PLAN I3; pulled here in
+`ee60043`. Items 11, 15–17, 22, 23 ported. Item 22 from this instance: `campaign/site/portraits.js`
+registers Norikage's portrait for upstream's header hook (`window.L5RPortraits`), loaded at the `data`
+stage. In the browser on 8733 Norikage's header shows his portrait (`norikage.webp`, loaded), the
+Dragon mon, and **Fire marked deficient** (his *Elemental Deficiency (Fire)*); 14 condition toggles;
+Honor 52 · Glory 50 · Status 30 with − / + / stake; XP earned 11, spent 0; 0 console messages.
+**For M5:** his Portents record spent 9 XP (*Breaking Blow* 3, *Water 1 → 2* 6, 26 Aug 2026), which
+his actor does not carry yet (`convert_norikage.py` wrote only `Experience` = earned) — M5 carries
+spent and the ledger with his versions. Not yet: an engaged NPC's conditions visible to the player
+(O7) — with M4d's conflict, where engagement is. Upstream found and fixed an M4a defect on the way:
+a live sheet threw when a character's passions and anxieties were not yet loaded.
+
 ## Decision log
 
 | # | Decision | Why |
@@ -195,3 +207,5 @@ strife default (19, M4d), the scene boundary that resets an anxiety's once-per-s
 | 31 | **An adversity's Void point follows the book, not Portents' old sheet: every failed check it was resolved on, no once-per-scene limit** (upstream I-11). Only an anxiety is once per scene | The corpus's Void Points RECOVERY prints *"After failing a check on which one of their adversities was resolved"* beside *"Once per scene, after one of their anxieties caused their strife to rise"*; Portents' sheet had capped the adversity at once per scene per adversity with no rule behind it. Not a house rule in §10, so the book's reading stands; a `MODIFY` would restore the cap if the table wants it. |
 | 32 | Off-approach enforcement is a property the house-rule `MODIFY` introduces (`^"Off-Approach Reroll Dice"`), read by upstream's generic `L5RData.modified` (upstream I-14) | O7: *"a campaign supplies only the `MODIFY`"*. |
 | 33 | **Dark Tides' check outcomes (owner: "delete the Dark Tides outcomes")**: the 9 flagged ON_FAILUREs **and 17 more the gate had never measured** — the mend gate checks strings of 40+ characters, and these were shorter (*"Door holds"*, *"Enemies fight on"*) — 26 outcomes the adventure never states, deleted; 11 short outcomes that paraphrased checks the book does print (*"PC catches a fleeing ruffian"*) now carry its sentence (*"If the PC wins, they have caught one of the ruffians."*, p. 26). titterpig-dsl-l5r5e `30bcf53`; upstream rebuilt `0c663c8` (31,539 strings, 0/0/0 — 26 fewer, the deleted outcomes) | Applying the owner's ruling to every instance of it in the file, not only the nine the report listed. A corpus-wide scan of `ON_SUCCESS` / `ON_FAILURE` / `OUTCOME` strings under 40 characters finds no other: the only one left is Dark Tides' *"If the ruffian wins, they keep running."*, verified verbatim. |
+| 34 | **Dark Tides' and The Lost Writer's checks, as printed (owner: "fix Dark Tides' checks … the TN changes based on the ring used")** — spec: `RING_TN "Ring" n` (the ring's own TN; `TN` is any other ring's), `ALTERNATIVE { … }`, `RING` only when the text requires it and repeated for *either* (titterpig-dsl `7e704ee`, `de0fcf7`). Dark Tides: all 42 printed checks (pp. 10–29) as 43 CHECKs, 13 new, every invented `RING` gone, wrong TNs fixed, three clue pointers now naming their check (`f4e9849`). The Lost Writer, the only other adventure with CHECKs: 17 (pp. 162–171), skill groups replaced by the skills printed, 4 new (`cbb7ad1`). Gates: mend and lift PASS 0 open, validator 164 files 0/0; upstream rebuilt `e84ce80` (31,572 strings 0/0/0) | The core's own definition (p. 297): *"a TN 3 Fitness check (Earth 1, Fire 4)"* is TN 4 with Fire, 1 with Earth, *"and a TN of 3 for any other ring"*. Fixing only the 30 existing checks would have left 12 printed checks out — a subset. The Lost Writer carried the same defect (a group and one ring for "Games [Water or Air]"); fixed with it rather than left for a later catch. One reading recorded: *"a TN 2 Skulduggery or Medicine (Fire 1) check"* gives Fire 1 to Medicine only, as the kit prints ring TNs after each skill (*"Command (Water 1) or Skulduggery (Earth 3)"*) |
+| 35 | The conditions on the sheet are the corpus's 16 (less the two the ACTOR derives), not Portents' 13 | Upstream I-18: the sheet reads what the corpus defines; *Dying* and *Wounded* were missing from Portents' hand list. |
