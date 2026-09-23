@@ -30,8 +30,9 @@ window.VttSiteTabs = (function () {
       p.appendChild(el('div', { class: 'empty' }, ['Could not show this: ' + e.message]));
     });
   }
-  const KIND_ORDER = { book: 0, errata: 1, adventure: 2, codex: 3 };
-  const KIND_LABEL = { book: 'Rules and setting', errata: 'Errata', adventure: 'Adventures', codex: 'The lore graph' };
+  // `campaign` is an instance's own layer (build/build_layer.py) — its homebrew, shelved first.
+  const KIND_ORDER = { campaign: -1, book: 0, errata: 1, adventure: 2, codex: 3 };
+  const KIND_LABEL = { campaign: 'This campaign', book: 'Rules and setting', errata: 'Errata', adventure: 'Adventures', codex: 'The lore graph' };
   const mon = (clan) => {
     const c = String(clan || '').toLowerCase().replace(/ clan$/, '');
     return ['crab', 'crane', 'dragon', 'lion', 'phoenix', 'scorpion', 'unicorn', 'imperial'].indexOf(c) !== -1
