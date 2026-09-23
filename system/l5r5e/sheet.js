@@ -134,6 +134,7 @@ window.L5RSheet = (function () {
         (pv || []).forEach((x) => { const r = /^(.*\S)\s+(\d+)$/.exec(String(x)); if (r) m[r[1]] = parseInt(r[2], 10); });
         v[p.name] = m;
       } else if (s && s.kind === 'group') v[p.name] = Object.assign({}, v[p.name], D.defFields(p).fields);
+      else if (p.vk === 'def') v[p.name] = D.defFields(p).fields;   // an undeclared DEF (a character's own record) as its fields
       else v[p.name] = pv;
     });
     v.Description = v.Description || e.desc || '';
