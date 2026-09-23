@@ -148,6 +148,16 @@ into the corpus as data from the book's own text in H1.
 M4c techniques and scenes (9, 10, 12); M4d conflict, gear and opportunities (18–21). One upstream
 commit each, each proven through the real controls.
 
+**M4a landed 2026-09-23** — upstream `b43f6dd` (+ `340e99a`), proof in upstream PLAN I2; pulled
+here in `84dfeab` / `55bef5c`. Items 1–8, 13, 14 ported. Item 3 enforced from this layer: the two
+off-approach `MODIFY`s carry `^"Off-Approach Reroll Dice" INTEGER 1` (`9f513c0`), and in the
+browser on 8733 Norikage (added from the pregen picker) offers *Portentous Birth · up to 2* on a
+Fire check and *· up to 1* on Water (*Affect of Harmlessness* 1 on both), marking stops at one die
+off-ring, and the reroll logs *via Portentous Birth (fire)*; 0 console messages. *Brushwork −3
+strife* and *Tip of the Tongue +3 strife, +1 Void* read from their rules. Not yet: the Void-stance
+strife default (19, M4d), the scene boundary that resets an anxiety's once-per-scene Void (12, M4c
+— the claim is keyed to `live.scene`, which *End scene* will advance).
+
 ## Decision log
 
 | # | Decision | Why |
@@ -182,3 +192,6 @@ commit each, each proven through the real controls.
 | 28 | **Blood of the Kami is Norikage's own customization, in the campaign layer (owner)** — not an upstream feature, and not a prompt | Owner's answer to the M4 audit's question. |
 | 29 | **The retailer's buyer watermark** (the owner's name and order number) had reached the corpora and this repo's built data; removed from every corpus and every rebuilt data file as an explicit owner override of the verbatim rule (titterpig-dsl-l5r5e `a42bd48`, titterpig-dsl-vtm5e `a31138f`, sortilege-vtt-vtm5e `f6a442b`, upstream `d65ef64`, pulled here). Earlier commits in public history still carry it | Removing it from history is a rewrite of published branches — the owner's decision. |
 | 30 | M4's audit item 14 (one-click strife for passions and anxieties) and the stances now read the corpus's own rules — the standard effects on p. 24 and Table 6–1 — instead of constants | The corpus gap the audit reported is closed at the source. |
+| 31 | **An adversity's Void point follows the book, not Portents' old sheet: every failed check it was resolved on, no once-per-scene limit** (upstream I-11). Only an anxiety is once per scene | The corpus's Void Points RECOVERY prints *"After failing a check on which one of their adversities was resolved"* beside *"Once per scene, after one of their anxieties caused their strife to rise"*; Portents' sheet had capped the adversity at once per scene per adversity with no rule behind it. Not a house rule in §10, so the book's reading stands; a `MODIFY` would restore the cap if the table wants it. |
+| 32 | Off-approach enforcement is a property the house-rule `MODIFY` introduces (`^"Off-Approach Reroll Dice"`), read by upstream's generic `L5RData.modified` (upstream I-14) | O7: *"a campaign supplies only the `MODIFY`"*. |
+| 33 | **Dark Tides' check outcomes (owner: "delete the Dark Tides outcomes")**: the 9 flagged ON_FAILUREs **and 17 more the gate had never measured** — the mend gate checks strings of 40+ characters, and these were shorter (*"Door holds"*, *"Enemies fight on"*) — 26 outcomes the adventure never states, deleted; 11 short outcomes that paraphrased checks the book does print (*"PC catches a fleeing ruffian"*) now carry its sentence (*"If the PC wins, they have caught one of the ruffians."*, p. 26). titterpig-dsl-l5r5e `30bcf53`; upstream rebuilt `0c663c8` (31,539 strings, 0/0/0 — 26 fewer, the deleted outcomes) | Applying the owner's ruling to every instance of it in the file, not only the nine the report listed. A corpus-wide scan of `ON_SUCCESS` / `ON_FAILURE` / `OUTCOME` strings under 40 characters finds no other: the only one left is Dark Tides' *"If the ruffian wins, they keep running."*, verified verbatim. |
