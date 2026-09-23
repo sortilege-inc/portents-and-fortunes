@@ -73,7 +73,7 @@ Equipment, Roles, Titles, Bonds, Bushidō and Experience. No D1 is needed.
 (`l5r5e-0.5-<book>-…`); the map (30 books) is the only hand list in the build and it refuses to
 run if a corpus file is claimed by no book. Each book is its own data file, loaded on demand.
 
-**D3 — PROPOSED: the deployment origin, and the repo's visibility** (owner's call). The
+**D3 — (owner, 2026-09-23) private for now; the deployment origin and visibility are deferred.** The
 siblings are served by GitHub Pages from `main`, which on this plan needs a **public** repo;
 public publishes `data/` (the books' text verbatim, as the siblings do) and `assets/art/` (the
 owner's L5R art from Portents & Fortunes). Options: public + a custom domain (e.g.
@@ -137,6 +137,7 @@ real controls (PLAYBOOK §5) before the next begins.
 | 21 | A numbered row that is a named DEF (`1 ^"Famous Deed" DEF { … }`, the Samurai Heritage Table) is one row with a body (`def: true`) | It parsed as a row and a loose `DEF` keyword beside it; lossless either way, but the creator needs them together. |
 | 22 | **The creator binds each question to its rule ids** (`q4_choose_any_ring_plus_one` …) and reads every number from the corpus — the clan / family / school properties, "+5 glory" from Q7's summary row, "+10 honor" and six skills from Q8's walkthrough, the Heritage Table's MODIFIERS and SUB_TABLE — and the creation limits from Starting Values' rule ids. It keeps the answers and recomputes the sheet from the Starting Values, so an early answer re-flows the rest; a question's own words are kept as a field named by the question | The question DEFs carry their effects only as rule ids and comments; the ids are the corpus's statement, the comments are not read. |
 | 23 | The creator loads every book (11 MB) | Clans, families, schools and advantages are spread over twelve books. |
+| 24 | **(owner, 2026-09-23: "the rule should be round up anywhere that needs to be rounded, not round down") — fixed in the corpus**, not here: `core-traits` `^"Vigilance"` FORMULA → `"(Air + Water) / 2 (rounded up)"` (VERSION 0.5.1; corpus gates green). The four Path of Waves tiny-kami rules that print "half as much strife (rounded down)" are the book's words and stay verbatim. The sheet reads the new FORMULA unchanged; printed and computed Vigilance now agree on 22 of 26 pregens (was 15): three print an odd sum rounded down (Iuchi Minoru, Kaeru Akiara, Tonbo Goro), Turgen's 5 is hand-authored — printed values stay as printed | The formula was the conversion's only round-down; the owner's rule is round up. |
 | 7 | Four shape assertions were scoped wrong at first and were corrected to what the corpus writes: CURRICULUM and STARTING_TECHNIQUES also sit on titles, a pregen and 13 errata MODIFYs of schools; a `Ring Increase` writes its CHOOSE after a fixed field or on the next line; GUIDANCE sits at a file's top level (449 ENTRYs, 386 with CONCERNS), never inside the DEF it concerns | The data was right each time; the independent scan was too narrow. |
 
 ## STOPPED HERE — to resume
@@ -148,12 +149,11 @@ To resume: `bash build/build.sh` (gate green), start the launch entry `vtt-l5r5e
 `/` and `/gm/`; for sessions also `vtt-l5r5e-worker` (8792; `worker/` has `node_modules`) and test
 a player from `http://127.0.0.1:8740/gm/play.html?s=CODE`.
 
-**When D3 is decided:** `cd worker && npx wrangler deploy`, set `worker.deployed` and the Worker's
+**D3 (owner, 2026-09-23): keep it private for now** — nothing deployed. When that changes: `cd worker && npx wrangler deploy`, set `worker.deployed` and the Worker's
 `ALLOWED_ORIGIN`, make the repo public, enable Pages from `main`, add the CNAME (Troika's decision
 16 is the recipe).
 
-**Corpus defects found while building** are reported in `titterpig-dsl-l5r5e/TODO.md` (`411b60e`
-there, committed, not pushed), not patched here: the Vigilance FORMULA's "(rounded down)", which the
-book does not print and every odd-sum pregen contradicts; the pregens' `Ninjo` spelling against the
-ACTOR's `Ninjō`. (Three pregens' Focus also differ from Fire + Air — the corpus TODO already records
+**Corpus defects found while building** are in `titterpig-dsl-l5r5e/TODO.md`: the Vigilance
+FORMULA's "(rounded down)" — **resolved** by the owner's round-up rule (decision 24); the pregens'
+`Ninjo` spelling against the ACTOR's `Ninjō` — open. (Three pregens' Focus also differ from Fire + Air — the corpus TODO already records
 that printed derived values are hand-authored, so those are not reported; printed values win here.)
