@@ -134,6 +134,7 @@ window.L5RSheet = (function () {
         (pv || []).forEach((x) => { const r = /^(.*\S)\s+(\d+)$/.exec(String(x)); if (r) m[r[1]] = parseInt(r[2], 10); });
         v[p.name] = m;
       } else if (s && s.kind === 'group') v[p.name] = Object.assign({}, v[p.name], D.defFields(p).fields);
+      else if (p.vk === 'def') v[p.name] = D.defFields(p).fields;   // an undeclared DEF (a character's own record) as its fields
       else v[p.name] = pv;
     });
     v.Description = v.Description || e.desc || '';
@@ -456,6 +457,7 @@ window.L5RSheet = (function () {
       rerolls: (ring) => rerollModes(charOf(), ring),
       onConceal: () => gainVoid(m, 'The GM concealed the TN'),
       onAdversityFailed: (roll, a) => gainVoid(m, a.label + ' (adversity): the check failed'),
+      extra: (roll, t) => checkExtras(m, roll, t),
       onResolve: (roll) => {
         const mm = memberNow(m.id, m);
         const t = roll.resolved;
@@ -474,6 +476,169 @@ window.L5RSheet = (function () {
     });
     rollers[m.id] = r;
     return r;
+  }
+
+  // ── techniques in play ──
+  // A technique's button is read from its ACTIVATION text, never typed: the action it takes
+  // ("As an Attack and Support action"), the check it makes ("make a TN 1 Martial Arts [Unarmed]
+  // (Fire) check") and how often ("Once per game session"). A text that names no check of a known
+  // skill gets no button — its name still links to the book.
+  const RINGS_IN = /\(((?:Air|Earth|Fire|Water|Void)(?:(?:,? or |, )(?:Air|Earth|Fire|Water|Void))*)\)/g;
+  // "you may make a … check" is an activation; "When you make a … check, you may spend (op)" is a
+  // rider on some other check (M4d's opportunities), and gets no button
+  const CHECK_RE = /\bmay make an? (?:TN (\d+) )?([^.;:]{1,120}?) check\b/;
+  const ACTION_RE = /\b[Aa]s (?:an? ((?:Attack|Movement|Scheme|Support|Intrigue|Initiative)(?:(?:,? and |,? or |, )(?:Attack|Movement|Scheme|Support|Intrigue|Initiative))*) action|(an action)|(a downtime activity))/;
+  const LIMIT_RE = /\b[Oo]nce per (scene|game session)\b/;
+  const plain = (s) => String(s || '').replace(/\^"([^"]*)"/g, '$1');
+  // the skills a check names: one ("Meditation"), a choice ("Courtesy or Performance"), a bracketed
+  // choice ("Martial Arts [Melee, Ranged, or Unarmed]"), Martial Arts unqualified (the three), or a
+  // skill group ("a Social skill (Air) check") — every one a skill the core prints, or no reading
+  function checkSkills(words) {
+    const known = skills();
+    const groups = skillGroups();
+    const ma = known.filter((k) => /^Martial Arts \[/.test(k.name)).map((k) => k.name);
+    const rest = words.replace(RINGS_IN, ' ').replace(/\bskill\b/g, ' ')
+      .replace(/Martial Arts \[([^\]]+)\]/g, (x, inner) => inner.split(/,? or |, /).map((q) => 'Martial Arts [' + q.trim() + ']').join(' | '));
+    const out = [];
+    for (const tok of rest.split(/\s*(?:,? or |, |\|)\s*/).map((x) => x.trim()).filter(Boolean)) {
+      if (known.some((k) => k.name === tok)) out.push(tok);
+      else if (tok === 'Martial Arts') out.push.apply(out, ma);
+      else {
+        const g = groups.find((x) => x.name === tok);
+        if (!g) return null;
+        out.push.apply(out, g.skills.map((k) => k.name));
+      }
+    }
+    return out.length ? out.filter((x, i) => out.indexOf(x) === i) : null;
+  }
+  function activation(e) {
+    const text = plain(D.kwArg(e, 'ACTIVATION'));
+    if (!text) return null;
+    const c = CHECK_RE.exec(text);
+    const sk = c && checkSkills(c[2]);
+    if (!sk) return null;
+    const rings = [];
+    (c[2].match(RINGS_IN) || []).forEach((g) => g.slice(1, -1).split(/,? or |, /).forEach((r) => rings.indexOf(r) === -1 && rings.push(r)));
+    const a = ACTION_RE.exec(text);
+    const l = LIMIT_RE.exec(text);
+    return { text, tn: c[1] ? parseInt(c[1], 10) : null, skills: sk, skill: sk.length === 1 ? sk[0] : null, rings,
+      action: a ? (a[1] ? a[1] + ' action' : a[2] ? 'an action' : 'a downtime activity') : null, limit: l ? l[1] : null };
+  }
+  const techniqueCategory = (e) => { const r = D.records().find((x) => x.id === e.id); return r ? D.techniqueInfo(r).category : null; };
+  // uses of a limited technique, counted against the scene and the session they fall in (live.scene
+  // and live.session, which End scene and End session advance)
+  function usesOf(m, name, limit) {
+    const lv = m.live || {};
+    const key = limit === 'scene' ? 'scene' : 'session';
+    const u = (lv.uses || {})[key];
+    return u && u.seq === (lv[key] || 0) ? (u.n || {})[name] || 0 : 0;
+  }
+  function countUse(m, name, limit) {
+    const mm = memberNow(m.id, m);
+    const lv = mm.live || {};
+    const key = limit === 'scene' ? 'scene' : 'session';
+    const seq = lv[key] || 0;
+    const uses = Object.assign({}, lv.uses || {});
+    const cur = uses[key] && uses[key].seq === seq ? Object.assign({}, uses[key].n) : {};
+    cur[name] = (cur[name] || 0) + 1;
+    uses[key] = { seq, n: cur };
+    State().commit('setPartyLive', [mm.id, { uses }]);
+    State().commit('appendLog', [{ at: new Date().toISOString(), kind: 'event', who: mm.name, memberId: mm.id, text: name + ' — used (' + cur[name] + ' of 1 this ' + (key === 'scene' ? 'scene' : 'session') + ')', why: 'technique' }]);
+  }
+  function techniquesBlock(m, v, roller) {
+    const rows = (v.Techniques || []).map((n) => {
+      const e = D.named(String(n)) || D.named(bare(n));
+      const a = e && activation(e);
+      if (!a) return null;
+      const used = a.limit ? usesOf(m, e.name, a.limit) : 0;
+      const spent = a.limit && used >= 1;
+      const cat = techniqueCategory(e);
+      const setUp = (skill) => {
+        const ring = a.rings.length === 1 ? a.rings[0] : null;
+        const patch = { skill, skillRank: skill ? (v.Skills || {})[skill] || 0 : 0, tn: a.tn, source: e.name, sourceId: e.id, sourceType: cat };
+        if (ring) Object.assign(patch, { ring, ringValue: (v.Rings || {})[ring] });
+        roller.set(patch);
+      };
+      return el('div', { class: 'tech-row' }, [
+        // the use is counted when the check is set up with its skill: at once for one skill, or when
+        // the player picks one of several
+        el('button', { class: 'btn ghost tiny', type: 'button', disabled: spent || null, title: a.text + (spent ? ' — already used this ' + (a.limit === 'scene' ? 'scene' : 'session') : ''), onclick: () => {
+          setUp(a.skill);
+          if (a.limit && a.skill) countUse(m, e.name, a.limit);
+          roller.scrollIntoView({ block: 'center' });
+        } }, [e.name]),
+        a.skills.length > 1 ? el('span', { class: 'chiprow tight' }, [el('span', { class: 'muted small' }, ['with']), a.skills.map((k) => el('button', { class: 'ref tiny', type: 'button', disabled: spent || null, title: 'Set up ' + e.name + ' with ' + k, onclick: () => {
+          setUp(k);
+          if (a.limit) countUse(m, e.name, a.limit);
+        } }, [k]))]) : null,
+        el('span', { class: 'muted small' }, [[a.action, (a.tn != null ? 'TN ' + a.tn : 'TN as its text says') + (a.skill ? ' ' + a.skill : '') + (a.rings.length ? ' (' + a.rings.join(' or ') + ')' : ''), a.limit ? 'once per ' + a.limit + (used ? ' — used' : '') : null, cat].filter(Boolean).join(' · ')]),
+      ]);
+    }).filter(Boolean);
+    return rows.length ? el('div', { class: 'techniques-in-play' }, [el('span', { class: 'track-name' }, ['Techniques']), rows]) : null;
+  }
+
+  // ── what an instance adds to a check ──
+  // window.L5RCheckHooks: functions ({ member, character, roll, tally }) → { successes, label } | null,
+  // each an ability that adds bonus successes to a check — the extension point a campaign layer
+  // uses for its own characters' customizations, so upstream carries none of them.
+  function checkExtras(m, roll, t) {
+    const mm = memberNow(m.id, m);
+    return (window.L5RCheckHooks || []).map((h) => {
+      try { return h({ member: mm, character: complete(mm.character || {}), roll, tally: t, D }); } catch (err) { return null; }
+    }).filter((x) => x && x.successes > 0);
+  }
+
+  // ── the end of a scene, the end of a session (the GM's) ──
+  // "At the end of each scene … each character removes strife until it is equal to half their
+  //  composure, rounded up (unless it is already lower)." — Scene, RULES strife_removal_between_scenes;
+  // "At the end of each scene, characters catch their breath. Each character reduces their fatigue to
+  //  half of their endurance (rounded up) if it is over half their endurance" — recovering_from_fatigue;
+  // "An Exhausted character does not remove fatigue and strife at the end of each scene as normal"
+  //  — Exhausted, EFFECTS. A condition whose REMOVED_WHEN says it "is removed at the end of the
+  //  scene" (Enraged) goes. Uses once per scene and an anxiety's Void point are counted afresh.
+  const halfUp = (n) => Math.ceil((n || 0) / 2);
+  function catchBreath(mm, patch, lines, strifeOnly) {
+    const v = complete(mm.character || {});
+    if (liveConditions(mm).indexOf('Exhausted') !== -1) { lines.push('Exhausted: no strife or fatigue removed'); return; }
+    const s = current(mm, 'Strife'), sh = halfUp(value(v, 'Composure'));
+    if (s > sh) patch.Strife = sh;
+    if (strifeOnly) return;
+    const f = current(mm, 'Fatigue'), fh = halfUp(value(v, 'Endurance'));
+    if (f > fh) patch.Fatigue = fh;
+  }
+  function endScene(ids) {
+    const lapsing = conditionDefs().filter((c) => /is removed at the end of the scene/i.test(c.removed)).map((c) => c.name);
+    ids.forEach((id) => {
+      const mm = memberNow(id);
+      if (!mm) return;
+      const patch = {};
+      const lines = [];
+      catchBreath(mm, patch, lines, false);
+      const conds = liveConditions(mm);
+      const gone = conds.filter((c) => lapsing.indexOf(c) !== -1);
+      if (gone.length) State().commit('setPartyLive', [mm.id, { conditions: conds.filter((c) => gone.indexOf(c) === -1) }]);
+      State().commit('setPartyLive', [mm.id, { scene: ((mm.live || {}).scene || 0) + 1 }]);
+      change(mm, patch, 'end of the scene' + (gone.length ? ' — ' + gone.join(', ') + ' removed' : '') + (lines.length ? ' — ' + lines.join('; ') : ''), true);
+    });
+  }
+  // The book sets no strife rule for a session's end; "once per game session" abilities are counted
+  // afresh. An instance's house rule may make a session's end remove strife as a scene's end does:
+  // a MODIFY introducing ^"Removed At Session End" BOOLEAN true on ^"Strife" — and the GM may carry a
+  // character's full total instead (`carry`: the ids to leave as they are).
+  const SESSION_STRIFE = 'Removed At Session End';
+  const sessionClearsStrife = () => D.modified(D.named('Strife', 'core'), SESSION_STRIFE) === true;
+  function endSession(ids, carry) {
+    const clears = sessionClearsStrife();
+    ids.forEach((id) => {
+      const mm = memberNow(id);
+      if (!mm) return;
+      const patch = {};
+      const lines = [];
+      const carried = (carry || []).indexOf(id) !== -1;
+      if (clears && !carried) catchBreath(mm, patch, lines, true);
+      State().commit('setPartyLive', [mm.id, { session: ((mm.live || {}).session || 0) + 1 }]);
+      change(mm, patch, 'end of the session' + (clears ? (carried ? ' — strife carried in full' : ' — strife as at a scene’s end (house rule)') : '') + (lines.length ? ' — ' + lines.join('; ') : ''), true);
+    });
   }
 
   // ── the record: conditions, standing, experience, versions, the header ──
@@ -642,6 +807,8 @@ window.L5RSheet = (function () {
     box.appendChild(conditionsBlock(m, false));
     const inPlay = traitButtons(m, v);   // none for a character with no passion or anxiety
     if (inPlay) box.appendChild(inPlay);
+    const techs = techniquesBlock(m, v, roller);
+    if (techs) box.appendChild(techs);
     box.appendChild(el('div', { class: 'muted small' }, ['Focus ' + value(v, 'Focus') + ' · Vigilance ' + value(v, 'Vigilance')]));
     box.appendChild(socialBlock(m, false));
     box.appendChild(xpBlock(m, false));
@@ -667,6 +834,6 @@ window.L5RSheet = (function () {
     ACTOR, FILE_KIND, spec, skills, skillGroups, formula, evaluate, derived, conditionRules, blank, complete, value,
     fromEntity, fromEntityView, sentence, render, readFile, fileOf, download, memberFrom, readMember, downloadMember,
     memberFromEntity, current, conditions, tokenText, live, rollerFor, traits, rerollModes, gainVoid, change,
-    conditionDefs, xp, logOf, isViewingArchive, deficientRings,
+    conditionDefs, xp, logOf, isViewingArchive, deficientRings, activation, endScene, endSession, sessionClearsStrife,
   };
 })();
