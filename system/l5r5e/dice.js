@@ -291,7 +291,7 @@ window.L5RDice = (function () {
       const need = mode.kind === 'adversity' ? rerollNeed(r, mode) : null;
       const ok = mode.kind === 'adversity' ? marks.length === need : marks.length > 0 && (mode.dice == null || marks.length <= mode.dice);
       rerollBar.appendChild(el('div', { class: 'chiprow tight' }, [
-        el('span', { class: 'muted small' }, [mode.kind === 'adversity' ? (need ? 'Mark the ' + need + ' ' + (need === 1 ? 'die' : 'dice') + ' showing (su) or (ex) it rerolls.' : 'No die shows (su) or (ex): nothing to reroll.') : mode.kind === 'distinction' ? 'Mark up to ' + mode.dice + ' dice to reroll.' : 'Mark the dice to reroll.']),
+        el('span', { class: 'muted small' }, [mode.kind === 'adversity' ? (need ? 'Mark the ' + need + ' ' + (need === 1 ? 'die' : 'dice') + ' showing (su) or (ex) it rerolls.' : 'No die shows (su) or (ex): nothing to reroll.') : mode.kind === 'distinction' ? 'Mark up to ' + mode.dice + (mode.dice === 1 ? ' die' : ' dice') + ' to reroll.' : 'Mark the dice to reroll.']),
         el('button', { class: 'btn tiny', type: 'button', disabled: ok ? null : true, onclick: () => {
           if (reroll(r, marks, mode)) { mode = null; marks = []; drawTray(); }
         } }, ['Reroll ' + marks.length + ' ' + (marks.length === 1 ? 'die' : 'dice')]),
