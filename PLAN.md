@@ -155,5 +155,5 @@ a player from `http://127.0.0.1:8740/gm/play.html?s=CODE`.
 
 **Corpus defects found while building** are in `titterpig-dsl-l5r5e/TODO.md`: the Vigilance
 FORMULA's "(rounded down)" — **resolved** by the owner's round-up rule (decision 24); the pregens'
-`Ninjo` spelling against the ACTOR's `Ninjō` — open. (Three pregens' Focus also differ from Fire + Air — the corpus TODO already records
+`Ninjo` spelling against the ACTOR's `Ninjō` — **resolved** (owner, 2026-09-23): all 33 renamed in the five pregen files, each 0.5.1; all 26 pregens now show Ninjō in the sheet's own slot. (Three pregens' Focus also differ from Fire + Air — the corpus TODO already records
 that printed derived values are hand-authored, so those are not reported; printed values win here.)
