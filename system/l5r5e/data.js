@@ -256,6 +256,20 @@ window.L5RData = (function () {
   const guidanceLoose = (file) => looseGuidance[file] || [];
   const correctionsFor = (id) => corrections[id] || [];
   const allCorrections = () => corrections;
+  // A property a MODIFY sets or introduces on an entity — an erratum's corrected number, or an
+  // instance's house rule (`MODIFY ^"Portentous Birth" { PROPERTIES { ^"Off-Approach Reroll
+  // Dice" INTEGER 1 } }`), which the sheet then honours. The last loaded wins; a target the
+  // corpus leaves unhashed is matched by its name, as the pages resolve that name.
+  function modified(e, name) {
+    if (!e) return undefined;
+    const list = (corrections[e.id] || []).concat(named(e.name, e.book) === e ? corrections['?' + e.name] || [] : []);
+    let out;
+    list.forEach((c) => (c.body || []).forEach((b) => {
+      if (b.kw === 'PROPERTIES') (b.body || []).forEach((q) => { if (q.name === name) out = pval(q); });
+      if (b.kw === 'SET' && b.args && b.args.length > 1 && b.args[0].c === name) out = arg(b.args[b.args.length - 1]);
+    }));
+    return out;
+  }
 
   // ── a book's outline: chapters, then the entity tree ───────────────
   // A chapter's title is its NAME (a lore chapter's H1, without the "# "); a file with none
@@ -494,7 +508,7 @@ window.L5RData = (function () {
     T, index, books, indexBook, book, entity, records, loaded, ensure, ensureAll, coreFirst,
     arg, argText, prop, pval, val, text, num, blocks, block, kwArg, defFields,
     children, ancestors, top, all, byType, applies, declaration, declared, named, recordNamed,
-    guidanceFor, guidanceLoose, correctionsFor, blockNamed, allCorrections, reindex,
+    guidanceFor, guidanceLoose, correctionsFor, modified, blockNamed, allCorrections, reindex,
     chapterTitle, shortTitle, chapters, chapter, moduleList, module, scene, moduleId,
     slug, loreSections, loreFile, codexNode, codexEntities, relationsTo,
     schools, npcs, pregens, clans, families, techniques, techniqueInfo, codexRecords,

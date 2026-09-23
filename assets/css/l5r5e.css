@@ -197,6 +197,12 @@ details.lore-full > summary { cursor: pointer; font-family: var(--caps); letter-
 .die.kept { opacity: 1; border-color: var(--crimson); background: var(--crimson-soft); }
 .die.bonus { border-style: dashed; }
 .die .explode { position: absolute; right: -6px; top: -8px; background: var(--crimson); color: #fff; font-family: var(--caps); font-size: 10px; padding: 0 4px; }
+.die.marked { opacity: 1; border-color: var(--ink-2); border-style: dotted; }
+.roller-controls.more { margin-top: 6px; }
+.roller-controls .note { flex: 1 1 12em; min-width: 10em; }
+.reroll-bar { margin-top: 4px; }
+.btn.rr.on { border-color: var(--crimson); color: var(--crimson-deep); background: var(--crimson-soft); }
+.btn.rr.adversity { border-style: dashed; }
 .roll-result { margin-top: 6px; }
 .verdict.ok { color: var(--jade); }
 .verdict.fail { color: var(--crimson); }
@@ -207,6 +213,13 @@ details.lore-full > summary { cursor: pointer; font-family: var(--caps); letter-
 .roll-who { font-family: var(--caps); font-size: 13px; letter-spacing: .06em; color: var(--ink-2); }
 .roll-dice { display: inline-flex; gap: 2px; }
 .logdie { width: 22px; height: 22px; }
+.roll-line.event { font-size: 14px; }
+.logchips { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; }
+.logchip { font-size: 12px; border: 1px solid var(--edge); padding: 0 6px; color: var(--ink-2); }
+.logchip.warn { border-color: var(--crimson); color: var(--crimson-deep); }
+.log-prov { width: 100%; }
+.log-prov summary { cursor: pointer; }
+.log-ev { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 2px 0; }
 .face-table { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; margin: 10px 0; }
 .faces { display: flex; flex-wrap: wrap; gap: 8px; }
 .face-cell { text-align: center; width: 64px; }
