@@ -22,7 +22,7 @@ repo, which is the instance.
 | Owned by | Paths | Rule |
 |---|---|---|
 | Upstream | everything not listed below | **Never edited in the instance.** A change every campaign of this system would want is built upstream and pulled. |
-| The instance, at the root | `engine/config.js`, `worker/wrangler.jsonc`, `README.md`, `CNAME`, `.claude/launch.json` | Per-origin and per-deployment. Marked `merge=ours` in `.gitattributes`, so an upstream pull never overwrites them. |
+| The instance, at the root | `engine/config.js`, `worker/wrangler.jsonc`, `README.md`, `CNAME`, `.gitignore`, `.claude/launch.json`, `.gitattributes` | Per-origin and per-deployment. Marked `merge=ours` in `.gitattributes`, so an upstream pull never overwrites them. |
 | The instance | `campaign/`, `.claude/skills/` | Everything the campaign authors. |
 
 `merge=ours` needs a driver git does not store in the repo. Run once per clone:
@@ -30,6 +30,13 @@ repo, which is the instance.
 ```bash
 git config merge.ours.driver true
 ```
+
+Without it the attribute does nothing and an upstream change to `engine/config.js` conflicts
+(proven, Portents M1). The driver runs only when both sides changed a file; every
+instance-owned file differs from upstream's copy by design, so it always engages on them.
+
+`.gitignore` joins the list: upstream ignores `.claude/*`, so the instance adds
+`!.claude/skills/` to keep its project skills tracked.
 
 ## Where a thing goes
 
@@ -48,10 +55,23 @@ The order the first migration is taking; each step is proven before the next.
 
 1. **Decide visibility.** A public instance publishes the VTT's `data/` — the books, verbatim.
    The first push carrying it is the point of publication.
-2. **Fork.** Add the VTT as `upstream`; `git merge upstream/main --allow-unrelated-histories`
-   at the root; move the campaign's existing files under `campaign/` unchanged in the same
-   merge. Set the instance-owned root files, `.gitattributes`, and the merge driver. Prove a
-   second pull merges clean.
+2. **Fork**, in three commits on a branch — pushing it publishes `data/`, so the branch stays
+   local until the visibility decision says otherwise:
+   1. **Move** every existing campaign file under `campaign/` with `git mv`, nothing else.
+      Prove it: `git show --name-status` lists only `R100` entries, and the stat reads zero
+      insertions and zero deletions.
+   2. **Merge**: add the VTT as `upstream`, then
+      `git merge --allow-unrelated-histories upstream/main`. After the move the only
+      collision left should be `.gitignore` — resolve it as the union (step 3's list).
+   3. **Boundary**: set the instance-owned root files, write `.gitattributes`, run
+      `git config merge.ours.driver true`.
+
+   **Prove the boundary by making it fail first**, in a throwaway clone: commit a fake
+   upstream change to `engine/config.js` and to an upstream-owned file on a branch from
+   upstream's head, then merge it — without the driver it must conflict on `config.js`; with
+   it, `config.js` keeps the instance's copy and the upstream-owned file takes the change.
+   Then a real `git pull upstream main` must merge clean. Check every link statically too:
+   moving a site by one prefix keeps relative links, but only if none is root-absolute.
 3. **Homebrew into the DSL.** NPCs, PCs and house rules under `campaign/dsl/`; the gate green.
 4. **Characters onto the VTT sheet.** Keep each original record verbatim in `campaign/source/`
    and check every version against it field by field.
