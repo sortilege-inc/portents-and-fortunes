@@ -14,17 +14,23 @@ window.L5RDice = (function () {
   const D = window.L5RData;
   const { el, esc } = window.VttRender;
 
-  // ── the prose-only numbers, each citing its sentence ──
-  // "Choose Kept Dice: Select up to ring value dice to keep" — Check, STEPS 5
+  // ── the numbers the rules state only in prose, each citing the corpus's own sentence ──
+  // "The player must choose at least one die to keep, and can choose to keep a maximum up to the
+  //  value of the ring the character used for the check." — Check, RULES keep_limit_equals_ring_value
+  //  (Step 5: Choose Kept Dice, p. 24)
   const KEEP_LIMIT_IS_RING = true;
   // "a character may spend 1 Void point to roll one additional Ring die (ring) and subsequently
   //  keep one additional die during Step 5: Choose Kept Dice." — Void Points, USES: Seize the Moment
   const SEIZE_THE_MOMENT = { extraRingDice: 1, extraKept: 1, cost: 1 };
-  // "Counts as (su) and allows rolling 1 additional die of same type. New die may be kept or
-  //  dropped." — Dice Symbols, SYMBOL_DEFINITIONS: Explosive Success (ex)
+  // "For each (ex) symbol, the player rolls one additional die of the same type as the one
+  //  containing the (ex) symbol. After rolling a die this way, the player chooses whether it will
+  //  be kept (on top of their current results) or dropped." — Dice Symbols, RULES (ex) (p. 24)
   const EXPLOSION = { sameType: true, keptApart: true };
-  // "gm_sets_target_number" / "default_tn_is_two" — Target Number, RULES
-  const DEFAULT_TN = 2;
+  // No default: "Finally, the GM selects a target number of successes (commonly referred to as a
+  // TN)." — Target Number, RULES gm_sets_target_number (Step 2, p. 22). The corpus once carried a
+  // rule "default_tn_is_two"; the book has no such rule (TN 2 is only "An average task" among the
+  // sample TNs), and it was removed. Until a TN is chosen, the roller shows "TN ?".
+  const DEFAULT_TN = null;
 
   const SYMBOLS = ['ex', 'su', 'op', 'st'];
   const TYPES = { ring: 'Ring Die', skill: 'Skill Die' };

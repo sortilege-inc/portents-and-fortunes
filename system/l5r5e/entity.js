@@ -164,10 +164,12 @@ window.L5REntity = (function () {
     ]);
   }
 
-  // A RULES line: `slug "text"` shows its text; a bare slug is a rule id with no text.
+  // A RULES line: `slug "text"` shows its text; a bare slug is a rule id with no text. The line
+  // is carried as the corpus prints it, so the string's escapes are undone here, in one pass —
+  // `\n\n` is a paragraph break (spec §10), `\"` a quote, `\\` a backslash.
   function ruleText(t) {
     const m = /^\S+\s+"([\s\S]*)"$/.exec(t);
-    return m ? m[1].replace(/\\"/g, '"') : null;
+    return m ? m[1].replace(/\\(["\\n])/g, (x, c) => (c === 'n' ? '\n' : c)) : null;
   }
   function ruleLine(t, bookId) {
     const txt = ruleText(t);
