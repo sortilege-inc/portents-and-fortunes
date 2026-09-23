@@ -1,0 +1,21 @@
+// system/l5r5e/ops.js — the ops Legend of the Five Rings adds to the engine's, registered with
+// the same call and shared the same way (engine/ops.js). Loaded by the browser after
+// engine/ops.js, and imported by the Worker beside it, so the room applies the very same
+// functions.
+//
+//   cast   { [sceneId]: [entityIds] }   who the GM has put in a scene of an adventure, beyond
+//                                       the NPCs its .arc names there — drawn from any book's
+//                                       NPCs (the Cast panel)
+(function (root, factory) {
+  if (typeof module !== 'undefined' && module.exports) module.exports = factory(require('../../engine/ops.js'));
+  else factory(root.VttOps);
+})(typeof self !== 'undefined' ? self : this, function (Ops) {
+  Ops.shared(['cast']);
+
+  Ops.register('setSceneCast', (s, sceneId, ids) => {
+    if (!s.cast) s.cast = {};
+    s.cast[sceneId] = (ids || []).slice();
+  });
+
+  return Ops;
+});
