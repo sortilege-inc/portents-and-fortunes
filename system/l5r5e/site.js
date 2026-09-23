@@ -258,7 +258,7 @@ window.VttSiteTabs = (function () {
     if (id) {
       const r = rows.find((x) => x.id === id);
       p.appendChild(el('div', { class: 'crumbs' }, [el('a', { href: ctx.href('characters', []) }, ['Pregenerated characters']), ' › ', r.name]));
-      after(p, r.book, () => p.appendChild(window.L5RSheet ? window.L5RSheet.fromEntity(D.entity(id)) : E.render(D.entity(id))));
+      after(p, r.book, () => p.appendChild(window.L5RSheet ? window.L5RSheet.fromEntityView(D.entity(id)) : E.render(D.entity(id))));
       return;
     }
     p.appendChild(el('h1', {}, ['Pregenerated characters']));
