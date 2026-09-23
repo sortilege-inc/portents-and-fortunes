@@ -1,0 +1,91 @@
+EXTENSION "Portents_House_Rules" EXTENDS "L5R5e_Core_Systems" {
+    NAME "Portents & Fortunes — house rules established in play"
+    VERSION "0.1.0"
+    SPEC_VERSION "0.5"
+    RELEASE_DATE "2026-09-23"
+
+    # The rules the table has settled that the books do not say, each shown beside the rule it
+    # changes (a MODIFY carrying a GUIDANCE entry, as the errata are). Converted once from the
+    # state document's §10 by campaign/source/convert_house_rules.py; this file is now the source.
+    # A target the corpus hashes is given by hash; one it leaves unhashed, by name.
+
+    MODIFY ^"Portentous Birth" {
+        GUIDANCE {
+            ENTRY ^"house-rule-off-approach-distinctions" #PFhouseRule01 {
+                CONCERNS [ ^"Portentous Birth" ]
+                TOPICS [ "house rule" ]
+                TEXT "Off-approach distinctions. Portentous Birth is incentivised toward Fire, Affect of Harmlessness toward Air. Either may be used on an off-approach check, but grants one reroll die instead of two."
+            }
+        }
+    }
+
+    MODIFY ^"Affect of Harmlessness" {
+        GUIDANCE {
+            ENTRY ^"house-rule-off-approach-distinctions" #PFhouseRule02 {
+                CONCERNS [ ^"Affect of Harmlessness" ]
+                TOPICS [ "house rule" ]
+                TEXT "Off-approach distinctions. Portentous Birth is incentivised toward Fire, Affect of Harmlessness toward Air. Either may be used on an off-approach check, but grants one reroll die instead of two."
+            }
+        }
+    }
+
+    MODIFY #t7945706680f94a9e75d70 ^"Check" {
+        GUIDANCE {
+            ENTRY ^"house-rule-pick-a-door" #PFhouseRule03 {
+                CONCERNS [ #t7945706680f94a9e75d70 ^"Check" ]
+                TOPICS [ "house rule" ]
+                TEXT "“Pick a door.” For some actions a menu of skills is offered, each revealing something different or expressing a different intent — choosing the skill is itself a choice about what the scene is about."
+            }
+        }
+    }
+
+    MODIFY #t2bd057b321169907586e9 ^"Strife" {
+        GUIDANCE {
+            ENTRY ^"house-rule-session-boundary-strife" #PFhouseRule04 {
+                CONCERNS [ #t2bd057b321169907586e9 ^"Strife" ]
+                TOPICS [ "house rule" ]
+                TEXT "A session boundary clears strife the way a scene boundary does. Strife is reduced to half the character's Composure (rounded up) if it is over that, exactly as at scene end — it is not halved, and a character already at or under half Composure does not move. The GM may override and carry a full total into the next session when the fiction calls for it."
+            }
+        }
+    }
+
+    MODIFY ^"Elemental Deficiency (Fire)" {
+        GUIDANCE {
+            ENTRY ^"house-rule-elemental-deficiency-at-the-gms-call" #PFhouseRule05 {
+                CONCERNS [ ^"Elemental Deficiency (Fire)" ]
+                TOPICS [ "house rule" ]
+                TEXT "Elemental Deficiency (Fire) fires at the GM's call, in Fire stance. It does not trigger on every Fire-adjacent check. The GM decides when it applies, and absent a deliberate exception it is limited to checks made in Fire stance."
+            }
+        }
+    }
+
+    MODIFY #tafe52b4a03561134d1004 ^"Duel" {
+        GUIDANCE {
+            ENTRY ^"house-rule-the-informal-duel" #PFhouseRule06 {
+                CONCERNS [ #tafe52b4a03561134d1004 ^"Duel" ]
+                TOPICS [ "house rule", "established 26 Aug 2026" ]
+                TEXT "A duel may be run informally, and against a party that has agreed to nothing. The troll fight used the duel structure by agreement rather than ceremony. The structure is what made the scene: the stare down costs each combatant strife equal to the round number, every round, so a long duel compromises both, and the finishing blow a compromised opponent hands the other party deals no damage but inflicts a critical strike at twice the weapon's deadliness."
+            }
+        }
+    }
+
+    MODIFY #EJSWW92HPvejHQLZakLnjP ^"Compromised" {
+        GUIDANCE {
+            ENTRY ^"house-rule-decisive-rules-information" #PFhouseRule07 {
+                CONCERNS [ #EJSWW92HPvejHQLZakLnjP ^"Compromised" ]
+                TOPICS [ "house rule", "established 26 Aug 2026" ]
+                TEXT "Decisive rules information is handed over rather than played against him. That a Compromised opponent's vigilance drops to 1 was told to the player outright, which turned an unwinnable appeal into TN 1. In solo play the GM does not let a scene turn on the player not knowing a rule."
+            }
+        }
+    }
+
+    MODIFY #t39e9b468a87e875d0926c ^"Honor" {
+        GUIDANCE {
+            ENTRY ^"house-rule-work-beneath-station" #PFhouseRule08 {
+                CONCERNS [ #t39e9b468a87e875d0926c ^"Honor" ]
+                TOPICS [ "house rule", "established 16 Sep 2026" ]
+                TEXT "Work beneath a samurai’s station costs no honor when it must be done and there is nobody to do it. Handling the dead is hinin work and leaves a samurai ritually unclean. Norikage did it anyway, because the shrine’s cleanliness could not wait for him to walk to a village and send people back, and because the shugenja attending the site told him to proceed. In the ordinary case that is an honor loss; with the timing and the blessing both, it is a temporary stain to be washed off. Refusing would have been the larger failure."
+            }
+        }
+    }
+}

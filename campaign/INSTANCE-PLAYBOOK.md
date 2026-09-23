@@ -38,6 +38,16 @@ instance-owned file differs from upstream's copy by design, so it always engages
 `.gitignore` joins the list: upstream ignores `.claude/*`, so the instance adds
 `!.claude/skills/` to keep its project skills tracked.
 
+**Pulling upstream** is a merge, never a rebase — a rebase would rewrite the campaign's history:
+
+```bash
+git fetch upstream && git merge upstream/main
+```
+
+(`git pull` refuses when no strategy is configured.) Because `merge=ours` keeps the instance's
+*whole* `engine/config.js`, a key upstream adds there never arrives on its own: after each pull,
+read `git diff <last pulled>..upstream/main -- engine/config.js` and carry what applies.
+
 ## Where a thing goes
 
 | It is… | It goes in… | Because |
@@ -79,6 +89,25 @@ The order the first migration is taking; each step is proven before the next.
    what puts old root paths in the server log as 404s — check a 404's timestamp before chasing
    it. The live site has the same hazard for a player on the day of the switch.
 3. **Homebrew into the DSL.** NPCs, PCs and house rules under `campaign/dsl/`; the gate green.
+   Convert by a script kept in `campaign/source/`, piloted on **one** entity and checked field by
+   field against the old record — including a planted difference that must fail — before the
+   rest. What the first conversion settled:
+   - **An NPC is a full statblock on the corpus's `NPC` chassis**, in the corpus's field names —
+     never an `EXTENDS` of another NPC: the VTT lists NPCs by direct type and inherits only
+     through type declarations. What it was built on goes in its presentation note.
+   - **A one-line ability is a `RULES` line, and its text is the current corpus's own line**,
+     found by name and matched with quotes normalised (old copies may be typographic). A
+     multi-paragraph ability that is a corpus technique is a **reference** to the technique:
+     `RULES` lines are verbatim, so no paragraph break can be written in one.
+   - **A reference is by hash where the corpus hashes the target, by name where it doesn't** —
+     the layer gate checks both.
+   - **A house rule is a `MODIFY` + `GUIDANCE` on the rule it changes**, its text extracted from
+     where the table recorded it; it then shows beside that rule as errata do.
+   - **A character is an instance of the system's actor**, in the corpus's pregen conventions;
+     keep the original sheet records byte for byte in `campaign/source/`.
+   - The campaign's own record of a person (epithet, affiliation, standing, biography) is
+     DSL; portraits, discovery state and build notes are presentation, in `campaign/site/`.
+   - Report a corpus defect to the corpus's TODO; never correct it in the layer.
 4. **Characters onto the VTT sheet.** Keep each original record verbatim in `campaign/source/`
    and check every version against it field by field.
 5. **Integrate.** Register the campaign's tabs and panes from `campaign/site/`; render

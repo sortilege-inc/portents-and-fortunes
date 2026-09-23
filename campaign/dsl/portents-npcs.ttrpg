@@ -1,0 +1,796 @@
+EXTENSION "Portents_NPCs" EXTENDS "L5R5e_Core_NPCs" {
+    NAME "Portents & Fortunes — the Dramatis Personae"
+    VERSION "0.1.0"
+    SPEC_VERSION "0.5"
+    RELEASE_DATE "2026-09-23"
+
+    # The campaign's NPCs, each a DEF on the corpus's NPC chassis in the corpus's own field names
+    # (l5r5e-0.5-core-npcs.ttrpg). Converted once from the old site's npcs.js by
+    # campaign/source/convert_npcs.py; this file is now the source. A statblock built on a corpus
+    # profile keeps that profile's values; a one-line ability is the 0.5 corpus's line where the
+    # corpus prints it; a technique is a reference to the corpus's own entity. Epithet,
+    # Affiliation, Campaign Status and Biography are the campaign's own record of the person.
+
+    #PFnpcSeiyaMori ^"Seiya Mori" DEF {
+        EXTENDS #t4540de6f35155c46f41f0 ^"NPC"
+
+        PROPERTIES {
+            ^"Type" STRING "Adversary" FIXED
+            ^"Combat Conflict Rank" INTEGER 7
+            ^"Intrigue Conflict Rank" INTEGER 6
+            ^"Description" STRING "The typical daimyō is stern, serious, and inured to flattery. Their time is valuable, so they appreciate brevity and clarity from any samurai who address them. While most no longer take up arms often, they can be extremely deadly in battle, for they often possess arms and armor of surpassing quality and a lifetime of experience fighting to maintain what is theirs at court and in combat."
+            ^"Rings" DEF {
+                ^"Air" INTEGER 3
+                ^"Earth" INTEGER 4
+                ^"Fire" INTEGER 4
+                ^"Water" INTEGER 4
+                ^"Void" INTEGER 4
+            }
+            ^"Endurance" INTEGER 14
+            ^"Composure" INTEGER 16
+            ^"Focus" INTEGER 7
+            ^"Vigilance" INTEGER 4
+            ^"Honor" INTEGER 55
+            ^"Glory" INTEGER 70
+            ^"Status" INTEGER 65
+            ^"Demeanor" STRING "Assertive"
+            ^"Social Skill Check TN Modifiers" STRING "Earth +2, Air -2"
+            ^"Skills" LIST OF STRING ["Artisan 2", "Martial 4", "Scholar 3", "Social 3", "Trade 1"]
+            ^"Advantages" LIST OF STRING ["Wisdom of Experience: (void) Scholar; Mental", "Bolstering Presence: (earth) Social; Interpersonal"]
+            ^"Disadvantages" LIST OF STRING ["Long at Court: (water) Martial; Mental, Physical"]
+            ^"Favored Weapons" LIST OF STRING ["Wakizashi: Range 0–1, Damage 3, Deadliness 5/7, Ceremonial, Razor-Edged"]
+            ^"Gear" LIST OF STRING ["Calligraphy set", "personal chop"]
+            ^"Gear (Other)" LIST OF STRING ["Daishō", "plated armor (Physical 5, Cumbersome, Durable, Wargear)", "various estates"]
+            ^"Epithet" STRING "Provincial Daimyō"
+            ^"Affiliation" STRING "Dragon · Seiya (a vassal family of the Agasha)"
+            ^"Campaign Status" STRING "Named, unmet · ordered the consolidation · Norikage observes it from outside his chain of command"
+            ^"Biography" LIST OF STRING [
+                "Lord of the province in which White Flower Village sits, and the hand behind the consolidation. Two or three villages of the province are being given up entirely, their remaining people divided among the settlements that can still carry them — and the order carries a daimyō's authority. The Seiya are a vassal family sworn to the Agasha, and through them to the Dragon; a daimyō of that line answers to Agasha interests while governing in their own name.",
+                "The reasoning offered is arithmetic: the mountains are hard, the terraces are failing, and a village past a certain thinness costs more than it returns. Whether that is the whole of it, and on whose counsel it was decided, Norikage does not know. He walks with one of the displaced groups, but not under this lord's command."
+            ]
+        }
+        RULES {
+            #PFnpcSeiyaMorir1: seiya_mori_lord_s_command "Lord’s Command: Once per scene, as a Support action, a daimyō may advise a character who can hear them on how to complete a task they wish the character to perform. The character may use the daimyō’s ring or skill in place of their own for the next check they make to complete this task before the end of the game session."
+        }
+    }
+
+    #PFnpcSeiyaFusae ^"Seiya Fusae" DEF {
+        EXTENDS #t4540de6f35155c46f41f0 ^"NPC"
+
+        PROPERTIES {
+            ^"Type" STRING "Adversary" FIXED
+            ^"Combat Conflict Rank" INTEGER 4
+            ^"Intrigue Conflict Rank" INTEGER 2
+            ^"Description" STRING "Bushi are warriors: armed samurai who are professional soldiers in service to their clan. PCs might encounter bushi individually, or they might meet an organized body, which could be anything from a squad (or guntai) of up to a dozen bushi commanded by a sergeant (or gunsō) to an entire army on the march."
+            ^"Rings" DEF {
+                ^"Air" INTEGER 2
+                ^"Earth" INTEGER 3
+                ^"Fire" INTEGER 3
+                ^"Water" INTEGER 3
+                ^"Void" INTEGER 2
+            }
+            ^"Endurance" INTEGER 12
+            ^"Composure" INTEGER 9
+            ^"Focus" INTEGER 5
+            ^"Vigilance" INTEGER 3
+            ^"Honor" INTEGER 55
+            ^"Glory" INTEGER 50
+            ^"Status" INTEGER 39
+            ^"Demeanor" STRING "Assertive"
+            ^"Social Skill Check TN Modifiers" STRING "Earth +2, Air -2"
+            ^"Skills" LIST OF STRING ["Artisan 1", "Martial 3", "Scholar 2", "Social 1", "Trade 0"]
+            ^"Advantages" LIST OF STRING ["Tested in War: (earth) Martial; Mental, Physical", "Sworn to Bushidō: (void) Social; Mental"]
+            ^"Disadvantages" LIST OF STRING ["Hot-Tempered: (water) Social; Mental"]
+            ^"Favored Weapons" LIST OF STRING ["Katana: Range 1, Damage 4, Deadliness 5/7, Ceremonial, Razor-Edged", "Wakizashi: Range 0–1, Damage 3, Deadliness 5/7, Ceremonial, Razor-Edged", "Yumi (Bow): Range 2–5, Damage 5, Deadliness 3"]
+            ^"Gear" LIST OF STRING ["Lacquered armor (Physical 4, Ceremonial, Cumbersome, Wargear)", "wakizashi", "quiver", "yari (spear)", "knife"]
+            ^"Gear (Other)" LIST OF STRING ["Plain robes (Physical 1, Mundane)", "a handful of koku and bu"]
+            ^"Epithet" STRING "Officer of the Escort"
+            ^"Affiliation" STRING "Dragon · Seiya · Mirumoto Two-Heavens Adept, trained at Iron Mountain Dojo"
+            ^"Campaign Status" STRING "On the road with him · commands the escort · silent on anything to do with the kami"
+            ^"Biography" LIST OF STRING [
+                "Twenty-two years old, and in command of the ashigaru walking the displaced households east to White Flower Village. The Seiya are a vassal family of the Agasha, and virtually every Dragon shugenja is Agasha — so a Seiya daughter who is not attuned to the kami cannot train with her own parent family. She went instead to Iron Mountain Dojo, the academy for most Dragon bushi and the center of excellence for niten, where instruction is famously unfocused by Rokugani standards and students are encouraged to follow their interests. She followed hers to the two-sword style.",
+                "The result is an officer taught to fight one person extremely well, handed a column of families, carts and levies instead. The ashigaru under her are mostly older men; her authority over them rests on nothing but rank, because nothing in her education touches this work. She knows it, and so do they. She does not speak about religious matters at all — whether from caution or from ignorance, Norikage cannot yet tell. It is worth his considering that the silence may be his own doing: a monk sent by a temple, in a religious capacity, for reasons nobody explained to her, is an excellent reason to say nothing."
+            ]
+        }
+        RULES {
+            #PFnpcSeiyaFusaer1: seiya_fusae_two_heavens_style "Two Heavens Style: Once per round, when performing an Attack action, Fusae may spend (op) as follows: (op): Perform a Strike Action with a readied weapon she has not used for an Attack action this turn."
+            #PFnpcSeiyaFusaer2: seiya_fusae_crescent_moon_style "Crescent Moon Style: When performing a Guard action (see page 264), the bushi may spend (op) in the following way: (op): After another character performs an Attack action targeting the bushi or another character the bushi is guarding, the bushi may perform a Strike action targeting them. This effect persists until the start of the bushi’s next turn or until they perform a Strike action."
+            #PFnpcSeiyaFusaer3: seiya_fusae_sworn_protector "Sworn Protector: Once per scene, when an Attack action check targeting another character at range 0–1 succeeds, a bushi may intervene, becoming the target of the action instead."
+        }
+    }
+
+    #PFnpcGenzo ^"Genzō" DEF {
+        EXTENDS #t4540de6f35155c46f41f0 ^"NPC"
+
+        PROPERTIES {
+            ^"Type" STRING "Minion" FIXED
+            ^"Combat Conflict Rank" INTEGER 2
+            ^"Intrigue Conflict Rank" INTEGER 2
+            ^"Description" STRING "A man of the emptied village, walking east with what he could carry. He speaks for people who no longer have a place to speak for."
+            ^"Rings" DEF {
+                ^"Air" INTEGER 2
+                ^"Earth" INTEGER 2
+                ^"Fire" INTEGER 2
+                ^"Water" INTEGER 2
+                ^"Void" INTEGER 1
+            }
+            ^"Endurance" INTEGER 6
+            ^"Composure" INTEGER 7
+            ^"Focus" INTEGER 3
+            ^"Vigilance" INTEGER 2
+            ^"Honor" INTEGER 20
+            ^"Glory" INTEGER 23
+            ^"Status" INTEGER 9
+            ^"Demeanor" STRING "Shrewd"
+            ^"Social Skill Check TN Modifiers" STRING "Air +2, Fire -2"
+            ^"Skills" LIST OF STRING ["Artisan 0", "Martial 1", "Scholar 1", "Social 3", "Trade 3"]
+            ^"Advantages" LIST OF STRING ["Indomitable Will: (earth) Interpersonal, Mental"]
+            ^"Disadvantages" LIST OF STRING ["Fear of Death: (earth) Mental, Physical"]
+            ^"Gear" LIST OF STRING ["Passable clothes", "handful of bu"]
+            ^"Epithet" STRING "Of the village being given up"
+            ^"Affiliation" STRING "Arriving with the column · Perfect Land Sect"
+            ^"Campaign Status" STRING "Arriving · cut off from his ancestors · took the kie"
+            ^"Biography" LIST OF STRING [
+                "The removal has broken him. His farm was in the village being given up, and his ancestors are buried there. His difficulty is practical before it is theological: he is a Fortunist who does not know the spirits of the place he is being sent to, and who no longer has access to his own dead.",
+                "What he was before the order came is legible only in what is left of it.",
+                "He is a devotee of the Perfect Land Sect. Norikage read the kie off his lips at a distance, given back to Ume in greeting — which is how a line of carts became a welcome without anyone in authority deciding anything."
+            ]
+        }
+        RULES {
+            #PFnpcGenzor1: genzo_overlooked "Overlooked: When the clever innkeeper makes a check targeting a character with a higher status rank, the innkeeper treats the target's vigilance as 1 lower."
+        }
+    }
+
+    #PFnpcKiyo ^"Kiyo" DEF {
+        EXTENDS #t4540de6f35155c46f41f0 ^"NPC"
+
+        PROPERTIES {
+            ^"Type" STRING "Minion" FIXED
+            ^"Combat Conflict Rank" INTEGER 1
+            ^"Intrigue Conflict Rank" INTEGER 4
+            ^"Description" STRING "A widow who has decided, out loud and repeatedly, that this can be borne. Half the column finds that steadying and the other half finds it unbearable."
+            ^"Rings" DEF {
+                ^"Air" INTEGER 2
+                ^"Earth" INTEGER 2
+                ^"Fire" INTEGER 1
+                ^"Water" INTEGER 3
+                ^"Void" INTEGER 1
+            }
+            ^"Endurance" INTEGER 6
+            ^"Composure" INTEGER 7
+            ^"Focus" INTEGER 3
+            ^"Vigilance" INTEGER 2
+            ^"Honor" INTEGER 20
+            ^"Glory" INTEGER 23
+            ^"Status" INTEGER 9
+            ^"Demeanor" STRING "Assertive"
+            ^"Social Skill Check TN Modifiers" STRING "Earth +2, Air -2"
+            ^"Skills" LIST OF STRING ["Artisan 0", "Martial 0", "Scholar 2", "Social 3", "Trade 3"]
+            ^"Advantages" LIST OF STRING ["Inspiring: (water) Interpersonal"]
+            ^"Disadvantages" LIST OF STRING ["Softheartedness: (fire) Interpersonal, Mental"]
+            ^"Gear" LIST OF STRING ["Passable clothes", "handful of bu"]
+            ^"Epithet" STRING "Widow of the column"
+            ^"Affiliation" STRING "Arriving with the column"
+            ^"Campaign Status" STRING "Arriving · argues the move's necessity · the bridge between benches"
+            ^"Biography" LIST OF STRING [
+                "A widow in her fifties. She holds that the move is logically necessary and is working to see the good in it, which makes her the easiest of the arriving three for a samurai to deal with. A shameless flirt."
+            ]
+        }
+        RULES {
+            #PFnpcKiyor1: kiyo_overlooked "Overlooked: When the clever innkeeper makes a check targeting a character with a higher status rank, the innkeeper treats the target's vigilance as 1 lower."
+        }
+    }
+
+    #PFnpcRokuro ^"Rokurō" DEF {
+        EXTENDS #t4540de6f35155c46f41f0 ^"NPC"
+
+        PROPERTIES {
+            ^"Type" STRING "Minion" FIXED
+            ^"Combat Conflict Rank" INTEGER 3
+            ^"Intrigue Conflict Rank" INTEGER 2
+            ^"Description" STRING "Cheerful, weathered, and most present when talking about a time that is not this one."
+            ^"Rings" DEF {
+                ^"Air" INTEGER 2
+                ^"Earth" INTEGER 2
+                ^"Fire" INTEGER 1
+                ^"Water" INTEGER 3
+                ^"Void" INTEGER 1
+            }
+            ^"Endurance" INTEGER 6
+            ^"Composure" INTEGER 7
+            ^"Focus" INTEGER 3
+            ^"Vigilance" INTEGER 2
+            ^"Honor" INTEGER 20
+            ^"Glory" INTEGER 23
+            ^"Status" INTEGER 9
+            ^"Demeanor" STRING "Detached"
+            ^"Social Skill Check TN Modifiers" STRING "Earth +1, Fire +1, Void -2"
+            ^"Skills" LIST OF STRING ["Artisan 0", "Martial 1", "Scholar 1", "Social 2", "Trade 4"]
+            ^"Advantages" LIST OF STRING ["Wilderness Survival Knowledge: (water) Mental"]
+            ^"Disadvantages" LIST OF STRING ["Obtuse: (air) Interpersonal, Mental"]
+            ^"Gear" LIST OF STRING ["Passable clothes", "handful of bu"]
+            ^"Epithet" STRING "The jovial one"
+            ^"Affiliation" STRING "Arriving with the column"
+            ^"Campaign Status" STRING "Arriving · good company · an unreliable witness to the current hour"
+            ^"Biography" LIST OF STRING [
+                "The most jovial of them. He enjoys getting a little high and reminiscing, and does not reliably keep hold of the present while he does it."
+            ]
+        }
+        RULES {
+            #PFnpcRokuror1: rokuro_overlooked "Overlooked: When the clever innkeeper makes a check targeting a character with a higher status rank, the innkeeper treats the target's vigilance as 1 lower."
+        }
+    }
+
+    #PFnpcUme ^"Ume" DEF {
+        EXTENDS #t4540de6f35155c46f41f0 ^"NPC"
+
+        PROPERTIES {
+            ^"Type" STRING "Minion" FIXED
+            ^"Combat Conflict Rank" INTEGER 1
+            ^"Intrigue Conflict Rank" INTEGER 4
+            ^"Description" STRING "A bereaved mother who stopped waiting for the Fortunes to be fair, and found a doctrine that promised the reward without the waiting."
+            ^"Rings" DEF {
+                ^"Air" INTEGER 2
+                ^"Earth" INTEGER 2
+                ^"Fire" INTEGER 1
+                ^"Water" INTEGER 3
+                ^"Void" INTEGER 1
+            }
+            ^"Endurance" INTEGER 6
+            ^"Composure" INTEGER 7
+            ^"Focus" INTEGER 3
+            ^"Vigilance" INTEGER 2
+            ^"Honor" INTEGER 20
+            ^"Glory" INTEGER 23
+            ^"Status" INTEGER 9
+            ^"Demeanor" STRING "Assertive"
+            ^"Social Skill Check TN Modifiers" STRING "Earth +2, Air -2"
+            ^"Skills" LIST OF STRING ["Artisan 0", "Martial 0", "Scholar 2", "Social 3", "Trade 3"]
+            ^"Advantages" LIST OF STRING ["Indomitable Will: (earth) Interpersonal, Mental"]
+            ^"Disadvantages" LIST OF STRING ["Impatience: (earth) Mental"]
+            ^"Gear" LIST OF STRING ["Passable clothes", "handful of bu"]
+            ^"Epithet" STRING "First of the sect"
+            ^"Affiliation" STRING "White Flower Village · Perfect Land Sect · married to Tōbei"
+            ^"Campaign Status" STRING "White Flower · first convert · opened the village to the newcomers"
+            ^"Biography" LIST OF STRING [
+                "Married to Tōbei. They had a child, and the child died. She is the first convert to the Perfect Land Sect in White Flower Village.",
+                "Demanding and jealous, with little confidence underneath it, and willing to bully people into agreeing with her from a position of pity.",
+                "Sour-faced, and strongly and vocally against the arrival — she argued it with Sadao in front of an outside monk on the first day.",
+                "She reversed herself the moment she found her own faith among the newcomers, walked the line taking the measure of all three arriving elders, and ended the argument herself: they are staying. She stands at Sadao's shoulder as his equal in public, which a commoner does not do, and he does not dispute it."
+            ]
+        }
+        RULES {
+            #PFnpcUmer1: ume_overlooked "Overlooked: When the clever innkeeper makes a check targeting a character with a higher status rank, the innkeeper treats the target's vigilance as 1 lower."
+            #PFnpcUmer2: ume_trustworthy_cadence "Trustworthy Cadence (Title Ability): When making a social skill check targeting a character with status 20 or lower, reduce the TN by 1."
+        }
+    }
+
+    #PFnpcKitsukiSadao ^"Kitsuki Sadao" DEF {
+        EXTENDS #t4540de6f35155c46f41f0 ^"NPC"
+
+        PROPERTIES {
+            ^"Type" STRING "Adversary" FIXED
+            ^"Combat Conflict Rank" INTEGER 4
+            ^"Intrigue Conflict Rank" INTEGER 4
+            ^"Description" STRING "A Kitsuki grown old a long way from anywhere the Kitsuki are needed. The eye is undimmed; everything holding it up is not."
+            ^"Rings" DEF {
+                ^"Air" INTEGER 4
+                ^"Earth" INTEGER 3
+                ^"Fire" INTEGER 3
+                ^"Water" INTEGER 5
+                ^"Void" INTEGER 2
+            }
+            ^"Endurance" INTEGER 5
+            ^"Composure" INTEGER 16
+            ^"Focus" INTEGER 7
+            ^"Vigilance" INTEGER 5
+            ^"Honor" INTEGER 55
+            ^"Glory" INTEGER 62
+            ^"Status" INTEGER 47
+            ^"Demeanor" STRING "Gruff"
+            ^"Social Skill Check TN Modifiers" STRING "Water +2, Earth -2"
+            ^"Skills" LIST OF STRING ["Artisan 0", "Martial 3", "Scholar 4", "Social 4", "Trade 2"]
+            ^"Advantages" LIST OF STRING ["Student of Law: (water) Scholar; Mental", "Seasoned: (void) Mental, Interpersonal"]
+            ^"Disadvantages" LIST OF STRING ["Conflicted: (fire) Social; Mental", "Impatience: (earth) Mental"]
+            ^"Favored Weapons" LIST OF STRING ["Katana: Range 1, Damage 4, Deadliness 5/7, Ceremonial, Razor-Edged", "Wakizashi: Range 0–1, Damage 3, Deadliness 5/7, Ceremonial, Razor-Edged"]
+            ^"Gear" LIST OF STRING ["Lacquered Armor (Physical 4, Ceremonial, Cumbersome, Wargear)"]
+            ^"Epithet" STRING "The old magistrate"
+            ^"Affiliation" STRING "White Flower Village · Dragon · Kitsuki · Fortunist"
+            ^"Campaign Status" STRING "White Flower · the only samurai resident · a Fortunist who has not noticed the sect"
+            ^"Biography" LIST OF STRING [
+                "A samurai of the Kitsuki, and very old. A Fortunist. Two children, both grown, both living far away.",
+                "Impatience and a mercurial temper have alienated nearly everyone in the village except one neighbour, who is deaf and keeps him company regardless.",
+                "A Fortunist of the ordinary observant sort — no formal training, but decades of drinking with pilgrims on the road north, and the vocabulary of a man for whom the celestial order is simply how things are. He does not know the sect is inside his village.",
+                "Seventies or eighties, hunched over a stout walking stick. The wakizashi at his belt is what marks him samurai in a village of peasants. Formerly something like a regional administrator; he has worked this province his whole career and dislikes travel. The two children are in the southern Dragon lands — one in the Kitsuki provinces, one an Emerald Magistrate whose letters arrive from as far as Crab lands. His temper flares and then goes out of him, too tired to reach outrage. It is not personal."
+            ]
+        }
+        RULES {
+            #PFnpcKitsukiSadaor1: kitsuki_sadao_a_keen_eye "A Keen Eye: Always uses Focus as base initiative value."
+        }
+    }
+
+    #PFnpcHeisuke ^"Heisuke" DEF {
+        EXTENDS #t4540de6f35155c46f41f0 ^"NPC"
+
+        PROPERTIES {
+            ^"Type" STRING "Minion" FIXED
+            ^"Combat Conflict Rank" INTEGER 1
+            ^"Intrigue Conflict Rank" INTEGER 3
+            ^"Description" STRING "The most skilled pair of hands in the village, and the youngest voice on its bench. He works the way the patient work, and is quick to decide he has taken a man's measure."
+            ^"Rings" DEF {
+                ^"Air" INTEGER 3
+                ^"Earth" INTEGER 1
+                ^"Fire" INTEGER 2
+                ^"Water" INTEGER 2
+                ^"Void" INTEGER 1
+            }
+            ^"Endurance" INTEGER 6
+            ^"Composure" INTEGER 8
+            ^"Focus" INTEGER 4
+            ^"Vigilance" INTEGER 3
+            ^"Honor" INTEGER 25
+            ^"Glory" INTEGER 25
+            ^"Status" INTEGER 9
+            ^"Demeanor" STRING "Shrewd"
+            ^"Social Skill Check TN Modifiers" STRING "Air +2, Fire -2"
+            ^"Skills" LIST OF STRING ["Artisan 3", "Martial 0", "Scholar 2", "Social 2", "Trade 3"]
+            ^"Advantages" LIST OF STRING ["Daikoku's Blessing: (water) Social; Interpersonal, Spiritual"]
+            ^"Disadvantages" LIST OF STRING ["Deferential: (water) Social; Interpersonal, Mental"]
+            ^"Gear" LIST OF STRING ["Working clothes", "his tools", "handful of bu"]
+            ^"Epithet" STRING "The craftsman"
+            ^"Affiliation" STRING "White Flower Village · Perfect Land Sect"
+            ^"Campaign Status" STRING "White Flower · craftsman · quick to trust · craft not yet named"
+            ^"Biography" LIST OF STRING [
+                "An expert craftsman. Never married. Late forties, and by far the youngest voice on the village's bench. Large through the shoulders, working apron, a cloth for his hands that ends up over one shoulder. He claps people he approves of.",
+                "A convert to the Perfect Land Sect — and, since the stables, satisfied that Norikage is one as well. Every observation behind that conclusion was accurate. Only the conclusion is wrong."
+            ]
+        }
+        RULES {
+            #PFnpcHeisuker1: heisuke_i_can_fix_that "I Can Fix That: Can remove the Damaged condition from most non-supernatural items (rarity 6 or lower). GM determines repairability, cost, and time."
+            #PFnpcHeisuker2: heisuke_trustworthy_cadence "Trustworthy Cadence (Title Ability): When making a social skill check targeting a character with status 20 or lower, reduce the TN by 1."
+        }
+    }
+
+    #PFnpcNui ^"Nui" DEF {
+        EXTENDS #t4540de6f35155c46f41f0 ^"NPC"
+
+        PROPERTIES {
+            ^"Type" STRING "Adversary" FIXED
+            ^"Combat Conflict Rank" INTEGER 2
+            ^"Intrigue Conflict Rank" INTEGER 4
+            ^"Description" STRING "The woman who knows the way to the shrine and the order of the observances, and who walks it often enough that the walking is itself the practice."
+            ^"Rings" DEF {
+                ^"Air" INTEGER 2
+                ^"Earth" INTEGER 3
+                ^"Fire" INTEGER 2
+                ^"Water" INTEGER 3
+                ^"Void" INTEGER 3
+            }
+            ^"Endurance" INTEGER 14
+            ^"Composure" INTEGER 15
+            ^"Focus" INTEGER 4
+            ^"Vigilance" INTEGER 3
+            ^"Honor" INTEGER 50
+            ^"Glory" INTEGER 45
+            ^"Status" INTEGER 25
+            ^"Demeanor" STRING "Assertive"
+            ^"Social Skill Check TN Modifiers" STRING "Earth +2, Air -2"
+            ^"Skills" LIST OF STRING ["Artisan 3", "Martial 1", "Scholar 2", "Social 3", "Trade 0"]
+            ^"Advantages" LIST OF STRING ["Indomitable Will: (air) Social; Mental"]
+            ^"Disadvantages" LIST OF STRING ["Softheartedness: (fire) Social; Interpersonal"]
+            ^"Favored Weapons" LIST OF STRING ["Bō Staff: Range 1–2, Damage 6, Deadliness 2, Mundane"]
+            ^"Gear" LIST OF STRING ["Robes (Physical 1)"]
+            ^"Epithet" STRING "Guide of the pilgrim road"
+            ^"Affiliation" STRING "White Flower Village · Fortunist, Shinseist-leaning · leads the pilgrim road"
+            ^"Campaign Status" STRING "Dead · killed at Seidō Fukurokujin · the village has not been told"
+            ^"Biography" LIST OF STRING [
+                "A Fortunist who leans to the Shinseist side of it: self-reflection, and enlightenment. She leads pilgrims to Seidō Fukurokujin. Reliable and devout.",
+                "She escorts pilgrims to the shrine north of the village and back, and coaches them on what crafts to make as offerings.",
+                "She was killed at the shrine with five others and laid out in a circle on the offering stone. Togashi Norikage found her two days later and knew her by the small Fortunist talisman at her neck, of a kind made in White Flower, and buried her under stone below the torii. The village has not been told."
+            ]
+        }
+        RULES {
+            #PFnpcNuir1: nui_herbalist "Herbalist: When Nui makes a Medicine check targeting a character, she may spend (op) as follows: (op)+: The target removes 1 strife for each (op) spent this way."
+        }
+    }
+
+    #PFnpcForestTroll ^"Forest Troll" DEF {
+        EXTENDS #t4540de6f35155c46f41f0 ^"NPC"
+
+        PROPERTIES {
+            ^"Type" STRING "Adversary" FIXED
+            ^"Combat Conflict Rank" INTEGER 7
+            ^"Intrigue Conflict Rank" INTEGER 4
+            ^"Description" STRING "Inside the Empire, trolls are quite rare, but they occasionally enter via the great forest of the Shinomen Mori on Rokugan’s western border. They are intelligent but unpredictable, and not above eating rude humans."
+            ^"Rings" DEF {
+                ^"Air" INTEGER 2
+                ^"Earth" INTEGER 4
+                ^"Fire" INTEGER 5
+                ^"Water" INTEGER 4
+                ^"Void" INTEGER 3
+            }
+            ^"Endurance" INTEGER 16
+            ^"Composure" INTEGER 9
+            ^"Focus" INTEGER 4
+            ^"Vigilance" INTEGER 3
+            ^"Silhouette" INTEGER 4
+            ^"Honor" INTEGER 30
+            ^"Glory" INTEGER 10
+            ^"Status" INTEGER 5
+            ^"Demeanor" STRING "Assertive"
+            ^"Social Skill Check TN Modifiers" STRING "Earth +2, Air -2"
+            ^"Skills" LIST OF STRING ["Artisan 1", "Martial 3", "Scholar 3", "Social 2", "Trade 1"]
+            ^"Advantages" LIST OF STRING ["Brute Strength: (fire) Martial; Physical"]
+            ^"Disadvantages" LIST OF STRING ["Insatiable Appetite: (water) Social; Physical"]
+            ^"Favored Weapons" LIST OF STRING ["Massive Cudgel: Range 2, Damage 9, Deadliness 5, Cumbersome", "Rending Grip: Range 1, Damage 4, Deadliness 6"]
+            ^"Gear" LIST OF STRING ["Scaled hide (Physical 1, Supernatural 1)", "animal-pelt clothes", "polished skull collection"]
+            ^"Epithet" STRING "Out of its country"
+            ^"Affiliation" STRING "Spirits and Strange Beings · Otherworldly"
+            ^"Campaign Status" STRING "Met on the road west · parted without blood · walked back toward White Flower"
+            ^"Biography" LIST OF STRING [
+                "Trolls are rare inside the Empire and enter it through the Shinomen Mori on the western border — not through the Dragon mountains. One on a mountain road east of nowhere is a thing that was somewhere else and is not there now, which is the same shape as the disturbed earth kami and the neglected shrines.",
+                "Intelligent, unpredictable, and not above eating rude humans.",
+                "Eight feet of it, greenish and solid, carrying a rock — which on dangerous ground is what a man's hand on his sword amounts to. It speaks, in something that may be Rokugani and may not. It did not mean to attack: the two of them frightened each other, and when offered a way to stop it took the way. It sat, patted the ground, talked for a quarter of an hour at a monk who understood none of it, then rose satisfied that an accord had been reached and walked back up the road toward White Flower."
+            ]
+        }
+        RULES {
+            #PFnpcForestTrollr1: forest_troll_ancient_and_powerful "Ancient and Powerful: A troll is an Otherworldly being of silhouette 4."
+            #PFnpcForestTrollr2: forest_troll_sorcerous_scales "Sorcerous Scales: After a troll suffers damage from a physical or supernatural source, increase its resistance to that damage type by 4. This effect persists until it suffers damage from a source of a different type."
+        }
+    }
+
+    #PFnpcScholarlyShugenja ^"Scholarly Shugenja" DEF {
+        EXTENDS #t4540de6f35155c46f41f0 ^"NPC"
+
+        PROPERTIES {
+            ^"Type" STRING "Adversary" FIXED
+            ^"Combat Conflict Rank" INTEGER 4
+            ^"Intrigue Conflict Rank" INTEGER 3
+            ^"Description" STRING "Shugenja are holy people, priests who commune with the kami, making invocations to persuade them to cause spectacular and even destructive effects in the Mortal Realm. However, shugenja are rare, and seldom encountered outside of shrines, temples, and libraries."
+            ^"Rings" DEF {
+                ^"Air" INTEGER 3
+                ^"Earth" INTEGER 3
+                ^"Fire" INTEGER 3
+                ^"Water" INTEGER 3
+                ^"Void" INTEGER 3
+            }
+            ^"Endurance" INTEGER 10
+            ^"Composure" INTEGER 12
+            ^"Focus" INTEGER 6
+            ^"Vigilance" INTEGER 3
+            ^"Honor" INTEGER 60
+            ^"Glory" INTEGER 45
+            ^"Status" INTEGER 39
+            ^"Demeanor" STRING "Ambitious"
+            ^"Social Skill Check TN Modifiers" STRING "Fire +2, Water -2"
+            ^"Skills" LIST OF STRING ["Artisan 3", "Martial 0", "Scholar 2", "Social 3", "Trade 0"]
+            ^"Advantages" LIST OF STRING ["Mystical Knowledge: (void) Scholar; Mental", "Holy Personage: (void) Social; Interpersonal"]
+            ^"Disadvantages" LIST OF STRING ["Scholar’s Physique: (earth) Martial; Physical"]
+            ^"Favored Weapons" LIST OF STRING ["Wakizashi: Range 0–1, Damage 3, Deadliness 5/7, Ceremonial, Razor-Edged"]
+            ^"Gear" LIST OF STRING ["Sanctified robes (Physical 1, Supernatural 3, Ceremonial)", "scroll satchel", "offerings"]
+            ^"Epithet" STRING "Adversary · Subjects of Rokugan"
+            ^"Affiliation" STRING "A priest who communes with the kami"
+            ^"Campaign Status" STRING "Type template · use for any shrine, temple, or library priest met on the road"
+            ^"Biography" LIST OF STRING [
+                "Shugenja are rare, and are seldom met outside shrines, temples, and libraries — so meeting one anywhere else is itself information about where one is standing. They petition the kami directly, and the kami sometimes answer at a scale nobody nearby can argue with.",
+                "For Norikage the difficulty is not reverence but overlap: a shugenja does by invocation much of what he does by discipline, and the two traditions explain each other's results differently."
+            ]
+            ^"Template" BOOLEAN true
+        }
+        RULES {
+            #PFnpcScholarlyShugenjar1: scholarly_shugenja_path_to_inner_peace "Path to Inner Peace (Invocation): As a Support action, the shugenja may make a TN 2 Theology (Water) check targeting a character at range 0–2. If the shugenja succeeds, the target removes 3 fatigue, plus 1 per bonus success. A target can only be affected by the Path to Inner Peace invocation once per scene."
+            #PFnpcScholarlyShugenjar2: scholarly_shugenja_the_fires_from_within "The Fires from Within (Invocation): As an Attack action, the shugenja may make a TN 3 Theology (Fire) check targeting up to three characters at range 1–3. If the shugenja succeeds, each target suffers 3 supernatural damage, plus 1 per bonus success. (op)+: Choose 1 additional target per (op) spent this way."
+            #PFnpcScholarlyShugenjar3: scholarly_shugenja_disciple_of_secret_lore "Disciple of Secret Lore: Activation: (Choose 0–5 additional invocations (see page 189) and 0–3 additional rituals (see page 212) that this shugenja can perform. Add 1 to this character’s combat rank for each invocation with a prerequisite of rank 3+ chosen this way."
+        }
+    }
+
+    #PFnpcTrainedAshigaru ^"Trained Ashigaru" DEF {
+        EXTENDS #t4540de6f35155c46f41f0 ^"NPC"
+
+        PROPERTIES {
+            ^"Type" STRING "Minion" FIXED
+            ^"Combat Conflict Rank" INTEGER 2
+            ^"Intrigue Conflict Rank" INTEGER 1
+            ^"Description" STRING "Ashigaru are the rank-and-file foot soldiers who make up the bulk of Rokugani armies. These foot soldiers are commoners, peasants who have been drafted into military service. Interestingly, once drafted, they are considered to belong to the lowest rank of the buke, the samurai caste, even though they aren’t samurai. When they are not performing military service, ashigaru generally revert to their peasant status as farmers or tradespeople, but some continue to serve as guards or scouts, or as dōshin to magistrates. If the player characters encounter ashigaru in formed bodies of troops, then it is almost certainly because they are from a clan that is at war. Samurai from that clan, such as officers and units of bushi, should be nearby."
+            ^"Rings" DEF {
+                ^"Air" INTEGER 1
+                ^"Earth" INTEGER 3
+                ^"Fire" INTEGER 2
+                ^"Water" INTEGER 2
+                ^"Void" INTEGER 1
+            }
+            ^"Endurance" INTEGER 6
+            ^"Composure" INTEGER 12
+            ^"Focus" INTEGER 6
+            ^"Vigilance" INTEGER 2
+            ^"Honor" INTEGER 25
+            ^"Glory" INTEGER 29
+            ^"Status" INTEGER 19
+            ^"Demeanor" STRING "Gruff"
+            ^"Social Skill Check TN Modifiers" STRING "Water +2, Earth -2"
+            ^"Skills" LIST OF STRING ["Artisan 0", "Martial 1", "Scholar 0", "Social 0", "Trade 1"]
+            ^"Advantages" LIST OF STRING ["Strength in Numbers: (earth) Martial; Physical"]
+            ^"Disadvantages" LIST OF STRING ["Jaded by Battle: (fire) Social; Mental"]
+            ^"Favored Weapons" LIST OF STRING ["Yari: Range 2, Damage 5, Deadliness 3, Wargear"]
+            ^"Gear" LIST OF STRING ["Ashigaru armor (Physical 3, Wargear)", "knife", "dice and cup or musical instrument", "a handful of bu and zeni"]
+            ^"Epithet" STRING "Minion · Subjects of Rokugan"
+            ^"Affiliation" STRING "Rank-and-file foot soldier"
+            ^"Campaign Status" STRING "Type template · village guards, drafted levies, a daimyō's escort"
+            ^"Biography" LIST OF STRING [
+                "Drafted commoners under arms. Once drafted they count as the lowest rank of the buke — the samurai caste — without being samurai, which is a distinction they are reminded of from both directions. When the service ends most return to farming or a trade; some stay on as guards, scouts, or dōshin to a magistrate.",
+                "Ashigaru in formed ranks mean a clan at war. Ashigaru walking beside carts and families mean something duller, heavier, and harder to refuse."
+            ]
+            ^"Template" BOOLEAN true
+        }
+        RULES {
+            #PFnpcTrainedAshigarur1: trained_ashigaru_rank_tactics "Rank Tactics: When an ashigaru provides assistance (see page 26) to the Martial skill check of another character at range 0–2, that character adds one kept (ring) set to a (su) result instead of rolling an additional die."
+        }
+    }
+
+    #PFnpcBrotherUjiyasu ^"Brother Ujiyasu" DEF {
+        EXTENDS #t4540de6f35155c46f41f0 ^"NPC"
+
+        PROPERTIES {
+            ^"Type" STRING "Adversary" FIXED
+            ^"Combat Conflict Rank" INTEGER 4
+            ^"Intrigue Conflict Rank" INTEGER 2
+            ^"Description" STRING "A Shinseist monk with a deep and entirely rigid knowledge of the Way. He has every verse and no ear for when a verse is not the answer."
+            ^"Rings" DEF {
+                ^"Air" INTEGER 4
+                ^"Earth" INTEGER 2
+                ^"Fire" INTEGER 2
+                ^"Water" INTEGER 3
+                ^"Void" INTEGER 3
+            }
+            ^"Endurance" INTEGER 10
+            ^"Composure" INTEGER 12
+            ^"Focus" INTEGER 6
+            ^"Vigilance" INTEGER 4
+            ^"Honor" INTEGER 55
+            ^"Glory" INTEGER 45
+            ^"Status" INTEGER 25
+            ^"Demeanor" STRING "Detached"
+            ^"Social Skill Check TN Modifiers" STRING "Earth +1, Fire +1, Void -2"
+            ^"Skills" LIST OF STRING ["Artisan 0", "Martial 2", "Scholar 3", "Social 3", "Trade 0"]
+            ^"Advantages" LIST OF STRING ["Subtle Observer: (air) Social; Interpersonal"]
+            ^"Disadvantages" LIST OF STRING ["Bluntness: (air) Social; Interpersonal"]
+            ^"Favored Weapons" LIST OF STRING ["Walking Staff: Range 1–2, Damage 6, Deadliness 2, Mundane"]
+            ^"Gear" LIST OF STRING ["Monk's robes (Physical 1)"]
+            ^"Epithet" STRING "Every verse and no ear"
+            ^"Affiliation" STRING "Brotherhood of Shinsei · visiting Reisui-ji"
+            ^"Campaign Status" STRING "Reisui-ji · visiting · went away to think about it"
+            ^"Biography" LIST OF STRING [
+                "A monk of the Brotherhood, early twenties, visiting Reisui-ji rather than resident in it. He came over to watch Norikage do calligraphy, saw the hesitation and the correction, and offered a reading of it: that it is common for the passions of the heart, and compassion, to cloud the mind to the truth — and that the truth is not always friendly to us.",
+                "He knows the Tao thoroughly and holds it rigidly. Pressed on the point, he listened for the place to stop rather than for the argument, then answered with passages: the well-known ones, in order, the way a student recites what he has been given. He has the rudiments completely and no finesse at all.",
+                "The rigidity was earned. His last real debate was against a moon cultist who knew the teachings at least as well as he did and drew conclusions from them that he could not answer — a hedonist who goaded him on purpose. He has been holding the line hard ever since.",
+                "Norikage stopped arguing and began reciting the passages along with him, in cadence, then agreed with all of it and said so. Ujiyasu braced for a throw that did not come. What he said at the end of it was that he would meditate on Norikage’s wisdom."
+            ]
+        }
+        RULES {
+            #PFnpcBrotherUjiyasur1: brother_ujiyasu_attuned_to_the_way "Attuned to the Way: When a character succeeds on an Attack or Scheme action targeting Ujiyasu, reduce their bonus successes by 3, to a minimum of 0."
+        }
+    }
+
+    #PFnpcBrotherhoodMonk ^"Brotherhood Monk" DEF {
+        EXTENDS #t4540de6f35155c46f41f0 ^"NPC"
+
+        PROPERTIES {
+            ^"Type" STRING "Adversary" FIXED
+            ^"Combat Conflict Rank" INTEGER 4
+            ^"Intrigue Conflict Rank" INTEGER 2
+            ^"Description" STRING "A Shinseist monk with a flippant demeanor that belies his deep understanding of the Way. His attunement to Shinsei's teachings makes him remarkably difficult to overcome in conflict."
+            ^"Rings" DEF {
+                ^"Air" INTEGER 4
+                ^"Earth" INTEGER 2
+                ^"Fire" INTEGER 2
+                ^"Water" INTEGER 3
+                ^"Void" INTEGER 3
+            }
+            ^"Endurance" INTEGER 10
+            ^"Composure" INTEGER 12
+            ^"Focus" INTEGER 6
+            ^"Vigilance" INTEGER 4
+            ^"Honor" INTEGER 55
+            ^"Glory" INTEGER 45
+            ^"Status" INTEGER 25
+            ^"Demeanor" STRING "Flippant"
+            ^"Social Skill Check TN Modifiers" STRING "Fire +2, Air -2"
+            ^"Skills" LIST OF STRING ["Artisan 0", "Martial 2", "Scholar 3", "Social 3", "Trade 0"]
+            ^"Advantages" LIST OF STRING ["Subtle Observer: (air) Social; Interpersonal"]
+            ^"Disadvantages" LIST OF STRING ["Bluntness: (air) Social; Interpersonal"]
+            ^"Favored Weapons" LIST OF STRING ["Walking Staff: Range 1–2, Damage 6, Deadliness 2, Mundane"]
+            ^"Gear" LIST OF STRING ["Monk's robes (Physical 1)"]
+            ^"Gear (Other)" LIST OF STRING ["Gold lotus pendant (When performing a Meditation check add one rolled Ring die showing (op) result)"]
+            ^"Epithet" STRING "Sibling of the Little Teacher"
+            ^"Affiliation" STRING "No clan · Brotherhood of Shinsei · a guest in a Togashi house"
+            ^"Campaign Status" STRING "Type template · use for any Brotherhood monk met at a temple or on the road"
+            ^"Biography" LIST OF STRING [
+                "A monk of the Brotherhood of Shinsei, which is less an order than the connective tissue between most of the temples in the Empire. Priests and shugenja practise the worship of the gods and the Fortunes; monks follow the Tao of Shinsei, and the ones who do form a religion within the religion. The Brotherhood welcomes all genders, has no leader, and is made of many orders — academic ones that write and debate and teach rich patrons, martial ones that study weapons in order to defend Shinseists who will not fight, medicinal ones that keep infirmaries where people can reach them, and exorcists who keep spirits at bay.",
+                "Monks address each other as siblings, and the head of an order is sometimes called abbot. The terms are doing work: a monk has left one family and joined another, and the words say where the new duty lies. Expulsion is possible for serious transgressions, and is held to be worse than death.",
+                "Where a Fortunist priest will not touch the subject, Shinseist monks are the Empire’s foremost experts on dying. Death is not unclean to them, only the next part of the cycle, and preparing retired samurai for the end of their lives is one of the order’s purposes. Their funeral rite exists to cut death’s influence away from the family and give them a way to mourn without losing face — it is sometimes said that the Shinseist funeral is for the living, not the dead.",
+                "In the Dragon lands the Togashi keep the temples rather than the Brotherhood, and the two orders have long been comfortable in each other’s houses; Brotherhood monks attend Dragon temples as visitors and sometimes stay for good. A monk in that position is a guest with no clan, no lord, and standing that does not come from either.",
+                "Peasants and samurai alike trust monks in spiritual matters, and no lord may challenge that however rich or well-placed they are. Everyone below the Emperor defers to the Brotherhood on such questions — and in Rokugan the list of matters that are entirely outside spiritual concern is short."
+            ]
+            ^"Template" BOOLEAN true
+        }
+        RULES {
+            #PFnpcBrotherhoodMonkr1: brotherhood_monk_attuned_to_the_way "Attuned to the Way: When a character succeeds on an Attack or Scheme action targeting this monk, reduce their bonus successes by 3, to a minimum of 0."
+        }
+    }
+
+    #PFnpcMoonCultist ^"Moon Cultist" DEF {
+        EXTENDS #t4540de6f35155c46f41f0 ^"NPC"
+
+        PROPERTIES {
+            ^"Type" STRING "Adversary" FIXED
+            ^"Combat Conflict Rank" INTEGER 4
+            ^"Intrigue Conflict Rank" INTEGER 3
+            ^"Description" STRING "Acolytes of Lord Moon come in all manner of forms, from the lowliest hinin to members of Imperial families. All a person needs to do to become a diligent servant of the hungry father is practice their faith unquestioningly and remind others that there is perfection in chaos."
+            ^"Rings" DEF {
+                ^"Air" INTEGER 3
+                ^"Earth" INTEGER 4
+                ^"Fire" INTEGER 3
+                ^"Water" INTEGER 3
+                ^"Void" INTEGER 2
+            }
+            ^"Endurance" INTEGER 14
+            ^"Composure" INTEGER 8
+            ^"Focus" INTEGER 7
+            ^"Vigilance" INTEGER 3
+            ^"Honor" INTEGER 1
+            ^"Glory" INTEGER 15
+            ^"Status" INTEGER 0
+            ^"Demeanor" STRING "Ambitious"
+            ^"Social Skill Check TN Modifiers" STRING "Fire +2, Water -2"
+            ^"Skills" LIST OF STRING ["Artisan 0", "Martial 1", "Scholar 3", "Social 2", "Trade 1"]
+            ^"Advantages" LIST OF STRING ["Excellent Liar: (air) Social; Interpersonal"]
+            ^"Disadvantages" LIST OF STRING ["Dark Secret: (void) Social; Interpersonal"]
+            ^"Favored Weapons" LIST OF STRING ["Ritual Knife: Range 0, Damage 2, Deadliness 6, Concealable, Razor-Edged"]
+            ^"Gear" LIST OF STRING ["Concealing mask or cowl"]
+            ^"Gear (Other)" LIST OF STRING ["Set of vile scrolls", "Several bu"]
+            ^"Epithet" STRING "Servant of the hungry father"
+            ^"Affiliation" STRING "No clan · a cult of Onnotangu, Lord Moon"
+            ^"Campaign Status" STRING "Type template · use for any devotee of Lord Moon · hidden inside whatever else they are"
+            ^"Biography" LIST OF STRING [
+                "Acolytes of Lord Moon come in every form, from the lowliest hinin to members of Imperial families. Becoming one asks nothing but practising the faith without question and reminding others that there is perfection in chaos.",
+                "Cults are held to be fringe at best and blasphemy deserving of eradication at worst, so they are secretive in the extreme and can operate at any level of society. Those who keep this one hold that Lord Moon is the preeminent divine figure, and their devotions seek to empower him and hasten his judgment upon his children.",
+                "They are as paranoid as their patron. Meetings and rituals happen in moonlight, well away from any town or village — which in the Dragon mountains is most of the map, and which means the evidence of one is a place rather than a person: a cleared ring somewhere no one had reason to go."
+            ]
+            ^"Template" BOOLEAN true
+            ^"Techniques" LIST OF #L5R350fG9hI1jK3lM5nO7p ^"Technique" [#92FDBSLYNzoMbnc4ueKtnX ^"By the Light of the Lord Moon", #BvozMnAavOlJGFN8CUZHo9 ^"Summon Fog", #mQA8bcf9pDPdbetjIcw9Dr ^"Tempest of Air", #BNwrARfqANunt8AvWaaUZR ^"Vapor of Nightmares"]
+        }
+    }
+
+    #PFnpcTogashiOharu ^"Togashi Oharu" DEF {
+        EXTENDS #t4540de6f35155c46f41f0 ^"NPC"
+
+        PROPERTIES {
+            ^"Type" STRING "Adversary" FIXED
+            ^"Combat Conflict Rank" INTEGER 4
+            ^"Intrigue Conflict Rank" INTEGER 4
+            ^"Description" STRING "An abbot of the Tattooed Order — an ise zumi who presides over Norikage's temple. Revered as wise and deeply committed to his faith and traditions, he carries a tattooed adept's quiet power beneath a warm and sociable manner."
+            ^"Rings" DEF {
+                ^"Air" INTEGER 3
+                ^"Earth" INTEGER 3
+                ^"Fire" INTEGER 3
+                ^"Water" INTEGER 4
+                ^"Void" INTEGER 4
+            }
+            ^"Endurance" INTEGER 12
+            ^"Composure" INTEGER 14
+            ^"Focus" INTEGER 6
+            ^"Vigilance" INTEGER 4
+            ^"Honor" INTEGER 60
+            ^"Glory" INTEGER 72
+            ^"Status" INTEGER 45
+            ^"Demeanor" STRING "Outgoing"
+            ^"Social Skill Check TN Modifiers" STRING "Water +2, Earth -2"
+            ^"Skills" LIST OF STRING ["Artisan 2", "Martial 3", "Scholar 3", "Social 3", "Trade 1"]
+            ^"Advantages" LIST OF STRING ["Higher Purpose: (air) Scholar; Mental"]
+            ^"Disadvantages" LIST OF STRING ["Conciliatory: (fire) Social; Mental"]
+            ^"Favored Weapons" LIST OF STRING ["Bō (staff): Range 1–2, Damage 6, Deadliness 2, Mundane"]
+            ^"Gear" LIST OF STRING ["Traveling Clothes (Physical 2, Durable, Mundane, Subtle)", "Wicker satchel", "Journal of personal poetry"]
+            ^"Epithet" STRING "The Abbot"
+            ^"Affiliation" STRING "Togashi · Norikage's lord and master of his temple"
+            ^"Campaign Status" STRING "Named but unmet · Norikage's lord and giri"
+            ^"Biography" LIST OF STRING [
+                "Abbot of the Tattooed Order and the authority to whom Norikage answers. It is Oharu who gave the charge that sets this chronicle in motion: to walk east with a village that is being moved, as an observer in a religious capacity — outside the daimyō's chain of command, responsible for none of the moving — and to report back to the temple. What exactly he is to watch for was not specified. Oharu's age, and true reasons, are not yet known.",
+                "Like Norikage, an ise zumi of the Togashi line: the same Blood of the Kami worked into the tattoos, the same plain bō in hand. Norikage has never seen him lose his temper, and has never been sure whether that is discipline or distance."
+            ]
+        }
+        RULES {
+            #PFnpcTogashiOharur1: togashi_oharu_blood_of_the_kami "Blood of the Kami: When Oharu successfully uses a kihō, they are considered to have three bonus successes for the purposes of resolving the effects of that kihō."
+            #PFnpcTogashiOharur2: togashi_oharu_drawing_from_within "Drawing From Within: Choose four kihō from those listed beginning on page 182 of the Core Rulebook, which Oharu can use. Each is linked to an appropriate tattoo, so they benefit from Blood of the Kami."
+            #PFnpcTogashiOharur3: togashi_oharu_soothing_cadence "Soothing Cadence: When making a skill check to communicate with a group of three or more people, you may keep up to one extra die. If your check succeeds, each other character in the scene removes strife equal to your bonus successes."
+        }
+    }
+
+    #PFnpcKaitoJuri ^"Kaito Juri" DEF {
+        EXTENDS #t4540de6f35155c46f41f0 ^"NPC"
+
+        PROPERTIES {
+            ^"Type" STRING "Adversary" FIXED
+            ^"Combat Conflict Rank" INTEGER 1
+            ^"Intrigue Conflict Rank" INTEGER 2
+            ^"Description" STRING "A Kaito sage of the Ishiken Initiate School. She mediates disputes between people who both believe they are in the right, and does it by refusing to name a loser — a method that has made her useful to her clan and exhausting to everyone she is sent to."
+            ^"Rings" DEF {
+                ^"Air" INTEGER 1
+                ^"Earth" INTEGER 3
+                ^"Fire" INTEGER 2
+                ^"Water" INTEGER 1
+                ^"Void" INTEGER 3
+            }
+            ^"Endurance" INTEGER 10
+            ^"Composure" INTEGER 8
+            ^"Focus" INTEGER 3
+            ^"Vigilance" INTEGER 1
+            ^"Honor" INTEGER 47
+            ^"Glory" INTEGER 45
+            ^"Status" INTEGER 30
+            ^"Demeanor" STRING "Detached"
+            ^"Social Skill Check TN Modifiers" STRING "Earth +1, Fire +1, Void -2"
+            ^"Skills" LIST OF STRING ["Artisan 0", "Martial 1", "Scholar 3", "Social 0", "Trade 0"]
+            ^"Advantages" LIST OF STRING ["Traditional Adherent: (earth) Artisan; Mental", "Syncretic Philosophy: (water) Social; Interpersonal, Mental", "Local Flare for Dragon Lands: (earth) Scholar; Interpersonal"]
+            ^"Disadvantages" LIST OF STRING ["Fukurokujin’s Curse: (fire) Scholar; Mental, Spiritual", "Whispers of Failure: (fire) Social; Interpersonal, Infamy", "Softheartedness: (fire) Martial; Interpersonal, Mental"]
+            ^"Favored Weapons" LIST OF STRING ["Bō (staff): Range 1–2, Damage 6, Deadliness 2, Mundane", "Wakizashi: Range 0–1, Damage 3, Deadliness 5/7, Ceremonial, Razor-Edged"]
+            ^"Gear" LIST OF STRING ["Sanctified robes (Physical 1, Supernatural 3, Ceremonial)"]
+            ^"Gear (Other)" LIST OF STRING ["Inconspicuous garb", "Scroll satchel", "Traveling pack"]
+            ^"Epithet" STRING "Sent from the Phoenix"
+            ^"Affiliation" STRING "Phoenix · Kaito · Ishiken Initiate School, rank 1 · Sage"
+            ^"Campaign Status" STRING "On the road with Norikage · she cleansed the shrine after the killing · he calls her a prophet"
+            ^"Biography" LIST OF STRING [
+                "A Kaito of the Phoenix, sent into the Dragon mountains with an introduction to the abbot of Norikage’s temple. Her fingers move across manuscript pages with a precision that looks like hesitation, deliberate enough that someone watching would wonder whether she knows what she is looking for. She is twenty-odd and holds no office anyone at the temple would recognize.",
+                "Her lord is the Phoenix Champion, by way of Kaito Utamuro, and her charge is to mediate disputes inside the clan’s temples where both parties claim righteousness. She discharges it by declining to declare either party wrong, which satisfies nobody. She preserved the Asako library’s disputed manuscripts that way, copying each into the archive exactly as written while the two factions watched her work in silence. Her teachers have begun assigning her the hardest cases for the same reason.",
+                "She is an ishiken — one of the vanishingly rare who can call on the Void directly, trained at the Starry Heaven Sanctuary. Few people in Rokugan know ishiken exist, fewer understand what they do, and to most peasants the abilities look like a sinister practice; ishiken are taught to use discretion. She has not told anyone in the Dragon lands what she is.",
+                "An unfamiliar medical or theological text takes her five readings where another scholar needs one, and she knows her teachers watch her struggle. She is going to a shrine of the Fortune of Wisdom.",
+                "What she wants is to stop being asked to mediate at all — one temple’s garden and its records, with no dispute crossing the threshold. She holds Righteousness paramount and Sincerity least, and she is aware those two sit badly together in her."
+            ]
+            ^"Techniques" LIST OF #L5R350fG9hI1jK3lM5nO7p ^"Technique" [^"One within the Void", #bNxt2ZFUbgSKhc6XxSTMUh ^"Divination", #CUVTW0xoeEbzJYrll6mbV7 ^"Truth Burns through Lies"]
+        }
+        RULES {
+            #PFnpcKaitoJurir1: kaito_juri_way_of_the_void "Way of the Void: When you make a check using your Void Ring, after rolling dice, you may receive fatigue up to your school rank. If you push, choose that many blank dice and alter each to a non-blank result of your choice. If you pull, choose that many non-blank dice and alter each to blank."
+        }
+    }
+
+    #PFnpcYogoKenzan ^"Yogo Kenzan" DEF {
+        EXTENDS #t4540de6f35155c46f41f0 ^"NPC"
+
+        PROPERTIES {
+            ^"Type" STRING "Adversary" FIXED
+            ^"Combat Conflict Rank" INTEGER 4
+            ^"Intrigue Conflict Rank" INTEGER 2
+            ^"Description" STRING "A Shinseist monk with a flippant demeanor that belies his deep understanding of the Way. His attunement to Shinsei's teachings makes him remarkably difficult to overcome in conflict."
+            ^"Rings" DEF {
+                ^"Air" INTEGER 4
+                ^"Earth" INTEGER 2
+                ^"Fire" INTEGER 2
+                ^"Water" INTEGER 3
+                ^"Void" INTEGER 3
+            }
+            ^"Endurance" INTEGER 10
+            ^"Composure" INTEGER 12
+            ^"Focus" INTEGER 6
+            ^"Vigilance" INTEGER 4
+            ^"Honor" INTEGER 55
+            ^"Glory" INTEGER 45
+            ^"Status" INTEGER 25
+            ^"Demeanor" STRING "Flippant"
+            ^"Social Skill Check TN Modifiers" STRING "Fire +2, Air -2"
+            ^"Skills" LIST OF STRING ["Artisan 0", "Martial 2", "Scholar 3", "Social 3", "Trade 0"]
+            ^"Advantages" LIST OF STRING ["Subtle Observer: (air) Social; Interpersonal"]
+            ^"Disadvantages" LIST OF STRING ["Bluntness: (air) Social; Interpersonal"]
+            ^"Favored Weapons" LIST OF STRING ["Walking Staff: Range 1–2, Damage 6, Deadliness 2, Mundane"]
+            ^"Gear" LIST OF STRING ["Monk's robes (Physical 1)", "Gold lotus pendant (When performing a Meditation check add one rolled Ring die showing (op) result)"]
+            ^"Epithet" STRING "“Brother Kenzan”"
+            ^"Affiliation" STRING "Brotherhood of Shinsei · the teacher from whom Norikage learned the most"
+            ^"Campaign Status" STRING "Known · mentor"
+            ^"Biography" LIST OF STRING [
+                "A monk of the Brotherhood of Shinsei, Scorpion-born under the Yogo name, and the person from whom Norikage says he learned the most. Their conversations shaped how the young Togashi thinks about faith and doubt. Where he is now, and what he has come to believe, Norikage does not know, and has not asked anyone who would.",
+                "A flippant manner belies a deep understanding of the Way — the kind of teacher who answers a hard question with a lighter one, and is remarkably difficult to corner in an argument or a conflict."
+            ]
+        }
+        RULES {
+            #PFnpcYogoKenzanr1: yogo_kenzan_attuned_to_the_way "Attuned to the Way: When a character succeeds on an Attack or Scheme action targeting Kenzan, reduce their bonus successes by 3, to a minimum of 0."
+        }
+    }
+}
