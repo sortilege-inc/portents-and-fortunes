@@ -278,3 +278,16 @@ details.lore-full > summary { cursor: pointer; font-family: var(--caps); letter-
   .site-main { padding: 12px 16px 40px; }
   .filters { top: 0; }
 }
+
+/* ── the record (Portents M4b) ── */
+.sheet-head { display: flex; gap: 12px; align-items: flex-start; }
+.sheet-head .portrait { width: 88px; height: 88px; object-fit: cover; border: 1px solid var(--edge); }
+.sheet-head h2 .mon { width: 1.1em; height: 1.1em; vertical-align: -.15em; margin-right: 6px; }
+.ring-tile.deficient { outline: 2px dashed var(--crimson); outline-offset: -4px; }
+.cond-toggle { background: none; border: 1px solid var(--edge); font-family: var(--caps); font-size: 11px; letter-spacing: .05em; padding: 2px 6px; cursor: pointer; color: var(--ink-soft); }
+.cond-toggle.on { border-color: var(--crimson); background: var(--crimson-soft); color: var(--crimson-deep); }
+.social-row { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; margin: 6px 0; }
+.social-row .soc { display: flex; align-items: center; gap: 4px; }
+.social-row .soc .num { min-width: 1.6em; text-align: center; }
+.xp-ledger li { font-size: 14px; }
+.archive-banner { background: var(--crimson-soft); border-left: 3px solid var(--crimson); padding: 6px 10px; margin: 6px 0; font-size: 14px; }
