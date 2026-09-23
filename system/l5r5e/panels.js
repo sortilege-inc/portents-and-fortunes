@@ -288,7 +288,7 @@
       container.innerHTML = '';
       const log = (S().log || []).slice().reverse();
       if (!log.length) return container.appendChild(el('div', { class: 'empty' }, ['Nothing logged yet.']));
-      log.forEach((x) => container.appendChild(x.kind === 'roll' ? Dice.logLine(x) : el('div', { class: 'roll-line' }, [el('span', { class: 'roll-who' }, [x.kind || 'note']), x.text || JSON.stringify(x)])));
+      log.forEach((x) => container.appendChild(Dice.logLine(x)));
     };
     ctx.on('state:changed', draw);
     ctx.on('state:remote', draw);

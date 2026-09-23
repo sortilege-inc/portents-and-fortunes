@@ -10,8 +10,10 @@
 // the STARTING_VALUE the corpus prints and cap at its MAXIMUM. Nothing is hand-listed.
 //
 // Also here: the live sheet for play — current Fatigue, Strife and Void points, the stance,
-// and checks through the Roll & Keep roller (system/l5r5e/dice.js) that add the kept (st) to
-// Strife and spend the Void point Seize the Moment costs.
+// and checks through the Roll & Keep roller (system/l5r5e/dice.js) that add the strife received
+// to Strife, spend the Void point Seize the Moment costs, offer the character's distinctions and
+// adversities as the rerolls their rules give, and grant the Void points the rules grant. Every
+// change to a tracker is logged as an event with what caused it.
 window.L5RSheet = (function () {
   const { el, button } = window.VttRender;
   const D = window.L5RData;
@@ -296,7 +298,127 @@ window.L5RSheet = (function () {
     return conditionRules().filter((r) => current(m, r.over) > value(v, r.limit)).map((r) => r.state);
   }
   const tokenText = (m) => ['Strife ' + current(m, 'Strife'), 'Fatigue ' + current(m, 'Fatigue')].concat(conditions(m)).join(' · ');
-  const patch = (m, p) => State().commit('setPartyLive', [m.id, p]);
+  const memberNow = (id, fallback) => (State().state.party || []).find((x) => x.id === id) || fallback;
+
+  // Every change to a tracker is logged as an event: "Strife 2 → 5", and what caused it.
+  const TRACKED = { Fatigue: 'Fatigue', Strife: 'Strife', voidPoints: 'Void points' };
+  // `always`: log the cause even when no tracker moved (a Void point the rules grant at its maximum)
+  function change(m, p, why, always) {
+    const mm = memberNow(m.id, m);
+    const lines = Object.keys(p).filter((k) => TRACKED[k]).map((k) => {
+      const from = current(mm, k === 'voidPoints' ? 'Void Points' : k);
+      return from === p[k] ? null : TRACKED[k] + ' ' + from + ' → ' + p[k];
+    }).filter(Boolean);
+    State().commit('setPartyLive', [mm.id, p]);
+    if (lines.length || (why && always)) State().commit('appendLog', [{ at: new Date().toISOString(), kind: 'event', who: mm.name, memberId: mm.id, text: lines.join(' · '), why: why || null }]);
+  }
+  const patch = (m, p, why) => change(m, p, why);
+  // a Void point the rules grant, to the MAXIMUM the corpus prints
+  function gainVoid(m, why) {
+    const mm = memberNow(m.id, m);
+    const max = derived(complete(mm.character || {})).voidMax;
+    const from = current(mm, 'Void Points');
+    const to = max == null ? from + 1 : Math.min(max, from + 1);
+    change(mm, { voidPoints: to }, why + (to === from ? ' — Void points already at their maximum' : ''), true);
+  }
+
+  // ── the character's advantages and disadvantages, as the rules use them ──
+  // Each name on the sheet resolved to its entity: its type is the subtype it EXTENDS
+  // (Distinction, Passion, Adversity, Anxiety), its Ring the one the entry prints. A sheet that
+  // prints both — "Haunting (Earth) — Adversity" — is read as printed: the ring is the
+  // character's own, and differs between characters who share the entry.
+  const TRAIT_LISTS = ['Advantages', 'Disadvantages'];
+  const PRINTED = /^(.*?)\s*\((Air|Earth|Fire|Water|Void)\)\s*—\s*(Distinction|Passion|Adversity|Anxiety)$/;
+  const bare = (n) => String(n).replace(/\s+\((?:[^()]*)\)$|\s+—.*$/, '');
+  const namesOf = (n) => {
+    const m = PRINTED.exec(String(n));
+    return [String(n)].concat(m ? [m[1]] : [], [bare(n)]);
+  };
+  function traits(v) {
+    const out = [];
+    TRAIT_LISTS.forEach((k) => (v[k] || []).forEach((n) => {
+      const name = String(n);
+      const m = PRINTED.exec(name);
+      const e = namesOf(name).map((x) => D.named(x)).find(Boolean) || null;
+      out.push({ name: m ? m[1] : name, e, type: m ? m[3] : e ? e.type : null, ring: m ? m[2] : e ? D.text(e, 'Ring') : null });
+    }));
+    return out;
+  }
+  // the books the sheet's advantages come from, loaded so their types and rings are known
+  function ensureTraits(v) {
+    const books = [];
+    TRAIT_LISTS.forEach((k) => (v[k] || []).forEach((n) => {
+      const names = namesOf(n);
+      if (names.some((x) => D.named(x))) return;
+      names.forEach((x) => D.recordNamed(x).forEach((r) => !D.loaded(r.book) && books.indexOf(r.book) === -1 && books.push(r.book)));
+    }));
+    return books.length ? D.ensure(books).then(() => true) : Promise.resolve(false);
+  }
+  // A house rule may give a distinction fewer dice on a check of another ring: an instance's
+  // MODIFY introduces this property on the distinction, and the reroll honours it.
+  const OFF_APPROACH = 'Off-Approach Reroll Dice';
+  const ringMark = (t) => (t.ring && t.name.indexOf('(' + t.ring + ')') === -1 ? ' (' + t.ring.toLowerCase() + ')' : '');
+  function rerollModes(v, ring) {
+    const out = [];
+    traits(v).forEach((t) => {
+      const kind = t.type === 'Distinction' ? 'distinction' : t.type === 'Adversity' ? 'adversity' : null;
+      const rr = kind && Dice.rerollRule(kind);
+      if (!rr) return;
+      let dice = rr.dice;
+      let text = rr.text;
+      const off = t.ring && ring && t.ring !== ring ? D.modified(t.e, OFF_APPROACH) : undefined;
+      if (typeof off === 'number') {
+        dice = off;
+        text += ' — on a check of another ring than ' + t.ring + ', ' + off + (off === 1 ? ' die' : ' dice') + ' (a house rule).';
+      }
+      out.push({ id: t.name, label: t.name + ringMark(t), kind, dice, text });
+    });
+    return out;
+  }
+  // Passions and anxieties at the table, by the numbers their rules print: "Passion: After
+  // resolving the check, the character removes 3 strife." (passion_remove_three_strife);
+  // "Anxiety: After the check, the character receives 3 strife. The first time this occurs each
+  // scene, they gain 1 Void point." (anxiety_effect). The scene is live.scene, which ending a
+  // scene advances; the anxieties that have given their Void point this scene are live.claims.
+  function strifeRule(slug) {
+    const r = Dice.rule(slug);
+    const m = r && r.text && /(\d+) strife/.exec(r.text);
+    return m ? { n: parseInt(m[1], 10), text: r.text } : null;
+  }
+  function claimedThisScene(mm, name) {
+    const c = (mm.live || {}).claims;
+    return !!c && c.scene === ((mm.live || {}).scene || 0) && (c.names || []).indexOf(name) !== -1;
+  }
+  function useTrait(m, t) {
+    const mm = memberNow(m.id, m);
+    const from = current(mm, 'Strife');
+    if (t.type === 'Passion') {
+      const r = strifeRule('passion_remove_three_strife');
+      change(mm, { Strife: Math.max(0, from - r.n) }, t.name + ' (passion)');
+      return;
+    }
+    const r = strifeRule('anxiety_effect');
+    change(mm, { Strife: from + r.n }, t.name + ' (anxiety)');
+    const now = memberNow(m.id, mm);
+    if (claimedThisScene(now, t.name)) return;
+    const lv = now.live || {};
+    const scene = lv.scene || 0;
+    const names = lv.claims && lv.claims.scene === scene ? lv.claims.names.slice() : [];
+    names.push(t.name);
+    State().commit('setPartyLive', [now.id, { claims: { scene, names } }]);
+    gainVoid(now, t.name + ' (anxiety): the first time this scene');
+  }
+  function traitButtons(m, v) {
+    const list = traits(v).filter((t) => t.type === 'Passion' || t.type === 'Anxiety');
+    if (!list.length) return null;
+    return el('div', { class: 'chiprow tight traits-in-play' }, [el('span', { class: 'track-name' }, ['Passions, anxieties']), list.map((t) => {
+      const r = strifeRule(t.type === 'Passion' ? 'passion_remove_three_strife' : 'anxiety_effect');
+      if (!r) return null;
+      const claimed = t.type === 'Anxiety' && claimedThisScene(m, t.name);
+      return el('button', { class: 'btn ghost tiny trait ' + t.type.toLowerCase(), type: 'button', title: r.text + (claimed ? ' (Its Void point is already gained this scene.)' : ''), onclick: () => useTrait(m, t) },
+        [el('span', { html: Dice.symbolsHtml(Dice.esc(t.name + ringMark(t))) }), el('span', { class: 'muted' }, [' ' + (t.type === 'Passion' ? '−' : '+') + r.n + ' strife' + (t.type === 'Anxiety' && !claimed ? ', +1 Void' : '')])]);
+    })]);
+  }
 
   function track(label, cur, max, onSet) {
     const n = Math.max(max || 0, cur || 0);
@@ -313,20 +435,27 @@ window.L5RSheet = (function () {
   const rollers = {};
   function rollerFor(m, v) {
     if (rollers[m.id]) return rollers[m.id];
+    const charOf = () => complete(memberNow(m.id, m).character || {});
     const r = Dice.roller({
       preset: { ring: (m.live || {}).stance || 'Air', ringValue: v.Rings[(m.live || {}).stance || 'Air'], skill: null, skillRank: 0 },
-      ringsOf: (ring) => complete(((State().state.party || []).find((x) => x.id === m.id) || m).character || {}).Rings[ring],
+      ringsOf: (ring) => charOf().Rings[ring],
+      rerolls: (ring) => rerollModes(charOf(), ring),
+      onConceal: () => gainVoid(m, 'The GM concealed the TN'),
+      onAdversityFailed: (roll, a) => gainVoid(m, a.label + ' (adversity): the check failed'),
       onResolve: (roll) => {
-        const mm = (State().state.party || []).find((x) => x.id === m.id) || m;
+        const mm = memberNow(m.id, m);
         const t = roll.resolved;
         const p = {};
-        // "Strife (st) … tracks toward Compromised condition" — the kept (st) are received as strife
-        if (t.strife) p.Strife = current(mm, 'Strife') + t.strife;
+        // "Strife (st) … tracks toward Compromised condition" — the strife received is added
+        if (roll.strife) p.Strife = current(mm, 'Strife') + roll.strife;
         // Seize the Moment: "spend 1 Void point"
         if (roll.opts.void) p.voidPoints = Math.max(0, current(mm, 'Void Points') - Dice.SEIZE_THE_MOMENT.cost);
         p.stance = roll.opts.ring;
-        State().commit('appendLog', [Object.assign(Dice.logEntry(roll, mm.name), { memberId: mm.id })]);
-        if (Object.keys(p).length) patch(mm, p);
+        const entry = Object.assign(Dice.logEntry(roll, mm.name), { memberId: mm.id });
+        State().commit('appendLog', [entry]);
+        change(mm, p, 'the check: ' + entry.what);
+        // "After failing a check on which one of their adversities was resolved" — Void Points, RECOVERY
+        if (t.success === false) roll.applied.filter((a) => a.kind === 'adversity').forEach((a) => { a.claimed = true; gainVoid(mm, a.label + ' (adversity): the check failed'); });
       },
     });
     rollers[m.id] = r;
@@ -346,13 +475,16 @@ window.L5RSheet = (function () {
     box.appendChild(track('Fatigue', current(m, 'Fatigue'), value(v, 'Endurance'), (n) => patch(m, { Fatigue: n })));
     box.appendChild(track('Strife', current(m, 'Strife'), value(v, 'Composure'), (n) => patch(m, { Strife: n })));
     box.appendChild(track('Void points', current(m, 'Void Points'), d.voidMax, (n) => patch(m, { voidPoints: Math.min(n, d.voidMax || n) })));
+    box.appendChild(traitButtons(m, v));
     box.appendChild(el('div', { class: 'muted small' }, ['Focus ' + value(v, 'Focus') + ' · Vigilance ' + value(v, 'Vigilance') + ' · Honor ' + (v.Honor == null ? '—' : v.Honor) + ' · Glory ' + (v.Glory == null ? '—' : v.Glory) + ' · Status ' + (v.Status == null ? '—' : v.Status)]));
     box.appendChild(el('h4', {}, ['A check', el('span', { class: 'muted small' }, [' · pick a skill below, a ring, the TN'])]));
     box.appendChild(roller);
     const onRoll = (skill, rank) => roller.set({ skill, skillRank: rank });
     box.appendChild(render(v, null, { onRoll, stance: lv.stance }));
     const rollLog = el('div', { class: 'roll-log' });
-    (((State().state || {}).log) || []).filter((x) => x.kind === 'roll' && x.memberId === m.id).slice(-6).reverse().forEach((x) => rollLog.appendChild(Dice.logLine(x)));
+    (((State().state || {}).log) || []).filter((x) => (x.kind === 'roll' || x.kind === 'event') && x.memberId === m.id).slice(-8).reverse().forEach((x) => rollLog.appendChild(Dice.logLine(x)));
+    // an advantage from a book not yet loaded: load it, then draw again with its type and ring
+    ensureTraits(v).then((loaded) => { if (loaded) window.VttBus.emit('state:remote', { loaded: true }, { local: true }); });
     box.appendChild(rollLog);
     return box;
   }
@@ -360,6 +492,6 @@ window.L5RSheet = (function () {
   return {
     ACTOR, FILE_KIND, spec, skills, skillGroups, formula, evaluate, derived, conditionRules, blank, complete, value,
     fromEntity, fromEntityView, sentence, render, readFile, fileOf, download, memberFrom, readMember, downloadMember,
-    memberFromEntity, current, conditions, tokenText, live, rollerFor,
+    memberFromEntity, current, conditions, tokenText, live, rollerFor, traits, rerollModes, gainVoid, change,
   };
 })();
