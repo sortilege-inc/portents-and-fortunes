@@ -6,8 +6,11 @@
 // DIFFICULTY_SCALE. Nothing about a face is typed here; the numbers the rules state only in
 // prose are named constants below, each citing its sentence.
 //
-// A roll is a state the player acts on, as at the table: roll the pool (step 3), choose kept
-// dice up to the limit (step 5), roll a bonus die for each kept (ex), then resolve (step 6).
+// A roll is a state the player acts on, as at the table: roll the pool (step 3), apply the
+// advantages and disadvantages that reroll dice (step 4), choose kept dice up to the limit
+// (step 5) — nothing is ever kept for the player — roll a bonus die for each kept (ex), then
+// resolve (step 6), receiving the strife the player settles on. Every die first rolled, every
+// reroll and explosion is carried into the log with the roll.
 // The art is the owner's (assets/art/dice), one face per symbol run: ring_ot is a Ring die
 // showing (op) (st).
 window.L5RDice = (function () {
@@ -31,6 +34,17 @@ window.L5RDice = (function () {
   // rule "default_tn_is_two"; the book has no such rule (TN 2 is only "An average task" among the
   // sample TNs), and it was removed. Until a TN is chosen, the roller shows "TN ?".
   const DEFAULT_TN = null;
+  // "…the character making the check rolls one additional (skill) per assisting character who has
+  //  1 or more ranks of the skill in use, and one additional (ring) per assisting character who has
+  //  0 ranks in the skill in use." — Assistance, RULES helper_rolls_skill_or_ring_die; "Then, during
+  //  Step 5: Choose Kept Dice, a character making a check with assistance may keep up to 1
+  //  additional die per assisting character." — main_keeps_plus_one_per_helper (p. 26)
+  const ASSISTANCE = { skilled: 'skill', unskilled: 'ring', extraKeptEach: 1 };
+  // Rerolls happen at Step 4, before any die is kept: "Modify Rolled Dice: The GM and player apply
+  // any effects that modify the dice, such as advantages and disadvantages that cause rerolls." —
+  // Check, STEPS 4. "Each advantage and disadvantage can be applied only once per check by any
+  // character." — Advantage, RULES each_applies_once_per_check. How many dice each rerolls is
+  // read from its rule (rerollRule below), not typed here.
 
   const SYMBOLS = ['ex', 'su', 'op', 'st'];
   const TYPES = { ring: 'Ring Die', skill: 'Skill Die' };
@@ -76,6 +90,29 @@ window.L5RDice = (function () {
     return b ? (b.body || []).filter((r) => 'num' in r).map((r) => ({ tn: r.num, text: r.args[0] ? r.args[0].s : '' })) : [];
   }
 
+  // a core rule by its slug, as the book prints it — "Distinction: The player chooses up to 2 dice
+  // to reroll." (Advantage, RULES distinction_reroll_two_dice)
+  const ruleCache = {};
+  function rule(slug) {
+    if (ruleCache[slug]) return ruleCache[slug];
+    let hit = null;
+    D.all(['core']).some((e) => (e.rules || []).some((r) => {
+      if (String(r.text).split(/\s/)[0] !== slug) return false;
+      hit = { text: window.L5REntity.ruleText(r.text), entity: e.name, id: r.id };
+      return true;
+    }));
+    if (hit) ruleCache[slug] = hit;
+    return hit;
+  }
+  // the number of dice a distinction or an adversity rerolls, from its rule: "up to 2 dice",
+  // "must choose 2 dice with results containing (su) or (ex) symbols"
+  const REROLL_RULES = { distinction: 'distinction_reroll_two_dice', adversity: 'adversity_effect' };
+  function rerollRule(kind) {
+    const r = rule(REROLL_RULES[kind]);
+    const m = r && r.text && /(\d+) dice/.exec(r.text);
+    return m ? { dice: parseInt(m[1], 10), text: r.text } : null;
+  }
+
   const rand = (n) => Math.floor(Math.random() * n);
   function rollDie(type, bonus) {
     const f = faces()[type];
@@ -84,17 +121,23 @@ window.L5RDice = (function () {
   }
 
   // ── a roll ──
-  // opts: { ring (name), ringValue, skill (name|null), skillRank, tn, void, label, who }
+  // opts: { ring (name), ringValue, skill (name|null), skillRank, tn, void, assistSkilled,
+  //         assistUnskilled, concealed, label, source, note }
   function roll(opts) {
-    const o = Object.assign({ ringValue: 1, skillRank: 0, tn: DEFAULT_TN, void: false }, opts || {});
-    const ringDice = o.ringValue + (o.void ? SEIZE_THE_MOMENT.extraRingDice : 0);
+    const o = Object.assign({ ringValue: 1, skillRank: 0, tn: DEFAULT_TN, void: false, assistSkilled: 0, assistUnskilled: 0 }, opts || {});
+    const ringDice = o.ringValue + (o.void ? SEIZE_THE_MOMENT.extraRingDice : 0) + (ASSISTANCE.unskilled === 'ring' ? o.assistUnskilled : 0);
+    const skillDice = o.skillRank + (ASSISTANCE.skilled === 'skill' ? o.assistSkilled : 0);
     const dice = [];
     for (let i = 0; i < ringDice; i++) dice.push(rollDie('ring'));
-    for (let i = 0; i < o.skillRank; i++) dice.push(rollDie('skill'));
-    return { opts: o, dice, limit: keepLimit(o), resolved: null, at: new Date().toISOString() };
+    for (let i = 0; i < skillDice; i++) dice.push(rollDie('skill'));
+    return { opts: o, dice, limit: keepLimit(o), resolved: null, strife: null, at: new Date().toISOString(),
+      initial: dice.map((d) => d.key), events: [], applied: [] };
   }
-  const keepLimit = (o) => (KEEP_LIMIT_IS_RING ? o.ringValue : 0) + (o.void ? SEIZE_THE_MOMENT.extraKept : 0);
+  const keepLimit = (o) => (KEEP_LIMIT_IS_RING ? o.ringValue : 0) + (o.void ? SEIZE_THE_MOMENT.extraKept : 0)
+    + ((o.assistSkilled || 0) + (o.assistUnskilled || 0)) * ASSISTANCE.extraKeptEach;
   const keptBase = (r) => r.dice.filter((d) => d.kept && !d.bonus).length;
+  const successDie = (d) => d.sym.su + d.sym.ex > 0;
+  const anyKept = (r) => r.dice.some((d) => d.kept);
   function toggleKeep(r, id) {
     const d = r.dice.find((x) => x.id === id);
     if (!d || r.resolved) return false;
@@ -115,15 +158,30 @@ window.L5RDice = (function () {
     const nd = rollDie(d.type, true);
     nd.from = d.id;
     r.dice.splice(r.dice.indexOf(d) + 1 + r.dice.filter((x) => x.from === d.id).length, 0, nd);
+    r.events.push({ kind: 'explode', type: d.type, from: d.key, to: nd.key });
     return nd;
   }
-  // "Keep the best": the most successes, then opportunity, then least strife — a helper, the
-  // choice is the player's
-  function keepBest(r) {
-    if (r.resolved) return;
-    r.dice.forEach((d) => { if (!d.bonus && !d.exploded) d.kept = false; });
-    const score = (d) => (d.sym.ex + d.sym.su) * 100 + d.sym.op * 10 - d.sym.st;
-    r.dice.filter((d) => !d.bonus && !d.exploded).sort((a, b) => score(b) - score(a)).slice(0, Math.max(0, r.limit - keptBase(r))).forEach((d) => (d.kept = true));
+  // A reroll mode: { id, label, kind: 'distinction' | 'adversity' | 'other', dice, text }.
+  // An adversity must reroll that many dice showing (su) or (ex) — all of them, if fewer show.
+  const rerollNeed = (r, mode) => (mode.kind === 'adversity' ? Math.min(mode.dice, r.dice.filter((d) => !d.bonus && successDie(d)).length) : 0);
+  function canMark(r, mode, d) {
+    if (r.resolved || anyKept(r) || d.bonus) return false;
+    if (mode.kind === 'adversity' && !successDie(d)) return false;
+    return true;
+  }
+  const applied = (r, mode) => r.applied.some((a) => a.id === mode.id);
+  function reroll(r, ids, mode) {
+    if (r.resolved || anyKept(r) || !ids.length) return false;
+    if (mode.kind !== 'other' && applied(r, mode)) return false;
+    const dice = ids.map((id) => r.dice.find((x) => x.id === id)).filter((d) => d && canMark(r, mode, d));
+    if (mode.kind === 'adversity' ? dice.length !== rerollNeed(r, mode) : mode.dice != null && dice.length > mode.dice) return false;
+    dice.forEach((d) => {
+      const nd = rollDie(d.type);
+      r.events.push({ kind: 'reroll', type: d.type, from: d.key, to: nd.key, via: mode.label });
+      Object.assign(d, { face: nd.face, key: nd.key, sym: nd.sym, text: nd.text });
+    });
+    if (mode.kind !== 'other') r.applied.push({ id: mode.id, label: mode.label, kind: mode.kind });
+    return true;
   }
   // Step 6: the kept dice's symbols, in the corpus's order
   function tally(r) {
@@ -133,8 +191,10 @@ window.L5RDice = (function () {
     const tn = r.opts.tn;
     return { symbols: t, successes, opportunity: t.op, strife: t.st, tn, success: tn == null ? null : successes >= tn, bonus: tn == null ? null : Math.max(0, successes - tn), unexploded: r.dice.filter((d) => d.kept && d.sym.ex && !d.exploded).length };
   }
-  function resolve(r) {
+  // `strife`: what the character receives — the kept (st) unless the player and GM settle on less
+  function resolve(r, strife) {
     r.resolved = tally(r);
+    r.strife = strife == null ? r.resolved.strife : Math.max(0, Math.min(r.resolved.strife, strife));
     return r.resolved;
   }
 
@@ -168,12 +228,21 @@ window.L5RDice = (function () {
 
   // A roller: the controls, the tray, the result. `opts.onResolve(roll)` logs it; `opts.preset`
   // fills ring / values / skill (a sheet's or an NPC's); `opts.fixed` hides the value inputs.
+  // A character's roller also takes `opts.rerolls(ring)` — the reroll modes its advantages and
+  // disadvantages give on a check of that ring — `opts.onConceal()` when the GM conceals the TN,
+  // `opts.onAdversityFailed(roll, applied)` for an adversity on a check whose TN was never set,
+  // and `opts.strifeDefault(tally)` for the strife a kept (st) gives (a stance may change it).
+  const OTHER = { id: 'other', label: 'Other reroll', kind: 'other', dice: null, text: 'A reroll a technique, an ability or the GM grants: mark the dice it names.' };
   function roller(opts) {
     const o = opts || {};
     const p = Object.assign({ ring: 'Air', ringValue: 2, skill: null, skillRank: 1, tn: DEFAULT_TN, void: false }, o.preset || {});
     let current = null;
+    let mode = null;            // the reroll being marked
+    let marks = [];
+    let concealGranted = false; // the Void point a concealed TN gives, once per roll set up
     const box = el('div', { class: 'roller' });
     const tray = el('div', { class: 'tray' });
+    const rerollBar = el('div', { class: 'reroll-bar' });
     const result = el('div', { class: 'roll-result' });
     const ringPick = el('div', { class: 'ring-pick' });
     const ringValue = el('input', { class: 'text num small', type: 'number', min: 1, max: 5, value: p.ringValue, title: 'Ring value' });
@@ -182,6 +251,16 @@ window.L5RDice = (function () {
     tn.appendChild(el('option', { value: '' }, ['TN ?']));
     difficulty().forEach((d) => tn.appendChild(el('option', { value: d.tn, title: d.text, selected: d.tn === p.tn || null }, ['TN ' + d.tn])));
     const voidBox = el('input', { type: 'checkbox', checked: p.void || null });
+    const assistSkilled = el('input', { class: 'text num small', type: 'number', min: 0, max: 9, value: 0, title: 'Assisting characters with 1 or more ranks in the skill: each adds a Skill die and a kept die' });
+    const assistUnskilled = el('input', { class: 'text num small', type: 'number', min: 0, max: 9, value: 0, title: 'Assisting characters with 0 ranks in the skill: each adds a Ring die and a kept die' });
+    const concealBox = el('input', { type: 'checkbox' });
+    const note = el('input', { class: 'text small note', type: 'text', placeholder: 'what this check is for…' });
+    concealBox.addEventListener('change', () => {
+      if (concealBox.checked && !concealGranted && o.onConceal) {
+        concealGranted = true;
+        o.onConceal();
+      }
+    });
     function drawRings() {
       ringPick.innerHTML = '';
       ['Air', 'Earth', 'Fire', 'Water', 'Void'].forEach((r) => {
@@ -192,12 +271,48 @@ window.L5RDice = (function () {
         } }, [ringIcon(r), el('span', {}, [r])]));
       });
     }
+    const int = (inp, min) => Math.max(min, parseInt(inp.value || String(min), 10) || min);
     function values() {
-      return { ring: p.ring, ringValue: Math.max(1, parseInt(ringValue.value || '1', 10)), skill: p.skill, skillRank: Math.max(0, parseInt(skillRank.value || '0', 10)), tn: tn.value === '' ? null : parseInt(tn.value, 10), void: voidBox.checked, label: o.label || null };
+      return { ring: p.ring, ringValue: int(ringValue, 1), skill: p.skill, skillRank: int(skillRank, 0), tn: tn.value === '' ? null : parseInt(tn.value, 10), void: voidBox.checked,
+        assistSkilled: int(assistSkilled, 0), assistUnskilled: int(assistUnskilled, 0), concealed: concealBox.checked, label: o.label || null, source: p.source || null };
+    }
+    const modes = () => (o.rerolls ? o.rerolls(current ? current.opts.ring : p.ring) : []).concat([OTHER]);
+    function drawRerolls() {
+      rerollBar.innerHTML = '';
+      const r = current;
+      if (!r || r.resolved || anyKept(r)) return;
+      rerollBar.appendChild(el('div', { class: 'chiprow tight' }, [el('span', { class: 'tray-k' }, ['Reroll']), modes().map((m) => {
+        const used = m.kind !== 'other' && applied(r, m);
+        return el('button', { class: 'btn ghost tiny rr ' + m.kind + (mode && mode.id === m.id ? ' on' : ''), type: 'button', disabled: used || null,
+          title: (m.text || '') + (used ? ' — applied on this check' : ''), onclick: () => { mode = mode && mode.id === m.id ? null : m; marks = []; drawTray(); } },
+        [symbolsSpan(m.label), m.dice != null ? el('span', { class: 'muted' }, [' · ' + (m.kind === 'adversity' ? rerollNeed(r, m) : 'up to ' + m.dice)]) : null]);
+      })]));
+      if (!mode) return;
+      const need = mode.kind === 'adversity' ? rerollNeed(r, mode) : null;
+      const ok = mode.kind === 'adversity' ? marks.length === need : marks.length > 0 && (mode.dice == null || marks.length <= mode.dice);
+      rerollBar.appendChild(el('div', { class: 'chiprow tight' }, [
+        el('span', { class: 'muted small' }, [mode.kind === 'adversity' ? (need ? 'Mark the ' + need + ' ' + (need === 1 ? 'die' : 'dice') + ' showing (su) or (ex) it rerolls.' : 'No die shows (su) or (ex): nothing to reroll.') : mode.kind === 'distinction' ? 'Mark up to ' + mode.dice + ' dice to reroll.' : 'Mark the dice to reroll.']),
+        el('button', { class: 'btn tiny', type: 'button', disabled: ok ? null : true, onclick: () => {
+          if (reroll(r, marks, mode)) { mode = null; marks = []; drawTray(); }
+        } }, ['Reroll ' + marks.length + ' ' + (marks.length === 1 ? 'die' : 'dice')]),
+        mode.kind === 'adversity' && !need ? el('button', { class: 'btn ghost tiny', type: 'button', onclick: () => { r.applied.push({ id: mode.id, label: mode.label, kind: mode.kind }); mode = null; drawTray(); } }, ['Apply it anyway']) : null,
+      ]));
+    }
+    function clickDie(r, d) {
+      if (mode) {
+        if (!canMark(r, mode, d)) return;
+        const i = marks.indexOf(d.id);
+        if (i !== -1) marks.splice(i, 1);
+        else if (mode.kind === 'adversity' ? marks.length < rerollNeed(r, mode) : mode.dice == null || marks.length < mode.dice) marks.push(d.id);
+        drawTray();
+        return;
+      }
+      if (toggleKeep(r, d.id)) drawTray();
     }
     function drawTray() {
       tray.innerHTML = '';
       result.innerHTML = '';
+      drawRerolls();
       if (!current) return;
       const r = current;
       ['ring', 'skill'].forEach((type) => {
@@ -206,7 +321,7 @@ window.L5RDice = (function () {
         tray.appendChild(el('div', { class: 'tray-row' }, [
           el('span', { class: 'tray-k' }, [type === 'ring' ? 'Ring dice' : 'Skill dice']),
           group.map((d) => {
-            const node = el('button', { class: 'die ' + d.type + (d.kept ? ' kept' : '') + (d.bonus ? ' bonus' : ''), type: 'button', title: (d.text || 'Blank') + (d.bonus ? ' — the bonus die of an (ex)' : ''), onclick: () => { if (toggleKeep(r, d.id)) drawTray(); } }, [faceImg(d)]);
+            const node = el('button', { class: 'die ' + d.type + (d.kept ? ' kept' : '') + (d.bonus ? ' bonus' : '') + (marks.indexOf(d.id) !== -1 ? ' marked' : ''), type: 'button', title: (d.text || 'Blank') + (d.bonus ? ' — the bonus die of an (ex)' : ''), onclick: () => clickDie(r, d) }, [faceImg(d)]);
             if (d.kept && d.sym.ex && !d.exploded && !r.resolved) node.appendChild(el('span', { class: 'explode', title: 'Roll the bonus die this (ex) gives', onclick: (ev) => { ev.stopPropagation(); explode(r, d.id); drawTray(); } }, ['❉ +1']));
             return node;
           }),
@@ -221,14 +336,34 @@ window.L5RDice = (function () {
         t.unexploded ? el('span', { class: 'muted small' }, [' · ' + t.unexploded + ' kept (ex) not yet rolled']) : null,
       ]));
       if (!r.resolved) {
+        const dflt = o.strifeDefault ? o.strifeDefault(t) : t.strife;
+        const shown = r.strifeChosen != null ? Math.min(r.strifeChosen, t.strife) : Math.min(dflt, t.strife);
+        const strife = el('input', { class: 'text num small', type: 'number', min: 0, max: t.strife, value: shown, title: 'The strife the character receives: the kept (st), unless the player and GM settle on less',
+          oninput: (ev) => { r.strifeChosen = Math.max(0, parseInt(ev.target.value || '0', 10) || 0); } });
         result.appendChild(el('div', { class: 'chiprow tight' }, [
-          el('button', { class: 'btn ghost tiny', type: 'button', onclick: () => { keepBest(r); drawTray(); } }, ['Keep the best']),
-          el('button', { class: 'btn tiny', type: 'button', onclick: () => { resolve(r); drawTray(); if (o.onResolve) o.onResolve(r); } }, ['Resolve']),
+          anyKept(r) ? el('label', { class: 'small' }, ['Strife received ', strife, el('span', { class: 'muted' }, [' of ' + t.strife + ' (st) kept'])]) : el('span', { class: 'muted small' }, ['Click dice to keep them — nothing is kept for you.']),
+          el('button', { class: 'btn tiny', type: 'button', disabled: anyKept(r) ? null : true, onclick: () => {
+            r.note = note.value.trim() || null;
+            resolve(r, r.strifeChosen != null ? r.strifeChosen : dflt);
+            // what was set up for this check does not carry to the next
+            concealGranted = false;
+            concealBox.checked = false;
+            assistSkilled.value = 0;
+            assistUnskilled.value = 0;
+            note.value = '';
+            drawTray();
+            if (o.onResolve) o.onResolve(r);
+          } }, ['Resolve']),
         ]));
-      } else result.appendChild(el('div', { class: 'muted small' }, ['resolved' + (o.onResolve ? ' and logged' : '')]));
+      } else {
+        result.appendChild(el('div', { class: 'muted small' }, ['resolved' + (o.onResolve ? ' and logged' : '') + (r.strife !== r.resolved.strife ? ' · strife received ' + r.strife + ' of ' + r.resolved.strife : '')]));
+        // an adversity on a check whose TN was never set: whether it failed is the table's to say
+        const open = r.resolved.success == null && o.onAdversityFailed ? r.applied.filter((a) => a.kind === 'adversity' && !a.claimed) : [];
+        if (open.length) result.appendChild(el('div', { class: 'chiprow tight' }, open.map((a) => el('button', { class: 'btn ghost tiny', type: 'button', onclick: () => { a.claimed = true; o.onAdversityFailed(r, a); drawTray(); } }, ['It failed: +1 Void point (' + a.label + ')']))));
+      }
     }
     drawRings();
-    const rollBtn = el('button', { class: 'btn', type: 'button', onclick: () => { current = roll(values()); drawTray(); } }, ['Roll']);
+    const rollBtn = el('button', { class: 'btn', type: 'button', onclick: () => { current = roll(values()); mode = null; marks = []; drawTray(); } }, ['Roll']);
     box.appendChild(el('div', { class: 'roller-controls' }, [
       ringPick,
       el('label', { class: 'small', hidden: o.fixed || null }, ['Ring ', ringValue]),
@@ -237,7 +372,14 @@ window.L5RDice = (function () {
       el('label', { class: 'small', title: 'Seize the Moment: spend 1 Void point to roll one additional Ring die and keep one additional die' }, [voidBox, ' Void point']),
       rollBtn,
     ]));
+    box.appendChild(el('div', { class: 'roller-controls more' }, [
+      el('label', { class: 'small', title: 'Assistance (p. 26): each assisting character with ranks in the skill adds a Skill die, each without adds a Ring die, and each adds a kept die' }, ['Assisting: skilled ', assistSkilled]),
+      el('label', { class: 'small' }, ['unskilled ', assistUnskilled]),
+      o.onConceal ? el('label', { class: 'small', title: 'After the GM conceals the TN of a check from the players, the character gains 1 Void point (Void Points, p. 297)' }, [concealBox, ' TN concealed (+1 Void point)']) : null,
+      note,
+    ]));
     box.appendChild(tray);
+    box.appendChild(rerollBar);
     box.appendChild(result);
     box.set = (patch) => {
       Object.assign(p, patch || {});
@@ -251,31 +393,61 @@ window.L5RDice = (function () {
     box.current = () => current;
     return box;
   }
+  const symbolsSpan = (text) => el('span', { html: symbolsHtml(esc(text)) });
 
-  // one log line for a resolved roll
+  // one log line: a resolved roll with how it came to be, or an event on a character
+  const logDie = (type, key) => el('img', { class: 'logdie', src: artBase() + 'dice/' + key + '.svg', alt: key, title: (type === 'ring' ? 'Ring die ' : 'Skill die ') + key });
   function logLine(entry) {
+    if (entry.kind === 'event') return el('div', { class: 'roll-line event' }, [
+      el('span', { class: 'roll-who' }, [entry.who || '']),
+      el('span', {}, [entry.text || '']),
+      entry.why ? el('span', { class: 'muted small' }, [entry.why]) : null,
+    ]);
+    if (entry.kind !== 'roll') return el('div', { class: 'roll-line' }, [el('span', { class: 'roll-who' }, [entry.kind || 'note']), entry.text || JSON.stringify(entry)]);
     const t = entry.tally || {};
     const s = summary(t);
+    const chips = [];
+    if (entry.limit != null) chips.push(el('span', { class: 'logchip' + (entry.keptFewer ? ' warn' : '') }, ['kept ' + entry.keptBase + ' of ' + entry.limit + (entry.keptFewer ? ' — fewer than allowed' : '')]));
+    if (entry.assistSkilled) chips.push(el('span', { class: 'logchip' }, ['assisted: ' + entry.assistSkilled + ' skilled']));
+    if (entry.assistUnskilled) chips.push(el('span', { class: 'logchip' }, ['assisted: ' + entry.assistUnskilled + ' unskilled']));
+    if (entry.concealed) chips.push(el('span', { class: 'logchip' }, ['TN concealed']));
+    if (entry.strifeRolled != null && entry.strifeApplied !== entry.strifeRolled) chips.push(el('span', { class: 'logchip warn' }, ['strife received ' + entry.strifeApplied + ' of ' + entry.strifeRolled]));
+    (entry.applied || []).forEach((a) => chips.push(el('span', { class: 'logchip' }, [symbolsSpan(a.label)])));
+    const events = (entry.events || []).map((ev) => el('div', { class: 'log-ev' }, [
+      el('span', { class: 'muted small' }, [ev.kind === 'reroll' ? '↻ ' + (ev.via || 'reroll') : '❉ explodes']), logDie(ev.type, ev.from), el('span', { class: 'muted' }, ['→']), logDie(ev.type, ev.to),
+    ]));
+    const first = (entry.initial || []).length ? el('div', { class: 'log-ev' }, [el('span', { class: 'muted small' }, ['rolled']), entry.initial.map((k) => logDie(k.split('_')[0], k))]) : null;
     return el('div', { class: 'roll-line' + (t.success === true ? ' ok' : t.success === false ? ' fail' : '') }, [
       el('span', { class: 'roll-who' }, [[entry.who, entry.what].filter(Boolean).join(' · ')]),
-      el('span', { class: 'roll-dice' }, (entry.kept || []).map((k) => el('img', { class: 'logdie', src: artBase() + 'dice/' + k + '.svg', alt: k }))),
+      el('span', { class: 'roll-dice' }, (entry.kept || []).map((k) => logDie(String(k).split('_')[0], k))),
       el('span', { class: 'roll-sum' }, [s.text + (s.verdict ? ' — ' + s.verdict : '')]),
-      entry.note ? el('span', { class: 'muted small' }, [entry.note]) : null,
+      entry.note ? el('span', { class: 'muted small' }, ['“' + entry.note + '”']) : null,
+      entry.source ? el('span', { class: 'muted small' }, ['via ' + entry.source]) : null,
+      chips.length ? el('div', { class: 'logchips' }, chips) : null,
+      first || events.length ? el('details', { class: 'log-prov' }, [el('summary', { class: 'muted small' }, ['how it was rolled']), first, events]) : null,
     ]);
   }
-  // what a resolved roll leaves in the log
+  // what a resolved roll leaves in the log: the check, every die first rolled, each reroll and
+  // explosion, the dice kept, and the strife the character received
   function logEntry(r, who) {
     const o = r.opts;
+    const t = r.resolved || tally(r);
+    const kb = keptBase(r);
     return {
       at: new Date().toISOString(), kind: 'roll', mode: 'check', who: who || null,
       what: [o.skill, o.ring ? '(' + o.ring + ' ' + o.ringValue + ')' : null, o.tn != null ? 'TN ' + o.tn : null, o.void ? 'Void point' : null].filter(Boolean).join(' ') || (o.label || 'check'),
-      kept: r.dice.filter((d) => d.kept).map((d) => d.key), tally: r.resolved || tally(r),
+      kept: r.dice.filter((d) => d.kept).map((d) => d.key), tally: t,
+      note: r.note || null, source: o.source || null, initial: r.initial.slice(), events: r.events.slice(),
+      applied: r.applied.map((a) => ({ label: a.label, kind: a.kind })),
+      limit: r.limit, keptBase: kb, keptFewer: kb < r.limit,
+      assistSkilled: o.assistSkilled || 0, assistUnskilled: o.assistUnskilled || 0, concealed: !!o.concealed,
+      strifeRolled: t.strife, strifeApplied: r.strife == null ? t.strife : r.strife,
     };
   }
 
   return {
-    DEFAULT_TN, SEIZE_THE_MOMENT, EXPLOSION, faces, symbolDefs, resolutionOrder, checkSteps, difficulty,
-    roll, toggleKeep, explode, keepBest, tally, resolve, summary, keepLimit,
+    DEFAULT_TN, SEIZE_THE_MOMENT, EXPLOSION, ASSISTANCE, faces, symbolDefs, resolutionOrder, checkSteps, difficulty,
+    rule, rerollRule, roll, toggleKeep, explode, reroll, rerollNeed, tally, resolve, summary, keepLimit,
     roller, faceImg, ringIcon, symbolsHtml, logLine, logEntry, esc,
   };
 })();
