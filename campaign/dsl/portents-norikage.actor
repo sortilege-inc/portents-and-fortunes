@@ -1,6 +1,6 @@
 EXTENSION "Portents_Characters" {
     NAME "Portents & Fortunes — the player character"
-    VERSION "0.1.0"
+    VERSION "0.1.1"
     SPEC_VERSION "0.5"
     RELEASE_DATE "2026-09-23"
     DEPENDS_ON "L5R5e_Core_Core"
@@ -38,6 +38,10 @@ EXTENSION "Portents_Characters" {
             ^"Equipment" LIST OF STRING ["Bō", "Common Clothes", "Traveling Pack", "Jade Tadpole", "Left Green Armband-sash", "150 zeni · starting wealth 3 koku"]
             ^"Bushido" DEF { ^"Paramount Tenet" STRING "Sincerity" ^"Less Significant Tenet" STRING "Duty" }
             ^"Experience" INTEGER 11
+            # Blood of the Kami (Togashi Tattooed Order school ability): his one mystical tattoo, its motif and
+            # the kihō linked to it, from his sheet (sheet-data.json: motif "spider", linkedKiho). Read by
+            # campaign/site/blood-of-the-kami.js, the campaign's own check hook (decision 28).
+            ^"Mystical Tattoos" DEF { ^"Spider" STRING "Earth Needs No Eyes" }
         }
     }
 }

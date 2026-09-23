@@ -22,7 +22,7 @@ window.VttConfig = {
   instance: {
     styles: [],
     stages: {
-      data: ['campaign/data/index.js', 'campaign/site/portraits.js'],
+      data: ['campaign/data/index.js', 'campaign/site/portraits.js', 'campaign/site/blood-of-the-kami.js'],
     },
   },
   worker: {

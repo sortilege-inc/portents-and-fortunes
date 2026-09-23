@@ -170,6 +170,20 @@ spent and the ledger with his versions. Not yet: an engaged NPC's conditions vis
 (O7) — with M4d's conflict, where engagement is. Upstream found and fixed an M4a defect on the way:
 a live sheet threw when a character's passions and anxieties were not yet loaded.
 
+**M4c landed 2026-09-23** — upstream `b09ba1b` / `5f2333a` (+ `932b387`: a character's own DEF field
+arrives as its fields), proof in upstream PLAN I4; pulled here in `0d28080`. Items 9, 10, 12. From this
+layer: **Blood of the Kami** is Norikage's (decision 28) — his actor records `^"Mystical Tattoos" DEF
+{ ^"Spider" STRING "Earth Needs No Eyes" }` and `campaign/site/blood-of-the-kami.js` registers a check
+hook quoting the school ability; the **session boundary** house rule carries `^"Removed At Session End"
+BOOLEAN true` on `^"Strife"`. In the browser on 8733, Norikage fresh from the picker: *Earth Needs No
+Eyes · Breaking Blow · Lord Togashi's Insight (once per game session · Shūji)* as buttons; *Earth Needs
+No Eyes* succeeding read *+1 bonus success — Blood of the Kami (the spider tattoo)*, 2 successes, logged
+with it; failing, and *Breaking Blow* succeeding, no bonus; *Lord Togashi's Insight* used → disabled,
+*used (1 of 1 this session)*; **End session** offered the carry for each character — the one ticked
+kept Strife 9 (*strife carried in full*), the other *Strife 9 → 5 (house rule)*; the insight available
+again; 0 console messages. Not yet: conflict (M4d) — its actions, stances and the engaged NPC's
+conditions.
+
 ## Decision log
 
 | # | Decision | Why |
@@ -209,3 +223,5 @@ a live sheet threw when a character's passions and anxieties were not yet loaded
 | 33 | **Dark Tides' check outcomes (owner: "delete the Dark Tides outcomes")**: the 9 flagged ON_FAILUREs **and 17 more the gate had never measured** — the mend gate checks strings of 40+ characters, and these were shorter (*"Door holds"*, *"Enemies fight on"*) — 26 outcomes the adventure never states, deleted; 11 short outcomes that paraphrased checks the book does print (*"PC catches a fleeing ruffian"*) now carry its sentence (*"If the PC wins, they have caught one of the ruffians."*, p. 26). titterpig-dsl-l5r5e `30bcf53`; upstream rebuilt `0c663c8` (31,539 strings, 0/0/0 — 26 fewer, the deleted outcomes) | Applying the owner's ruling to every instance of it in the file, not only the nine the report listed. A corpus-wide scan of `ON_SUCCESS` / `ON_FAILURE` / `OUTCOME` strings under 40 characters finds no other: the only one left is Dark Tides' *"If the ruffian wins, they keep running."*, verified verbatim. |
 | 34 | **Dark Tides' and The Lost Writer's checks, as printed (owner: "fix Dark Tides' checks … the TN changes based on the ring used")** — spec: `RING_TN "Ring" n` (the ring's own TN; `TN` is any other ring's), `ALTERNATIVE { … }`, `RING` only when the text requires it and repeated for *either* (titterpig-dsl `7e704ee`, `de0fcf7`). Dark Tides: all 42 printed checks (pp. 10–29) as 43 CHECKs, 13 new, every invented `RING` gone, wrong TNs fixed, three clue pointers now naming their check (`f4e9849`). The Lost Writer, the only other adventure with CHECKs: 17 (pp. 162–171), skill groups replaced by the skills printed, 4 new (`cbb7ad1`). Gates: mend and lift PASS 0 open, validator 164 files 0/0; upstream rebuilt `e84ce80` (31,572 strings 0/0/0) | The core's own definition (p. 297): *"a TN 3 Fitness check (Earth 1, Fire 4)"* is TN 4 with Fire, 1 with Earth, *"and a TN of 3 for any other ring"*. Fixing only the 30 existing checks would have left 12 printed checks out — a subset. The Lost Writer carried the same defect (a group and one ring for "Games [Water or Air]"); fixed with it rather than left for a later catch. One reading recorded: *"a TN 2 Skulduggery or Medicine (Fire 1) check"* gives Fire 1 to Medicine only, as the kit prints ring TNs after each skill (*"Command (Water 1) or Skulduggery (Earth 3)"*) |
 | 35 | The conditions on the sheet are the corpus's 16 (less the two the ACTOR derives), not Portents' 13 | Upstream I-18: the sheet reads what the corpus defines; *Dying* and *Wounded* were missing from Portents' hand list. |
+| 36 | **Owner (2026-09-23): in "a TN 2 Skulduggery or Medicine (Fire 1) check" the Fire 1 applies to both skills.** Dark Tides' *Deduce When Suzaku Died* is now one check, both skills at TN 2, Fire 1 (titterpig-dsl-l5r5e `4670783`; upstream rebuilt `96765c7`, 31,572 strings 0/0/0) | Replaces decision 34's reading. No other check in either adventure has that shape (scanned). |
+| 37 | Blood of the Kami keys on Norikage's recorded tattoo (motif → kihō) and the technique's category *Kihō*; the bonus is his school rank, automatic on a success, nothing on a failure | The school ability's text; the linked kihō and motif from his Portents sheet (`sheet-data.json`: spider, *Earth Needs No Eyes*). |
