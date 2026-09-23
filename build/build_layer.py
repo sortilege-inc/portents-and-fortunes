@@ -21,6 +21,11 @@ then gates them, and exits non-zero on any failure:
   3. REFERENCES — every id the layer points at (the type a DEF EXTENDS, a LIST OF type, a
      reference, a MODIFY's target, any hash argument) is an entity of the layer or of the corpus.
      A homebrew NPC built on a mistyped chassis fails here, not at the table.
+  4. NAMES — a reference with no hash (the corpus leaves some 2,000 entities unhashed, and names
+     them bare where it points at them) must name an entity of the layer or the corpus: a MODIFY
+     or OVERRIDE target, a CONCERNS entry, an item of a LIST OF a type. A name that matches none
+     fails; a name that matches several is reported with the one the pages will resolve it to
+     (the layer's own, then the core's — system/l5r5e/data.js `named`).
 
 The corpus side is read from data/*.js, so the books must be built first (build/build.sh).
 """
@@ -69,18 +74,45 @@ def layer_files(root):
 
 
 def corpus_entities():
-    """Every entity id the built books carry (data/*.js), for the ids and references gates."""
-    ids = set()
+    """Every entity the built books carry (data/*.js): id → (name, book, form), for the ids,
+    references and names gates."""
+    ents = {}
     data_dir = os.path.join(HERE, "data")
     for fn in sorted(os.listdir(data_dir)):
         if not fn.endswith(".js"):
             continue
         m = BLOB.search(open(os.path.join(data_dir, fn), encoding="utf-8").read())
         if m:
-            ids.update(json.loads(m.group(1))["entities"].keys())
-    if not ids:
+            for h, e in json.loads(m.group(1))["entities"].items():
+                ents[h] = (e.get("name"), e.get("book"), e.get("form"))
+    if not ents:
         raise SystemExit("build_layer: no book data in data/ — run build/build.sh first")
-    return ids
+    return ents
+
+
+def named_refs(book):
+    """Every reference the layer makes by name alone: (where, name)."""
+    out = []
+
+    def blocks(lst, where):
+        for b in lst or []:
+            if not isinstance(b, dict):
+                continue
+            args = b.get("args") or []
+            if b.get("kw") in ("MODIFY", "OVERRIDE") and not any("h" in a for a in args):
+                out += [(b["kw"] + " target", a["c"]) for a in args if "c" in a][:1]
+            if b.get("kw") == "CONCERNS" and args and "l" in args[0]:
+                out += [("CONCERNS in " + where, a["c"]) for a in args[0]["l"] if "c" in a and "h" not in a]
+            blocks(b.get("body"), where)
+
+    for c in book["book"]["chapters"]:
+        blocks(c.get("blocks"), c["file"])
+    for h, e in book["entities"].items():
+        for p in e.get("props", []):
+            if p.get("vk") == "list" and p.get("ofHash"):
+                out += [("%s in %s" % (p["name"], e["name"]), a["c"]) for a in p.get("items", []) if "c" in a and "h" not in a]
+        blocks(e.get("blocks"), e["name"])
+    return out
 
 
 def pointed_at(node, out):
@@ -189,7 +221,8 @@ def main():
     if not (missing or short or unsourced):
         print("  strings: %d (%d occurrences) — 0 uncovered · 0 short · 0 unsourced" % (len(want), sum(want.values())))
 
-    corpus = corpus_entities()
+    corpus_all = corpus_entities()
+    corpus = set(corpus_all)
     taken = sorted(set(entities) & corpus)
     if taken:
         fail = 1
@@ -203,6 +236,25 @@ def main():
               % (len(dangling), ", ".join(dangling[:10])))
     else:
         print("  references: every id the layer points at resolves (layer or corpus)")
+    by_name = {}
+    for h, (nm, bk, form) in corpus_all.items():
+        by_name.setdefault(nm, []).append((h, bk, form))
+    for h, e in entities.items():
+        by_name.setdefault(e["name"], []).append((h, a.id, e.get("form")))
+    refs = named_refs(book_blob)
+    unknown = [(w, nm) for w, nm in refs if nm not in by_name]
+    if unknown:
+        fail = 1
+        print("  NAMES — %d references name nothing in the layer or the corpus:" % len(unknown))
+        for w, nm in unknown[:25]:
+            print("    %r (%s)" % (nm, w))
+    else:
+        print("  names: %d references by name, every one names an entity" % len(refs))
+    for w, nm in sorted(set(refs)):
+        hits = [x for x in by_name.get(nm, []) if x[2] != "ENTITY"] or by_name.get(nm, [])
+        if len(hits) > 1:
+            pick = (next((x for x in hits if x[1] == a.id), None) or next((x for x in hits if x[1] == "core"), None) or hits[0])
+            print("    note — %r (%s) names %d entities; the pages resolve it to %s in %s" % (nm, w, len(hits), pick[0], pick[1]))
     print("build_layer: %s" % ("FAILED" if fail else "OK"))
     return fail
 

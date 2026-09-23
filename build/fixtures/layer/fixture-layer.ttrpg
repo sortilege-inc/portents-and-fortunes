@@ -16,6 +16,7 @@ EXTENSION "Fixture_Layer" EXTENDS "L5R5e_Core_NPCs" {
             ^"Combat Conflict Rank" INTEGER 1
             ^"Intrigue Conflict Rank" INTEGER 1
             ^"Description" STRING "A fixture for the layer build, not a character."
+            ^"Techniques" LIST OF #L5R350fG9hI1jK3lM5nO7p ^"Technique" [^"One within the Void"]
         }
     }
 }
