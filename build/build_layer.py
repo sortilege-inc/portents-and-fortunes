@@ -100,9 +100,9 @@ def named_refs(book):
                 continue
             args = b.get("args") or []
             if b.get("kw") in ("MODIFY", "OVERRIDE") and not any("h" in a for a in args):
-                out += [(b["kw"] + " target", a["c"]) for a in args if "c" in a][:1]
+                out.extend([(b["kw"] + " target", a["c"]) for a in args if "c" in a][:1])
             if b.get("kw") == "CONCERNS" and args and "l" in args[0]:
-                out += [("CONCERNS in " + where, a["c"]) for a in args[0]["l"] if "c" in a and "h" not in a]
+                out.extend(("CONCERNS in " + where, a["c"]) for a in args[0]["l"] if "c" in a and "h" not in a)
             blocks(b.get("body"), where)
 
     for c in book["book"]["chapters"]:
