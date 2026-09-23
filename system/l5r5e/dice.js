@@ -2,7 +2,7 @@
 //
 // The dice are the corpus's: `^"Ring Die"` and `^"Skill Die"` print their FACES (6 and 12
 // numbered rows, each face a run of symbols — "(op) (st)"), `^"Dice Symbols"` prints the four
-// symbols and the RESOLUTION_ORDER, `^"Check"` prints the seven STEPS, `^"Target Number"` the
+// symbols and the RESOLUTION_ORDER, `^"Check"` prints the six STEPS (the book's Summary of a Check, p. 23), `^"Target Number"` the
 // DIFFICULTY_SCALE. Nothing about a face is typed here; the numbers the rules state only in
 // prose are named constants below, each citing its sentence.
 //
