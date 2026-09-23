@@ -390,7 +390,7 @@ EXTENSION "Portents_NPCs" EXTENDS "L5R5e_Core_NPCs" {
             ]
         }
         RULES {
-            #PFnpcNuir1: nui_herbalist "Herbalist: When Nui makes a Medicine check targeting a character, she may spend (op) as follows: (op)+: The target removes 1 strife for each (op) spent this way."
+            #PFnpcNuir1: nui_herbalist "Herbalist: When Nui makes a Medicine check targeting a character, she may spend (op) in the following way:\n\n(op)+: The target removes 1 strife for each (op) spent this way"
         }
     }
 
@@ -700,8 +700,8 @@ EXTENSION "Portents_NPCs" EXTENDS "L5R5e_Core_NPCs" {
         }
         RULES {
             #PFnpcTogashiOharur1: togashi_oharu_blood_of_the_kami "Blood of the Kami: When Oharu successfully uses a kihō, they are considered to have three bonus successes for the purposes of resolving the effects of that kihō."
-            #PFnpcTogashiOharur2: togashi_oharu_drawing_from_within "Drawing From Within: Choose four kihō from those listed beginning on page 182 of the Core Rulebook, which Oharu can use. Each is linked to an appropriate tattoo, so they benefit from Blood of the Kami."
-            #PFnpcTogashiOharur3: togashi_oharu_soothing_cadence "Soothing Cadence: When making a skill check to communicate with a group of three or more people, you may keep up to one extra die. If your check succeeds, each other character in the scene removes strife equal to your bonus successes."
+            #PFnpcTogashiOharur2: togashi_oharu_drawing_from_within "Drawing From Within: Choose four kihō from those listed beginning on page 182 of the Core Rulebook, which Oharu can use. Each of these kihō is linked to an appropriate tattoo, so benefit from their Blood of the Kami ability."
+            #PFnpcTogashiOharur3: togashi_oharu_soothing_cadence "Soothing Cadence: When making a skill check to communicate with a group of three or more people, you may keep up to one extra die. Additionally, if your check succeeds each other character in the scene removes strife equal to your bonus successes."
         }
     }
 
@@ -748,7 +748,7 @@ EXTENSION "Portents_NPCs" EXTENDS "L5R5e_Core_NPCs" {
             ^"Techniques" LIST OF #L5R350fG9hI1jK3lM5nO7p ^"Technique" [^"One within the Void", #bNxt2ZFUbgSKhc6XxSTMUh ^"Divination", #CUVTW0xoeEbzJYrll6mbV7 ^"Truth Burns through Lies"]
         }
         RULES {
-            #PFnpcKaitoJurir1: kaito_juri_way_of_the_void "Way of the Void: When you make a check using your Void Ring, after rolling dice, you may receive fatigue up to your school rank. If you push, choose that many blank dice and alter each to a non-blank result of your choice. If you pull, choose that many non-blank dice and alter each to blank."
+            #PFnpcKaitoJurir1: kaito_juri_way_of_the_void "Way of the Void: When you make a check using your Void Ring, after rolling dice, you may receive a number of fatigue up to your school rank. If you do, you may pull or push:\n\nIf you pull, choose a number of dice with non-blank results equal to the fatigue you received, and alter each to a blank result.\n\nIf you push, choose a number of dice with blank results equal to the fatigue you received, and alter each to a non-blank result of your choice."
         }
     }
 
