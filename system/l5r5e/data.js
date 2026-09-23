@@ -31,8 +31,11 @@ window.L5RData = (function () {
   // ── loading ────────────────────────────────────────────────────────
   // Every loaded book re-indexes what joins across books (sidebars, corrections, names).
   let indexedFor = '';
-  // The errata come with every book (97 KB), so a correction always shows beside its target.
-  const ALWAYS = books().filter((b) => b.kind === 'errata').map((b) => b.id);
+  // The errata come with every book (97 KB), so a correction always shows beside its target — and
+  // so does an instance's campaign layer (build/build_layer.py), whose house rules are corrections
+  // of the same kind: loaded only on demand, a house rule would appear beside its rule or not
+  // depending on what the page happened to have loaded first.
+  const ALWAYS = books().filter((b) => b.kind === 'errata' || b.kind === 'campaign').map((b) => b.id);
   function ensure(ids) {
     const list = (Array.isArray(ids) ? ids : [ids]).filter((x) => x && indexBook(x));
     if (list.length) ALWAYS.forEach((x) => list.indexOf(x) === -1 && list.push(x));
