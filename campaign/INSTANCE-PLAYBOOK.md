@@ -72,6 +72,12 @@ The order the first migration is taking; each step is proven before the next.
    it, `config.js` keeps the instance's copy and the upstream-owned file takes the change.
    Then a real `git pull upstream main` must merge clean. Check every link statically too:
    moving a site by one prefix keeps relative links, but only if none is root-absolute.
+
+   **In the browser, distrust the first load of `/`.** The old home is cached at the same URL,
+   and a local server sends no cache headers: force it with `fetch(url, {cache:'reload'})`
+   before reading anything, or you will be proving the old site. Its asset requests are also
+   what puts old root paths in the server log as 404s — check a 404's timestamp before chasing
+   it. The live site has the same hazard for a player on the day of the switch.
 3. **Homebrew into the DSL.** NPCs, PCs and house rules under `campaign/dsl/`; the gate green.
 4. **Characters onto the VTT sheet.** Keep each original record verbatim in `campaign/source/`
    and check every version against it field by field.
