@@ -1,24 +1,33 @@
-# sortilege-vtt-l5r5e
+# Portents & Fortunes
 
-A virtual tabletop for **Legend of the Five Rings, 5th Edition**, generated from the Titterpig
-corpus `titterpig-dsl-l5r5e/0.5`: the books to read, the Roll & Keep dice, character creation
-by the Twenty Questions, the GM's table for the sixteen published adventures, and live sessions
-for players on their own devices.
+A solo **Legend of the Five Rings, 5th Edition** campaign — Togashi Norikage, of the Togashi
+Tattooed Order — served as an **instance** of
+[sortilege-vtt-l5r5e](https://github.com/sortilege-inc/sortilege-vtt-l5r5e).
 
-- `/` — the site: the books, schools, techniques, NPCs, pregens, adventures, the lore, the dice,
-  making a character, search. Writes nothing.
-- `/gm/` — the GM's table: panels over the campaign, the map table (`gm/vtt.html`), the
-  player's page (`gm/play.html`).
+The VTT owns the root: the site at `/`, the GM's table at `/gm/`, the engine, the L5R5e system
+module, and the books generated from the Titterpig corpus. The campaign owns `campaign/`.
 
-No build step for the pages; `data/` is generated:
+- `campaign/PLAN.md` — the migration into this shape: decisions, milestones, their proof.
+- `campaign/INSTANCE-PLAYBOOK.md` — the process, for the next campaign.
+
+## The fork
+
+`upstream` is the VTT. Engine and system updates arrive by
 
 ```bash
-bash build/build.sh
+git pull upstream main
 ```
 
-It parses every corpus file, writes `data/`, and gates the result both ways (every string the
-corpus prints reaches the data as often as it is printed, and nothing in the data is not in the
-corpus). The art is copied from the owner's Portents & Fortunes site by `bash build/build_art.sh`.
+Upstream-owned files are never edited here — anything every L5R campaign would want is built
+upstream and pulled. The instance's own root files (`engine/config.js`, `worker/wrangler.jsonc`,
+`README.md`, `CNAME`, `.gitignore`, `.claude/launch.json`, `.gitattributes`) are marked
+`merge=ours`, so a pull keeps this repo's copy. That needs a driver git does not store; run once
+per clone:
 
-Local: the launch entries `vtt-l5r5e` (8740) and `vtt-l5r5e-worker` (8792). See `PLAN.md` for
-the milestones, the decisions and the proof of each.
+```bash
+git config merge.ours.driver true
+```
+
+## Local
+
+Launch entries `portents` (site, 8733) and `portents-worker` (sessions, 8794).
