@@ -624,7 +624,7 @@ def records_of(entities):
         is_codex = e["form"] == "ENTITY"
         if not (e.get("type") or rank or is_codex or e.get("applies")):
             continue
-        r = {"id": h, "name": e["name"], "book": e["book"]}
+        r = {"id": h, "name": e["name"], "book": e["book"], "kind": os.path.splitext(e["file"])[1][1:]}
         if e.get("type"):
             r["type"] = e["type"]
         if e.get("applies"):
