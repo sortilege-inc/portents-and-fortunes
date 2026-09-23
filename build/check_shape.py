@@ -119,6 +119,10 @@ def main():
     check("Ring Increase with a CHOOSE", deep(lambda x: x.get("name") == "Ring Increase" and any(b.get("kw") == "CHOOSE" for b in x.get("blocks", []))),
           scan_text(corpus, r'\^"Ring Increase" DEF \{[^{}]*?CHOOSE'))
     check("families with a Ring Increase CHOOSE", sum(1 for e in typed("Family") if any(b.get("kw") == "CHOOSE" for b in (prop(e, "Ring Increase") or {}).get("blocks", []))), len(typed("Family")))
+    # a list of bare names, one per line, is that many names (the parser once read each pair as
+    # a name and its type, and Crab had three families instead of five)
+    fam_names = sum(len(re.findall(r'\^"[^"]+"', m)) for p in glob.glob(os.path.join(corpus, "*")) for m in re.findall(r'FAMILIES \{([^{}]*)\}', open(p, encoding="utf-8").read()))
+    check("names listed in FAMILIES blocks", deep(lambda x: x.get("vk") == "name" and False) + sum(1 for e in typed("Clan") for b in blocks(e, "FAMILIES") for x in b.get("body", []) if x.get("vk") == "name"), fam_names)
     check("core skills (SKILL_GROUP)", sum(1 for e in E.values() if e["file"].endswith("core-traits.ttrpg") and blocks(e, "SKILL_GROUP")), scan(corpus, r'^\s+SKILL_GROUP "', "*core-traits.ttrpg"))
     for t in ("Distinction", "Adversity", "Passion", "Anxiety"):
         check(t + " (EXTENDS)", len(typed(t)), scan(corpus, r'EXTENDS #\S+ \^"%s"$' % t))
@@ -150,6 +154,9 @@ def main():
     check("arc SCENES lists", sum(count_kw(c["blocks"], "SCENES") for c in arcs), scan(corpus, r'^\s*SCENES \[', "*.arc"))
 
     # ── the lore graph, the errata, the sidebars ──
+    check("codex RELATIONSHIPS (a predicate and its target on one line)",
+          sum(1 for e in E.values() if e["form"] == "ENTITY" for b in blocks(e, "RELATIONSHIPS") for x in b.get("body", []) if x.get("vk") == "ref"),
+          scan(corpus, r'\^"[^"]*" *-> *\^', "*.codex"))
     check("codex ENTITY nodes", sum(1 for e in E.values() if e["form"] == "ENTITY"), scan(corpus, r'^\s*ENTITY ', "*.codex"))
     check("errata MODIFY blocks", sum(count_kw(c.get("blocks"), "MODIFY") for c in chapters) + sum(count_kw(e.get("blocks"), "MODIFY") for e in E.values()),
           scan(corpus, r'^\s*MODIFY '))

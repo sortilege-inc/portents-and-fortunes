@@ -270,6 +270,8 @@ def gen(x, ctx):
         return out
     if n == "row":
         out = {"num": x["num"], "args": [gen_arg(a) for a in x["args"]]}
+        if x.get("def"):
+            out["def"] = True
         if x.get("body") is not None:
             out["body"] = [gen(y, ctx) for y in x["body"]]
         return out

@@ -254,11 +254,19 @@ class Parser:
         while self.peek() and self.peek().kind in ("STR", "CARET") and not (args and self.peek().kind == "CARET"):
             args.append(self.arg())
         body = None
+        is_def = False
+        # `1 ^"Famous Deed" DEF { … }` — a numbered row that is a named DEF (HERITAGE_TABLE)
+        if self.peek() and self.peek().kind == "ID" and self.peek().val == "DEF" and self.peek(1) and self.peek(1).kind == "LBRACE":
+            self.next()
+            is_def = True
         if self.peek() and self.peek().kind == "LBRACE":
             self.next()
             body = self.parse_body()
             self.expect("RBRACE")
-        return {"n": "row", "num": num, "args": args, "body": body}
+        node = {"n": "row", "num": num, "args": args, "body": body}
+        if is_def:
+            node["def"] = True
+        return node
 
     # ---- #hash [KIND] name DEF { … } ----
 
@@ -384,10 +392,16 @@ class Parser:
         return node
 
     def parse_prop_head(self):
-        name = self.next().val
+        nt = self.next()
+        name = nt.val
         node = {"n": "prop", "name": name}
         t = self.peek()
         if t is None:
+            return node
+        if t.kind == "CARET" and t.line != nt.line:
+            # a bare name on its own line, then the next name on the next line (FAMILIES
+            # { ^"Hida" ^"Hiruma" … }): two names, not a name and its type — the tokenizer
+            # drops newlines, so the line numbers are what tell them apart
             return node
         if t.kind == "ID" and t.val == "DEF":
             self.next()
