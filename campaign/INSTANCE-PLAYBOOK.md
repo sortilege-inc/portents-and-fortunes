@@ -83,12 +83,39 @@ The order the first migration is taking; each step is proven before the next.
    and check every version against it field by field.
 5. **Integrate.** Register the campaign's tabs and panes from `campaign/site/`; render
    `campaign/docs/`; seed the pack.
+
+## The hook (built upstream, Portents M2)
+
+The instance declares everything it adds in `engine/config.js`, which it owns:
+
+```js
+instance: {
+  styles: ['campaign/site/campaign.css'],
+  stages: {
+    data:  ['campaign/data/index.js'],   // every page, after the books' index and records
+    site:  ['campaign/site/site.js'],    // push tabs onto window.VttSiteTabs
+    gm:    ['campaign/site/gm.js'],      // window.VttPanels.register(id, {label, render, count})
+    table: [], play: [],                 // the map table's and the player's page, before they boot
+  },
+},
+```
+
+`engine/instance.js` writes those scripts into each upstream page where its stage tag stands, so
+they run in order as if the page listed them. The homebrew is built with
+
+```bash
+bash build/build_layer.sh campaign/dsl campaign "<the campaign's title>" campaign/data
+```
+
+after the books (`bash build/build.sh`): one more book, shelved first as *This campaign*, its
+records ahead of the corpus's in every list, and gated three ways — its strings both ways by
+count, no id the corpus uses, every id it points at resolving. The page title comes from
+`VttConfig.title`.
 6. **Deploy.** Pages for the site; the Worker for sessions, with this origin in its
    `ALLOWED_ORIGIN`; a player joins from a second origin.
 
 ## Open, to be settled by the first migration
 
-- The exact shape of the extension hook (M2).
 - How a pack-authored arc sits beside the published arcs in the Adventure panel (M6).
 - Whether the encounter builder can band Group Rank against Encounter Rank: the corpus's
   comparison table did not survive conversion in 0.4; to be rechecked in 0.5 (M6) and reported
