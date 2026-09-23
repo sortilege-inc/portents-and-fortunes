@@ -123,12 +123,31 @@
     });
     return sel;
   }
+  // The GM ends a scene or a session for the whole party (system/l5r5e/sheet.js endScene /
+  // endSession). Where the instance's house rule makes a session's end remove strife, the GM
+  // chooses first whose full total is carried instead.
+  let sessionAsk = false;
+  function boundaries(party) {
+    const row = el('div', { class: 'chiprow boundaries' }, [
+      button('End scene', () => { if (confirm('End the scene for the party? Strife and fatigue come down to half, rounded up; once-per-scene uses return.')) Sheet.endScene(party.map((m) => m.id)); }, 'tiny'),
+      button('End session…', () => { sessionAsk = !sessionAsk; Bus.emit('state:remote', { view: true }, { local: true }); }, 'ghost tiny'),
+    ]);
+    if (!sessionAsk) return row;
+    const clears = Sheet.sessionClearsStrife();
+    const boxes = party.map((m) => ({ id: m.id, box: el('input', { type: 'checkbox' }), name: m.name }));
+    return el('div', {}, [row, el('div', { class: 'session-ask' }, [
+      el('div', { class: 'muted small' }, [clears ? 'This campaign’s house rule: a session’s end removes strife as a scene’s end does. Tick anyone who carries their full total instead.' : 'Once-per-session uses return. The book sets no strife rule for a session’s end.']),
+      clears ? boxes.map((b) => el('label', { class: 'small' }, [b.box, ' carry ' + b.name + '’s strife'])) : null,
+      button('End the session', () => { Sheet.endSession(party.map((m) => m.id), boxes.filter((b) => b.box.checked).map((b) => b.id)); sessionAsk = false; Bus.emit('state:remote', { view: true }, { local: true }); }, 'tiny'),
+    ])]);
+  }
   function renderParty(container, ctx) {
     const draw = () => {
       container.innerHTML = '';
       const party = S().party || [];
       container.appendChild(el('div', { class: 'chiprow' }, [characterLoader('Load character file(s)…', ''), pregenPicker()]));
       if (!party.length) container.appendChild(el('div', { class: 'empty' }, ['No one in the party yet.']));
+      else container.appendChild(boundaries(party));
       party.forEach((m) => container.appendChild(el('div', { class: 'member' }, [
         el('button', { class: 'card', type: 'button', onclick: () => Panels.select({ kind: 'party', id: m.id }) }, [
           el('div', { class: 'card-name' }, [m.name]),

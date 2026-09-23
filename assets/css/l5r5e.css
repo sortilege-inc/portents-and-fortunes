@@ -291,3 +291,9 @@ details.lore-full > summary { cursor: pointer; font-family: var(--caps); letter-
 .social-row .soc .num { min-width: 1.6em; text-align: center; }
 .xp-ledger li { font-size: 14px; }
 .archive-banner { background: var(--crimson-soft); border-left: 3px solid var(--crimson); padding: 6px 10px; margin: 6px 0; font-size: 14px; }
+
+/* ── techniques and scenes (Portents M4c) ── */
+.techniques-in-play { margin: 6px 0; }
+.tech-row { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; margin: 2px 0; }
+.roll-result .extra { color: var(--jade); }
+.session-ask { display: flex; flex-direction: column; gap: 4px; padding: 6px 10px; border-left: 3px solid var(--edge); margin: 4px 0; }

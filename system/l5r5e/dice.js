@@ -191,9 +191,17 @@ window.L5RDice = (function () {
     const tn = r.opts.tn;
     return { symbols: t, successes, opportunity: t.op, strife: t.st, tn, success: tn == null ? null : successes >= tn, bonus: tn == null ? null : Math.max(0, successes - tn), unexploded: r.dice.filter((d) => d.kept && d.sym.ex && !d.exploded).length };
   }
+  // Bonus successes an ability adds to a check that succeeds ("if you succeed, add additional
+  // bonus successes equal to your school rank") — [{ successes, label }], from the roller's owner
+  function withExtra(t, extra) {
+    const n = (extra || []).reduce((a, x) => a + (x.successes || 0), 0);
+    if (!n) return t;
+    return Object.assign({}, t, { successes: t.successes + n, bonus: t.bonus == null ? null : t.bonus + n, extra: extra });
+  }
   // `strife`: what the character receives — the kept (st) unless the player and GM settle on less
-  function resolve(r, strife) {
-    r.resolved = tally(r);
+  function resolve(r, strife, extra) {
+    r.extra = extra || [];
+    r.resolved = withExtra(tally(r), r.extra);
     r.strife = strife == null ? r.resolved.strife : Math.max(0, Math.min(r.resolved.strife, strife));
     return r.resolved;
   }
@@ -231,7 +239,9 @@ window.L5RDice = (function () {
   // A character's roller also takes `opts.rerolls(ring)` — the reroll modes its advantages and
   // disadvantages give on a check of that ring — `opts.onConceal()` when the GM conceals the TN,
   // `opts.onAdversityFailed(roll, applied)` for an adversity on a check whose TN was never set,
-  // and `opts.strifeDefault(tally)` for the strife a kept (st) gives (a stance may change it).
+  // `opts.strifeDefault(tally)` for the strife a kept (st) gives (a stance may change it), and
+  // `opts.extra(roll, tally)` for bonus successes an ability adds to a successful check. A check
+  // set up from a technique carries it as `source` (its name, id and category) into the log.
   const OTHER = { id: 'other', label: 'Other reroll', kind: 'other', dice: null, text: 'A reroll a technique, an ability or the GM grants: mark the dice it names.' };
   function roller(opts) {
     const o = opts || {};
@@ -274,7 +284,8 @@ window.L5RDice = (function () {
     const int = (inp, min) => Math.max(min, parseInt(inp.value || String(min), 10) || min);
     function values() {
       return { ring: p.ring, ringValue: int(ringValue, 1), skill: p.skill, skillRank: int(skillRank, 0), tn: tn.value === '' ? null : parseInt(tn.value, 10), void: voidBox.checked,
-        assistSkilled: int(assistSkilled, 0), assistUnskilled: int(assistUnskilled, 0), concealed: concealBox.checked, label: o.label || null, source: p.source || null };
+        assistSkilled: int(assistSkilled, 0), assistUnskilled: int(assistUnskilled, 0), concealed: concealBox.checked, label: o.label || null,
+        source: p.source || null, sourceId: p.sourceId || null, sourceType: p.sourceType || null };
     }
     const modes = () => (o.rerolls ? o.rerolls(current ? current.opts.ring : p.ring) : []).concat([OTHER]);
     function drawRerolls() {
@@ -327,8 +338,12 @@ window.L5RDice = (function () {
           }),
         ]));
       });
-      const t = tally(r);
+      const base = tally(r);
+      const extra = !r.resolved && o.extra ? o.extra(r, base) : (r.extra || []);
+      const t = r.resolved || withExtra(base, extra);
       const s = summary(t);
+      if (r.opts.source) result.appendChild(el('div', { class: 'muted small' }, ['via ' + r.opts.source + (r.opts.sourceType ? ' (' + r.opts.sourceType + ')' : '')]));
+      (t.extra || []).forEach((x) => result.appendChild(el('div', { class: 'small extra' }, ['+' + x.successes + ' bonus success' + (x.successes === 1 ? '' : 'es') + ' — ' + x.label])));
       result.appendChild(el('div', { class: 'tally' }, [
         el('span', { class: 'muted small' }, ['kept ' + keptBase(r) + ' of ' + r.limit + (r.dice.some((d) => d.bonus) ? ' (+ bonus dice)' : '') + ' · ']),
         el('b', {}, [s.text]),
@@ -344,7 +359,8 @@ window.L5RDice = (function () {
           anyKept(r) ? el('label', { class: 'small' }, ['Strife received ', strife, el('span', { class: 'muted' }, [' of ' + t.strife + ' (st) kept'])]) : el('span', { class: 'muted small' }, ['Click dice to keep them — nothing is kept for you.']),
           el('button', { class: 'btn tiny', type: 'button', disabled: anyKept(r) ? null : true, onclick: () => {
             r.note = note.value.trim() || null;
-            resolve(r, r.strifeChosen != null ? r.strifeChosen : dflt);
+            resolve(r, r.strifeChosen != null ? r.strifeChosen : dflt, extra);
+            p.source = p.sourceId = p.sourceType = null;   // the next check is the player's own again
             // what was set up for this check does not carry to the next
             concealGranted = false;
             concealBox.checked = false;
@@ -382,6 +398,8 @@ window.L5RDice = (function () {
     box.appendChild(rerollBar);
     box.appendChild(result);
     box.set = (patch) => {
+      // a set-up that names no technique is not one
+      if (!patch || !('source' in patch)) p.source = p.sourceId = p.sourceType = null;
       Object.assign(p, patch || {});
       if (patch && patch.ringValue != null) ringValue.value = patch.ringValue;
       if (patch && patch.skillRank != null) skillRank.value = patch.skillRank;
@@ -413,6 +431,7 @@ window.L5RDice = (function () {
     if (entry.concealed) chips.push(el('span', { class: 'logchip' }, ['TN concealed']));
     if (entry.strifeRolled != null && entry.strifeApplied !== entry.strifeRolled) chips.push(el('span', { class: 'logchip warn' }, ['strife received ' + entry.strifeApplied + ' of ' + entry.strifeRolled]));
     (entry.applied || []).forEach((a) => chips.push(el('span', { class: 'logchip' }, [symbolsSpan(a.label)])));
+    (entry.extra || []).forEach((x) => chips.push(el('span', { class: 'logchip' }, ['+' + x.successes + ' ' + x.label])));
     const events = (entry.events || []).map((ev) => el('div', { class: 'log-ev' }, [
       el('span', { class: 'muted small' }, [ev.kind === 'reroll' ? '↻ ' + (ev.via || 'reroll') : '❉ explodes']), logDie(ev.type, ev.from), el('span', { class: 'muted' }, ['→']), logDie(ev.type, ev.to),
     ]));
@@ -422,7 +441,7 @@ window.L5RDice = (function () {
       el('span', { class: 'roll-dice' }, (entry.kept || []).map((k) => logDie(String(k).split('_')[0], k))),
       el('span', { class: 'roll-sum' }, [s.text + (s.verdict ? ' — ' + s.verdict : '')]),
       entry.note ? el('span', { class: 'muted small' }, ['“' + entry.note + '”']) : null,
-      entry.source ? el('span', { class: 'muted small' }, ['via ' + entry.source]) : null,
+      entry.source ? el('span', { class: 'muted small' }, ['via ' + entry.source + (entry.sourceType ? ' (' + entry.sourceType + ')' : '')]) : null,
       chips.length ? el('div', { class: 'logchips' }, chips) : null,
       first || events.length ? el('details', { class: 'log-prov' }, [el('summary', { class: 'muted small' }, ['how it was rolled']), first, events]) : null,
     ]);
@@ -441,6 +460,7 @@ window.L5RDice = (function () {
       applied: r.applied.map((a) => ({ label: a.label, kind: a.kind })),
       limit: r.limit, keptBase: kb, keptFewer: kb < r.limit,
       assistSkilled: o.assistSkilled || 0, assistUnskilled: o.assistUnskilled || 0, concealed: !!o.concealed,
+      sourceId: o.sourceId || null, sourceType: o.sourceType || null, extra: (r.extra || []).map((x) => ({ successes: x.successes, label: x.label })),
       strifeRolled: t.strife, strifeApplied: r.strife == null ? t.strife : r.strife,
     };
   }
