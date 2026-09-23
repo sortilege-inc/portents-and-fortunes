@@ -89,6 +89,7 @@ campaign/                                                              INSTANCE-
 | M2 | upstream | **The campaign layer and the extension hook.** `build.sh` takes a campaign DSL root and writes `data/campaign.js` through the same gate; an instance registers site tabs and GM panels from `campaign/site/` without editing an upstream file | A one-file test layer builds and gates both ways; a registered test tab and panel appear; upstream's own gate still 0 / 0 / 0. **landed 2026-09-23** upstream on branch `instance-hooks`, `5f2a9ce`, pushed; the full proof is upstream's `PLAN.md` § *Instances*, milestone I1. In short: the fixture layer passes three gates (two-way strings, ids, references), each made to fail; in the browser a temporary instance's tab, panel, shelf entry and NPC appeared where a campaign's will, the NPC's book loading only when opened; with no instance declared every page is as before; upstream's gate unchanged and `data/` byte-identical after a rebuild. Not yet in this repo: it arrives when `instance-hooks` is merged upstream and pulled here |
 | M3 | here | **The homebrew in DSL.** The 18 NPCs (each a full statblock on the corpus's NPC chassis — decision 16), Norikage as an actor, the seven house rules as `MODIFY`s; presentation metadata (reveal, portrait, `statNote`) as a campaign file keyed by entity id | Gate green; Cast lists the 18 beside the corpus's 389; Kaito Juri's statblock matches `npcs.js` field by field; each `MODIFY` shows beside its target. **landed 2026-09-23.** `campaign/dsl/` (three files) built by `bash build/build_layer.sh campaign/dsl campaign "Portents & Fortunes" campaign/data`: *19 entities; strings 403 (1074 occurrences) — 0 / 0 / 0; ids 19, none the corpus's; every id resolves; 12 references by name, every one an entity* (one note: *Brushwork* names two, resolved to the core Passion). **Method proven on one before scaling:** Kaito Juri alone, read back from the built data, *27 fields and 4 abilities match*; a planted Honor 47 → 46 made the check fail (exit 1). Then all 18: `campaign/source/check_npcs.py` → *18 of 18*, 27 fields each plus every ability. In the browser on 8733: the shelf opens on *This campaign → Portents & Fortunes · 3 chapters · 19 entries*; the site's NPCs and the GM's Cast count **407** with the campaign's 18 first (row 19 *Loyal Bushi · Core Rulebook*); Kaito Juri's page draws her rings as the corpus's NPCs are drawn (*AIR 1 · EARTH 3 · FIRE 2 · WATER 1 · VOID 3*), *Way of the Void* verbatim, and *One within the Void* — referenced by name — opens the corpus's own inversion; each of the 8 targets carries its house rule, and *Portentous Birth*, opened through the site's search, shows its corpus text then **HOUSE RULE** *Off-approach distinctions…*; Norikage is listed among the characters and his sheet draws *1 AIR · 3 EARTH · 2 FIRE · 2 WATER · 3 VOID*, Honor 52, Composure 10, his techniques and traits. 0 console errors |
 | M4 | upstream | **The sheet and the dice.** *Keep the best* removed (O5); version history (archive first, read-only view, a picker); an XP ledger; the Portents sheet features the VTT lacks, **audited feature by feature before porting**; the sheet honours a `MODIFY`'d number; a disadvantage prompt on matching checks; *End scene* / *End session* strife recovery with a per-character carry; an engaged NPC's conditions visible to the player | Each through the real controls; 0 console errors |
+| H1 | corpus → upstream → here | **Hash the unhashed** (owner, 2026-09-23). The 0.5 corpus leaves **2,088 of the 4,666** entities the VTT builds without a `#hash` — 1,721 in `.ttrpg`, 158 `.codex`, 132 `.actor`, 77 `.arc`; among them 95 schools, 331 NPCs, 237 advantages and disadvantages (*Portentous Birth*, *Elemental Deficiency (Fire)*) — so the VTT gives them build ids (`u:…`) and a layer can reach them only by name. In the corpus (`titterpig-dsl-l5r5e/0.5`, the source of truth): one opaque hash minted per unhashed DEF in the corpus's existing form (22 random alphanumerics), by an idempotent script that writes the assignments to a file; every by-name reference to a newly hashed entity given the §5d long form; a VERSION patch bump per touched file. Upstream: rebuild; any stored state keyed by a `u:` id (packs, table, player storage) found and carried over. Here: the layer's 12 name references rewritten as hashes | Piloted on one file first: its diff is **only** added hashes, nothing else changed. Then: validator 0 / 0; §5d 0 hashless; upstream `data/` still 4,666 entities, **0 `u:` ids** left (or each remaining one named with its reason), strings gate 0 / 0 / 0; the layer's names gate reports 0 references by name; the site and table in the browser as before, 0 console errors |
 | M5 | here | **Norikage on the VTT sheet.** Current, Session Five and Session Three versions, every value checked field by field against the Portents JSON (kept verbatim in `campaign/source/`); off-approach rerolls enforced for his two distinctions; the player's trackers imported once from `pf-sheet-norikage`; `play/` retired | Each version shows what the Portents picker showed; the rerolls offer 2 on-approach, 1 off |
 | M6 | upstream | **The GM's three panes (O8).** Notes (an authored document rendered + free notes in the pack); Scenes (an arc authored in the pack); Threads · Encounters · NPCs (a thread list; an encounter builder summing conflict ranks against the Group Rank; the scene's cast) | Through the real controls; the pack round-trips |
 | M7 | here | **The campaign in the VTT's framing.** Site tabs for the Chronicle, Dramatis Personae (with discovery), the Atlas, the Map, Lore and the character; the state document in the Notes pane behind its spoiler gate; the arc seeded from the Session Seven prep; the old top-level pages removed | Through every tab and pane; 0 console errors |
@@ -97,7 +98,55 @@ campaign/                                                              INSTANCE-
 
 One commit per milestone, in whichever repo it belongs to, pushed; each proven in the browser
 through the real controls before the next begins. Upstream milestones are pulled here before
-the instance milestone that needs them.
+the instance milestone that needs them. H1 runs after M4 and before M5, so Norikage's version
+history is built on hashed references.
+
+## M4 audit — the Portents sheet against the VTT's
+
+Every feature of `campaign/play/sheet.js` (1,611 lines, read in full) and its hand-typed rules data
+`l5rdata.js`, set against upstream's `system/l5r5e/sheet.js` and `dice.js`. **Used** = Norikage's
+sheet exercises it in any of his three versions. **Source** = where the VTT would read it, since
+upstream types nothing the corpus can supply.
+
+| # | Portents feature | VTT today | Used | Source | Proposal |
+|---|---|---|---|---|---|
+| 1 | Nothing kept for you | *Keep the best* | yes | — | **decided (O5)** — remove |
+| 2 | Reroll marking: a distinction rerolls up to 2 dice; an adversity must reroll 2 success dice; a GM free reroll of any number; each reroll logged from → to | none | yes | Distinction / Adversity types | **port** — the mechanic O7's off-approach rule sits on |
+| 3 | Off-approach distinctions: 1 die, not 2 | none | yes | the house-rule `MODIFY` | **decided (O7)** |
+| 4 | Assistance: skilled or unskilled, each adds a die and a keep | none | yes | *Assistance* (core-systems) | **port** |
+| 5 | Unknown TN: +1 Void point, to the maximum | none | yes | Void Points | **port** |
+| 6 | Strife taken from a roll is chosen at *Keep* (default the kept (st); 0 in Void stance) | kept (st) applied automatically | yes | Void stance | **port** |
+| 7 | Roll provenance in the log: note, source technique, dice first rolled, rerolls, explosions, kept, *kept fewer than allowed* | kept dice + tally | yes | — | **port** |
+| 8 | Every change logged as an event: trackers, conditions, social, XP, gear, stakes | rolls only | yes | — | **port**, into the session log |
+| 9 | Technique activation: a button carrying action, TN, skill and ring that sets up the roll; uses per scene / session counted | names linking to the corpus | yes | each technique's **ACTIVATION** text, parsed (*"As an Attack and Support action, make a TN 1 Martial Arts [Unarmed] (Fire) check"*); Portents hand-typed it | **port**; no button where the text does not parse |
+| 10 | *Blood of the Kami*: a tattoo kihō that succeeds gains bonus successes equal to school rank, added automatically | none | yes | his school ability's text | **owner's call** — see below |
+| 11 | Conditions: 13 toggles, logged | *Compromised* only, derived | yes | the corpus's `Condition` entities | **port** — O7's engaged-NPC conditions need it |
+| 12 | Scene reset: strife and fatigue to half (rounded up) when over; not while Exhausted; per-scene uses recharge; per-scene Void claims reset; conflict ends | none | yes | — | **decided** (*End scene* / *End session*, carry) |
+| 13 | Adversity: after its reroll, a failed check claims +1 Void (once per scene per adversity). Anxiety: the first strife it causes in a scene claims +1 Void | none | yes | Adversity / Anxiety types | **port** |
+| 14 | One-click strife from a passion (−3) or anxiety (+3) | none | yes | Passion / Anxiety types | **port** |
+| 15 | Honor, Glory, Status adjusted ± and **staked**, logged | read-only | yes | — | **port** |
+| 16 | XP earned / spent / available, ± logged, and a *spent on* ledger (cost, what, note, date) | one number | yes | — | **decided** |
+| 17 | Version history: a picker; archived versions read-only, with their trackers; a banner; export, import and reset withheld while viewing one | none | yes | — | **decided** |
+| 18 | Conflict: enter / end; type; stance with its rule; initiative set up (TN 1, the type's skill); the type's actions with their rules text, each declared to the log and setting up its check | none on the sheet | yes | *Conflict Type*, the actions in core-systems, *Stance* | **port** |
+| 19 | Stances enforced: Void takes no strife from (st); Fire adds a bonus success per kept (st) to damage | none | yes | *Stance* | **port**, with 18 |
+| 20 | Gear: equip weapon / armour; the readied weapon sets Strike's skill; a damage calculator; critical strike severity and its tier | gear as lines | yes | the corpus's weapons; *Critical Strike* `SEVERITY_TABLE` | **port** |
+| 21 | Opportunity spends at roll time: 8 contexts × the ring, plus the character's technique opportunities | none | yes | *Opportunity* (core-base) | **port** |
+| 22 | Portrait and clan mon in the header; the deficient ring marked | none | yes | instance portrait; the clan | **port** |
+| 23 | Export / import state + log; a local reset | character file carries `live`, not the log | yes | — | **port** the log into the character file; no local reset (the VTT's state is the table's) |
+| 24 | Titles and bonds with *Use* buttons (Void cost, strife ± by rank, uses) | Titles / Bonds as linked names | **no** | — | **not ported** — no character here holds one; the VTT's linked names stay |
+| 25 | Standing wounds (afflictions) | none | **no** | — | **not ported** — conditions (11) and notes cover it |
+| 26 | Side rails (section nav, live trackers) and the collapsible roller | the VTT's own layout | yes | — | **not ported** — presentation |
+
+**Corpus gap found by the audit.** The rules behind 2, 6, 13, 14 and 19 — the standard mechanical
+effect of Distinction, Passion, Adversity and Anxiety, and the five stances — are **comments** in
+`core-character.ttrpg` and `core-base.ttrpg`, so no build carries them (checked: `data/core.js` has
+none of *"do not suffer strife from"*, *"must reroll two dice"*). Proposed: the VTT names each number
+as a constant citing its sentence (as `dice.js` already does), and the sentences themselves are lifted
+into the corpus as data from the book's own text in H1.
+
+**Proposed order:** M4a the roller and log (1–8, 13, 14); M4b the record (11, 15–17, 22, 23);
+M4c techniques and scenes (9, 10, 12); M4d conflict, gear and opportunities (18–21). One upstream
+commit each, each proven through the real controls.
 
 ## Decision log
 
