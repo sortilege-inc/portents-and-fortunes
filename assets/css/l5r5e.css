@@ -315,3 +315,16 @@ details.lore-full > summary { cursor: pointer; font-family: var(--caps); letter-
 .weapon-row.readied b { color: var(--crimson-deep); }
 .ref.tiny.on { border: 1px solid var(--crimson); color: var(--crimson-deep); background: var(--crimson-soft); }
 .gear { display: block; }
+
+/* ── the GM's three panes (Portents M6) ── */
+.notes-doc { max-height: 60vh; overflow: auto; }
+.notes-free, .arc-text { width: 100%; }
+.arc-scene { border-left: 3px solid var(--edge); padding: 4px 0 4px 8px; margin: 6px 0; }
+.arc-scene.played { opacity: .6; border-left-color: var(--jade); }
+.arc-title { flex: 1 1 14em; font-weight: 600; }
+.thread { border-left: 3px solid var(--crimson); padding: 2px 0 2px 8px; margin: 4px 0; }
+.thread.closed { border-left-color: var(--edge); opacity: .6; }
+.enc-row { margin-left: 8px; }
+.enc-sum { margin: 6px 0; }
+.enc-band { padding: 2px 6px; margin: 2px 0; opacity: .55; }
+.enc-band.on { opacity: 1; border-left: 3px solid var(--crimson); background: var(--crimson-soft); }

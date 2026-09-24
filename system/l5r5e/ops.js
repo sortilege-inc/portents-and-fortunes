@@ -8,6 +8,7 @@
 //                                       NPCs (the Cast panel)
 //   party[].versions                    archived copies of a character (archivePartyVersion)
 //   npcConditions { [entityId]: [names] } an NPC's conditions, the GM's (setNpcConditions)
+//   gmNotes, arc, threads, encounters   the GM's own pack state (setGmNotes …), never shared
 (function (root, factory) {
   if (typeof module !== 'undefined' && module.exports) module.exports = factory(require('../../engine/ops.js'));
   else factory(root.VttOps);
@@ -35,6 +36,14 @@
     if (!s.npcConditions) s.npcConditions = {};
     s.npcConditions[id] = (list || []).slice();
   });
+
+  // The GM's own pack state (Portents M6, O8): free notes, the arc, open threads, saved encounters.
+  // Never shared: no player may send them, none is in a player's view, and none is forwarded.
+  const gmOnly = () => null;
+  Ops.register('setGmNotes', (s, text) => { s.gmNotes = String(text || ''); }, null, gmOnly);
+  Ops.register('setArc', (s, list) => { s.arc = (list || []).map((x) => Object.assign({}, x)); }, null, gmOnly);
+  Ops.register('setThreads', (s, list) => { s.threads = (list || []).map((x) => Object.assign({}, x)); }, null, gmOnly);
+  Ops.register('setEncounters', (s, list) => { s.encounters = JSON.parse(JSON.stringify(list || [])); }, null, gmOnly);
 
   return Ops;
 });
