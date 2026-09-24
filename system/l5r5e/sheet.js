@@ -217,6 +217,7 @@ window.L5RSheet = (function () {
   };
   function render(v, onChange, opts) {
     const o = opts || {};
+    const bare = !!o.compact && !onChange;   // the player's copy: what is on the sheet, no working, no blanks
     const S = spec();
     const byName = {};
     S.forEach((s) => (byName[s.name] = s));
@@ -225,13 +226,18 @@ window.L5RSheet = (function () {
       const s = byName[name];
       if (!s) return null;
       used.add(name);
+      if (bare) {
+        const val = s.kind === 'number' ? value(v, s.name) : v[s.name];
+        if (val == null || val === '' || (Array.isArray(val) && !val.length) || (typeof val === 'object' && !Array.isArray(val) && !Object.keys(val).some((k) => val[k]))) return null;
+      }
       const c = s.kind === 'names' ? namesBlock(s, v, onChange) : s.kind === 'lines' ? linesBlock(s, v, onChange) : s.kind === 'group' ? groupBlock(s, v, onChange) : scalar(s, v, onChange);
       return el('div', { class: 'prop' }, [el('div', { class: 'prop-k' }, [s.name]), el('div', { class: 'prop-v' }, [c])]);
     };
     const d = derived(v);
     const sheet = el('div', { class: 'sheet' }, [
       el('div', { class: 'two-up' }, [el('div', {}, LAYOUT.head.map(field)), el('div', {}, [ringTiles(v, onChange, o), el('div', { class: 'fields' }, LAYOUT.social.map(field))])]),
-      el('div', { class: 'sheet-sec' }, [el('h4', {}, ['Derived', el('span', { class: 'muted small' }, [' · from the corpus’s formulas: ' + DERIVED.map((k) => k + ' ' + (formula(k) || '?')).join('; ')])]), el('div', { class: 'fields' }, LAYOUT.derived.map(field)),
+      bare ? el('div', { class: 'sheet-sec' }, [el('h4', {}, ['Derived']), el('div', { class: 'fields' }, LAYOUT.derived.map(field))])
+        : el('div', { class: 'sheet-sec' }, [el('h4', {}, ['Derived', el('span', { class: 'muted small' }, [' · from the corpus’s formulas: ' + DERIVED.map((k) => k + ' ' + (formula(k) || '?')).join('; ')])]), el('div', { class: 'fields' }, LAYOUT.derived.map(field)),
         el('div', { class: 'muted small' }, ['Void points: start ' + (d.voidStart == null ? '—' : d.voidStart) + ', at most ' + (d.voidMax == null ? '—' : d.voidMax)])]),
       byName.Skills ? el('div', { class: 'sheet-sec' }, [el('h4', {}, ['Skills']), skillsBlock(byName.Skills, v, onChange, o.onRoll)]) : null,
       el('div', { class: 'sheet-sec' }, [el('h4', {}, ['Heart']), LAYOUT.heart.map(field)]),
@@ -454,18 +460,19 @@ window.L5RSheet = (function () {
     return el('div', { class: 'track' }, [
       el('span', { class: 'track-name' }, [label]),
       el('span', { class: 'boxes' }, Array.from({ length: n }, (_, i) => el('span', { class: 'box' + (i < cur ? (i >= max ? ' on over' : ' on') : ''), title: String(i + 1), onclick: onSet ? () => onSet(i + 1 === cur ? i : i + 1) : null }))),
-      el('span', { class: 'muted small' }, [cur + ' / ' + (max == null ? '—' : max)]),
-      onSet ? button('−', () => onSet(Math.max(0, cur - 1)), 'ghost tiny') : null,
-      onSet ? button('+', () => onSet(cur + 1), 'ghost tiny') : null,
+      el('span', { class: 'muted small track-v' }, [cur + ' / ' + (max == null ? '—' : max)]),
+      onSet ? button('−', () => onSet(Math.max(0, cur - 1)), 'ghost tiny dec') : null,
+      onSet ? button('+', () => onSet(cur + 1), 'ghost tiny inc') : null,
     ]);
   }
 
   // one roller per member, kept across redraws: a roll's own log entry redraws the panel
   const rollers = {};
-  function rollerFor(m, v) {
+  function rollerFor(m, v, compact) {
     if (rollers[m.id]) return rollers[m.id];
     const charOf = () => complete(memberNow(m.id, m).character || {});
     const r = Dice.roller({
+      compact: !!compact,
       preset: { ring: (m.live || {}).stance || 'Air', ringValue: v.Rings[(m.live || {}).stance || 'Air'], skill: null, skillRank: 0 },
       ringsOf: (ring) => charOf().Rings[ring],
       rerolls: (ring) => rerollModes(charOf(), ring),
@@ -721,7 +728,7 @@ window.L5RSheet = (function () {
     const eq = equipOf(memberNow(m.id, m));
     setEquip(m, { weapons: Object.assign({}, eq.weapons, { [name]: Object.assign({}, eq.weapons[name] || { state: 'sheathed' }, patch) }) }, text);
   }
-  function gearBlock(m, v) {
+  function gearBlock(m, v, compact) {
     const eq = equipOf(m);
     const used = handsUsed(m);
     const carriedWs = weaponsFor(v).filter((w) => !w.unarmed);
@@ -751,7 +758,8 @@ window.L5RSheet = (function () {
         ]),
         gsel, isReady && gs.length === 1 ? el('span', { class: 'small' }, [gs[0].name]) : null, ssel,
         el('span', { class: 'muted small' }, [[w.skill || (w.printed ? 'skill as chosen' : null), 'range ' + w.range, 'damage ' + dmg, 'deadliness ' + dead].filter(Boolean).join(' · ')]),
-        isReady && readiedList(m).length > 1 ? el('label', { class: 'small' }, [el('input', { type: 'radio', name: 'strike-' + m.id, checked: (strike && strike.name === w.name) || null, onchange: () => setEquip(m, { strikeWith: w.name }, 'Strikes with the ' + w.name) }), ' Strike with it']) : null,
+        isReady && readiedList(m).length > 1 ? (compact ? el('button', { class: 'toggle' + (strike && strike.name === w.name ? ' on' : ''), type: 'button', onclick: () => setEquip(m, { strikeWith: w.name }, 'Strikes with the ' + w.name) }, ['Strike with it'])
+          : el('label', { class: 'small' }, [el('input', { type: 'radio', name: 'strike-' + m.id, checked: (strike && strike.name === w.name) || null, onchange: () => setEquip(m, { strikeWith: w.name }, 'Strikes with the ' + w.name) }), ' Strike with it'])) : null,
       ]);
     });
     const as = armorFor(v);
@@ -762,7 +770,8 @@ window.L5RSheet = (function () {
     return el('div', { class: 'gear' }, [
       el('div', { class: 'chiprow tight' }, [el('span', { class: 'track-name' }, ['Weapons']), el('span', { class: 'muted small' }, [used + ' of ' + HANDS + ' hands in use']), note]),
       rows.length ? rows : el('div', { class: 'muted small' }, ['No weapon on the sheet that the corpus names.']),
-      un.length ? el('div', { class: 'weapon-row' }, [el('span', { class: 'muted small' }, ['Unarmed, always readied: ']), un.map((e) => el('label', { class: 'small' }, [el('input', { type: 'radio', name: 'strike-' + m.id, checked: (strike && strike.name === e.name) || null, onchange: () => setEquip(m, { strikeWith: e.name }, 'Strikes with a ' + e.name.toLowerCase()) }), ' ' + e.name + ' (' + D.num(e, 'Base Damage') + '/' + D.num(e, 'Deadliness') + ')  ']))]) : null,
+      un.length && compact ? el('div', { class: 'weapon-row unarmed' }, [el('span', { class: 'step-k' }, ['Unarmed']), un.map((e) => el('button', { class: 'toggle' + (strike && strike.name === e.name ? ' on' : ''), type: 'button', onclick: () => setEquip(m, { strikeWith: e.name }, 'Strikes with a ' + e.name.toLowerCase()) }, [e.name + ' ' + D.num(e, 'Base Damage') + '/' + D.num(e, 'Deadliness')]))])
+      : un.length ? el('div', { class: 'weapon-row' }, [el('span', { class: 'muted small' }, ['Unarmed, always readied: ']), un.map((e) => el('label', { class: 'small' }, [el('input', { type: 'radio', name: 'strike-' + m.id, checked: (strike && strike.name === e.name) || null, onchange: () => setEquip(m, { strikeWith: e.name }, 'Strikes with a ' + e.name.toLowerCase()) }), ' ' + e.name + ' (' + D.num(e, 'Base Damage') + '/' + D.num(e, 'Deadliness') + ')  ']))]) : null,
       el('div', { class: 'chiprow tight' }, [el('span', { class: 'track-name' }, ['Armor']), asel,
         ae ? el('span', { class: 'muted small' }, ['resistance: physical ' + (D.num(ae, 'Physical Resistance') || 0) + (D.num(ae, 'Supernatural Resistance') != null ? ' · supernatural ' + D.num(ae, 'Supernatural Resistance') : '')]) : null]),
     ]);
@@ -870,9 +879,14 @@ window.L5RSheet = (function () {
     return out;
   }
 
-  function conflictBlock(m, v, roller) {
+  function conflictBlock(m, v, roller, compact) {
     const c = conflictOf(m);
     const lv = m.live || {};
+    if (!c && compact) {
+      const enter = el('select', { class: 'scope', 'aria-label': 'Enter a conflict' }, [el('option', { value: '' }, ['Enter a conflict…'])].concat(conflictTypes().map((e) => el('option', { value: e.name }, [e.name]))));
+      enter.addEventListener('change', () => { if (enter.value) setConflict(m, { type: enter.value, initiative: null, engaged: [] }, 'Enters a conflict: ' + enter.value); });
+      return el('div', { class: 'conflict chiprow tight compact' }, [enter, button('Resist a critical…', () => resistCrit(m, v, roller), 'ghost tiny')]);
+    }
     if (!c) return el('div', { class: 'conflict chiprow tight' }, [el('span', { class: 'track-name' }, ['Conflict']), conflictTypes().map((e) => button(e.name, () => setConflict(m, { type: e.name, initiative: null, engaged: [] }, 'Enters a conflict: ' + e.name), 'ghost tiny')),
       button('Resist a critical strike…', () => resistCrit(m, v, roller), 'ghost tiny')]);
     const rules = stanceRules();
@@ -1029,9 +1043,18 @@ window.L5RSheet = (function () {
     State().commit('setPartyLive', [mm.id, { conditions: list }]);
     State().commit('appendLog', [{ at: new Date().toISOString(), kind: 'event', who: mm.name, memberId: mm.id, text: name + (i === -1 ? ' — gained' : ' — removed'), why: 'condition' }]);
   }
-  function conditionsBlock(m, ro) {
+  function conditionsBlock(m, ro, compact) {
     const derivedStates = conditionRules().map((r) => r.state.toLowerCase());
     const on = liveConditions(m);
+    if (compact && !ro) {
+      const defs = conditionDefs().filter((c) => derivedStates.indexOf(c.name.toLowerCase()) === -1);
+      const add = el('select', { class: 'scope add-cond', 'aria-label': 'Add a condition' }, [el('option', { value: '' }, ['+ condition'])].concat(defs.filter((c) => on.indexOf(c.name) === -1).map((c) => el('option', { value: c.name }, [c.name]))));
+      add.addEventListener('change', () => { if (add.value) toggleCondition(m, add.value); });
+      return el('div', { class: 'chiprow tight conditions compact' }, [
+        on.map((n) => el('button', { class: 'cond-toggle on', type: 'button', title: ((defs.find((c) => c.name === n) || {}).effects || '') + '\n\nTap to remove', onclick: () => toggleCondition(m, n) }, [n, el('span', { class: 'x' }, [' ×'])])),
+        add,
+      ]);
+    }
     return el('div', { class: 'chiprow tight conditions' }, [el('span', { class: 'track-name' }, ['Conditions']), conditionDefs().filter((c) => derivedStates.indexOf(c.name.toLowerCase()) === -1).map((c) =>
       el('button', { class: 'cond-toggle' + (on.indexOf(c.name) !== -1 ? ' on' : ''), type: 'button', disabled: ro || null, title: c.effects + (c.removed ? '\n\nRemoved when: ' + c.removed : ''), onclick: ro ? null : () => toggleCondition(m, c.name) }, [c.name]))]);
   }
@@ -1039,7 +1062,21 @@ window.L5RSheet = (function () {
   // Honor, Glory and Status move in play: the live value overrides the sheet's, each change logged;
   // staking one wagers an amount and logs it (the stake is settled by adjusting afterwards).
   const SOCIAL = ['Honor', 'Glory', 'Status'];
-  function socialBlock(m, ro) {
+  function socialBlock(m, ro, compact) {
+    const stakeLog = (k, n) => {
+      const mm = memberNow(m.id, m);
+      State().commit('appendLog', [{ at: new Date().toISOString(), kind: 'event', who: mm.name, memberId: mm.id, text: 'Staked ' + n + ' ' + k + ' (holding ' + current(mm, k) + ')', why: 'stake' }]);
+    };
+    if (compact && !ro) return el('div', { class: 'social-row compact' }, SOCIAL.map((k) => {
+      const cur = current(m, k);
+      const amounts = el('div', { class: 'stake-pick', hidden: true }, [el('span', { class: 'step-k' }, ['Stake']), [1, 2, 3, 4, 5].map((n) => button(String(n), () => stakeLog(k, n), 'ghost tiny'))]);
+      return el('div', { class: 'soc' }, [
+        el('span', { class: 'track-name' }, [k]),
+        el('span', { class: 'stepper' }, [button('−', () => change(m, { [k]: Math.max(0, cur - 1) }), 'step'), el('b', { class: 'step-v' }, [String(cur)]), button('+', () => change(m, { [k]: Math.min(100, cur + 1) }), 'step')]),
+        button('Stake…', () => { amounts.hidden = !amounts.hidden; }, 'ghost tiny'),
+        amounts,
+      ]);
+    }));
     return el('div', { class: 'social-row' }, SOCIAL.map((k) => {
       const cur = current(m, k);
       const stake = el('input', { class: 'text num small', type: 'number', min: 1, placeholder: 'stake', disabled: ro || null });
@@ -1072,8 +1109,31 @@ window.L5RSheet = (function () {
     const printed = (v['Experience Ledger'] || []).map((x) => { const q = String(x).split(' · '); return { cost: parseInt(q[0], 10) || 0, what: q[1] || '', note: q[2] || null, when: q[3] || null }; });
     return { earned, spent, available: earned - spent, ledger: lv.xpLedger || v._xpLedger || printed };
   }
-  function xpBlock(m, ro) {
+  function xpBlock(m, ro, compact) {
     const x = xp(m);
+    if (compact && !ro) {
+      const cost = el('input', { class: 'text num small', type: 'number', min: 1, value: 1 });
+      const what = el('input', { class: 'text', type: 'text', placeholder: 'on what' });
+      const adj = (key, d) => change(m, { [key]: Math.max(0, xp(memberNow(m.id, m))[key === 'xpEarned' ? 'earned' : 'spent'] + d) });
+      const st = (label, key, n) => el('div', { class: 'soc' }, [el('span', { class: 'track-name' }, [label]),
+        el('span', { class: 'stepper' }, [button('−', () => adj(key, -1), 'step'), el('b', { class: 'step-v' }, [String(n)]), button('+', () => adj(key, 1), 'step')])]);
+      return el('div', { class: 'xp compact' }, [
+        el('div', { class: 'social-row compact' }, [st('XP earned', 'xpEarned', x.earned), st('XP spent', 'xpSpent', x.spent),
+          el('div', { class: 'soc' }, [el('span', { class: 'track-name' }, ['Available']), el('b', { class: 'num xp-avail' }, [String(x.available)])])]),
+        el('details', { class: 'fold' }, [el('summary', {}, ['Spend XP']),
+          el('div', { class: 'chiprow tight' }, [Dice.stepper(cost, 1, 99, 'Cost'), what, button('Spend', () => {
+            const n = parseInt(cost.value || '0', 10);
+            if (!(n > 0) || !what.value.trim()) return;
+            const mm = memberNow(m.id, m);
+            const cur = xp(mm);
+            const line = { cost: n, what: what.value.trim(), note: null, when: new Date().toISOString().slice(0, 10) };
+            State().commit('setPartyLive', [mm.id, { xpLedger: cur.ledger.concat([line]) }]);
+            change(mm, { xpSpent: cur.spent + n }, 'spent on ' + line.what);
+          }, 'btn')])]),
+        x.ledger.length ? el('details', { class: 'fold' }, [el('summary', {}, ['Spent on (' + x.ledger.length + ')']),
+          el('ul', { class: 'items xp-ledger' }, x.ledger.map((e) => el('li', {}, [el('b', { class: 'num' }, [String(e.cost)]), ' ', e.what, e.when ? el('span', { class: 'muted small' }, [' · ' + e.when]) : null])))]) : null,
+      ]);
+    }
     const cost = el('input', { class: 'text num small', type: 'number', min: 1, placeholder: 'cost' });
     const what = el('input', { class: 'text small', type: 'text', placeholder: 'on what (a technique, Water 1 → 2…)' });
     const note = el('input', { class: 'text small', type: 'text', placeholder: 'note' });
@@ -1113,11 +1173,12 @@ window.L5RSheet = (function () {
     State().commit('appendLog', [{ at: new Date().toISOString(), kind: 'event', who: mm.name, memberId: mm.id, text: 'Archived this version as “' + label + '”', why: 'version' }]);
   }
   const isViewingArchive = (m) => !!viewing[m.id] && versionsOf(m).some((x) => x.id === viewing[m.id]);
-  function versionPicker(m, redraw) {
+  function versionPicker(m, redraw, compact) {
     const vs = versionsOf(m);
     const sel = el('select', { class: 'scope tiny', title: 'Versions of this character: the live sheet, or an archived one (read-only)' },
       [el('option', { value: '' }, ['Current'])].concat(vs.map((x) => el('option', { value: x.id, selected: viewing[m.id] === x.id || null }, [x.label + (x.date ? ' · ' + x.date : '')]))));
     sel.addEventListener('change', () => { viewing[m.id] = sel.value || null; redraw(); });
+    if (compact) return vs.length ? el('span', { class: 'chiprow tight' }, [sel]) : null;
     return el('span', { class: 'chiprow tight' }, [sel, button('Archive this version…', () => archive(m), 'ghost tiny')]);
   }
 
@@ -1130,11 +1191,12 @@ window.L5RSheet = (function () {
     return clan ? el('img', { class: 'mon', src: 'assets/art/mon/' + clan + '.svg', alt: v.Clan + ' mon', title: v.Clan, onerror: (ev) => ev.target.remove() }) : null;
   }
   const deficientRings = (v) => traits(v).filter((t) => t.type === 'Adversity' && /^Elemental Deficiency\b/.test(t.name) && t.ring).map((t) => t.ring);
-  function header(m, v, extra) {
+  function header(m, v, extra, compact) {
     const pic = portraitOf(m, v);
+    const line = compact ? sentence(v).split(' · ').slice(1).join(' · ') : sentence(v);
     return el('div', { class: 'sheet-head' }, [
       pic ? el('img', { class: 'portrait', src: pic, alt: v.Name || m.name }) : null,
-      el('div', { class: 'head-text' }, [el('h2', {}, [monOf(v), m.name]), el('div', { class: 'muted small' }, [sentence(v)]), extra || null]),
+      el('div', { class: 'head-text' }, [el('h2', {}, [monOf(v), m.name]), el('div', { class: 'muted small' }, [line]), extra || null]),
     ]);
   }
 
@@ -1164,31 +1226,33 @@ window.L5RSheet = (function () {
     const d = derived(v);
     const lv = m.live || {};
     const box = el('div', { class: 'sheet live' });
-    const roller = rollerFor(m, v);
+    const cp = !!o.player;   // the player's page: compact — taps not typed numbers, no working shown
+    const roller = rollerFor(m, v, cp);
     // Each block belongs to a pane. On a phone the player's page shows one pane at a time behind a
     // bar at the bottom (assets/css/l5r5e-gm.css, ≤ 640px); everywhere else every block shows, as always.
     const add = (node, pane) => { if (node) { if (node.setAttribute) node.setAttribute('data-pane', pane); box.appendChild(node); } return node; };
-    add(header(m, v, versionPicker(m, redraw)), 'play');
+    add(header(m, v, versionPicker(m, redraw, cp), cp), 'play');
     const conds = conditions(m);
     add(el('div', { class: 'chiprow tight' }, [ringTiles(v, null, { stance: lv.stance, deficient: deficientRings(v) }), conds.map((c) => el('span', { class: 'cond', title: 'the Samurai type’s own rule' }, [c]))]), 'play');
     add(track('Fatigue', current(m, 'Fatigue'), value(v, 'Endurance'), (n) => patch(m, { Fatigue: n })), 'play');
     add(track('Strife', current(m, 'Strife'), value(v, 'Composure'), (n) => patch(m, { Strife: n })), 'play');
     add(track('Void points', current(m, 'Void Points'), d.voidMax, (n) => patch(m, { voidPoints: Math.min(n, d.voidMax || n) })), 'play');
-    add(conditionsBlock(m, false), 'play');
+    add(conditionsBlock(m, false, cp), 'play');
     add(traitButtons(m, v), 'play');   // none for a character with no passion or anxiety
     add(techniquesBlock(m, v, roller), 'play');
-    add(gearBlock(m, v), 'gear');
-    add(conflictBlock(m, v, roller), 'play');
+    add(gearBlock(m, v, cp), 'gear');
+    add(conflictBlock(m, v, roller, cp), 'play');
     add(el('div', { class: 'muted small' }, ['Focus ' + value(v, 'Focus') + ' · Vigilance ' + value(v, 'Vigilance')]), 'play');
-    add(socialBlock(m, false), 'gear');
-    add(xpBlock(m, false), 'gear');
-    add(el('h4', {}, ['A check', el('span', { class: 'muted small' }, [' · pick a skill below, a ring, the TN'])]), 'roll');
+    add(socialBlock(m, false, cp), 'gear');
+    add(xpBlock(m, false, cp), 'gear');
+    add(cp ? null : el('h4', {}, ['A check', el('span', { class: 'muted small' }, [' · pick a skill below, a ring, the TN'])]), 'roll');
     if (o.player) add(skillPicker(v, roller), 'roll');
     add(roller, 'roll');
     const onRoll = (skill, rank) => roller.set({ skill, skillRank: rank });
-    add(render(Object.assign({}, v, { Honor: current(m, 'Honor'), Glory: current(m, 'Glory'), Status: current(m, 'Status') }), null, { onRoll, stance: lv.stance }), 'sheet');
+    add(render(Object.assign({}, v, { Honor: current(m, 'Honor'), Glory: current(m, 'Glory'), Status: current(m, 'Status') }), null, { onRoll, stance: lv.stance, compact: cp }), 'sheet');
     const rollLog = el('div', { class: 'roll-log' });
-    logOf(m).slice(-8).reverse().forEach((x) => rollLog.appendChild(Dice.logLine(x)));
+    // the player's page: their rolls only (the trackers already show what an event changed)
+    (cp ? logOf(m).filter((x) => x.kind === 'roll').slice(-5) : logOf(m).slice(-8)).reverse().forEach((x) => rollLog.appendChild(Dice.logLine(x, { compact: cp })));
     // an advantage from a book not yet loaded: load it, then draw again with its type and ring
     ensureTraits(v).then((loaded) => { if (loaded) window.VttBus.emit('state:remote', { loaded: true }, { local: true }); });
     add(rollLog, 'roll');

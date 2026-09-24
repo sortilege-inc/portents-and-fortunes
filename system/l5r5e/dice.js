@@ -247,8 +247,35 @@ window.L5RDice = (function () {
   // spends the check's (op) may buy, [{ group, text }], shown once (op) is kept, ticked to log.
   // A set-up may carry a `tag` ({ kind: 'strike' | 'initiative' | 'crit', … }) for those two.
   const OTHER = { id: 'other', label: 'Other reroll', kind: 'other', dice: null, text: 'A reroll a technique, an ability or the GM grants: mark the dice it names.' };
+  // − value + for a number input the page keeps (hidden) as the value's home: a phone's player
+  // taps, never types a number
+  function stepper(inp, min, max, label) {
+    const out = el('b', { class: 'step-v' }, [String(inp.value || min)]);
+    const go = (d) => {
+      const n = Math.max(min, Math.min(max, (parseInt(inp.value || String(min), 10) || min) + d));
+      inp.value = n; out.textContent = String(n);
+      inp.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+    inp.hidden = true;
+    return el('span', { class: 'stepper' }, [label ? el('span', { class: 'step-k' }, [label]) : null,
+      el('button', { class: 'step', type: 'button', 'aria-label': 'less', onclick: () => go(-1) }, ['−']), out,
+      el('button', { class: 'step', type: 'button', 'aria-label': 'more', onclick: () => go(1) }, ['+']), inp]);
+  }
+  // a checkbox shown as a button that is on or off
+  function toggle(box, label) {
+    box.hidden = true;
+    const b = el('button', { class: 'toggle' + (box.checked ? ' on' : ''), type: 'button', 'aria-pressed': box.checked ? 'true' : 'false', onclick: () => {
+      box.checked = !box.checked;
+      box.dispatchEvent(new Event('change', { bubbles: true }));
+      b.classList.toggle('on', box.checked); b.setAttribute('aria-pressed', box.checked ? 'true' : 'false');
+    } }, [label]);
+    b.sync = () => { b.classList.toggle('on', box.checked); b.setAttribute('aria-pressed', box.checked ? 'true' : 'false'); };
+    return el('span', {}, [b, box]);
+  }
+
   function roller(opts) {
     const o = opts || {};
+    const compact = !!o.compact;   // the player's page: taps, not typed numbers; no explanations
     const p = Object.assign({ ring: 'Air', ringValue: 2, skill: null, skillRank: 1, tn: DEFAULT_TN, void: false }, o.preset || {});
     let current = null;
     let mode = null;            // the reroll being marked
@@ -282,6 +309,7 @@ window.L5RDice = (function () {
           p.ring = r;
           if (o.ringsOf) ringValue.value = o.ringsOf(r);
           drawRings();
+          if (compact) drawWhat();
         } }, [ringIcon(r), el('span', {}, [r])]));
       });
     }
@@ -356,7 +384,7 @@ window.L5RDice = (function () {
       if (r.opts.source) result.appendChild(el('div', { class: 'muted small' }, ['via ' + r.opts.source + (r.opts.sourceType ? ' (' + r.opts.sourceType + ')' : '')]));
       (t.extra || []).forEach((x) => result.appendChild(el('div', { class: 'small extra' }, ['+' + x.successes + ' bonus success' + (x.successes === 1 ? '' : 'es') + ' — ' + x.label])));
       result.appendChild(el('div', { class: 'tally' }, [
-        el('span', { class: 'muted small' }, ['kept ' + keptBase(r) + ' of ' + r.limit + (r.dice.some((d) => d.bonus) ? ' (+ bonus dice)' : '') + ' · ']),
+        el('span', { class: 'muted small' }, ['kept ' + keptBase(r) + ' of ' + r.limit + (!compact && r.dice.some((d) => d.bonus) ? ' (+ bonus dice)' : '') + ' · ']),
         el('b', {}, [s.text]),
         s.verdict ? el('span', { class: 'verdict ' + (t.success ? 'ok' : 'fail') }, [' — ' + s.verdict]) : null,
         t.unexploded ? el('span', { class: 'muted small' }, [' · ' + t.unexploded + ' kept (ex) not yet rolled']) : null,
@@ -379,8 +407,10 @@ window.L5RDice = (function () {
         const shown = r.strifeChosen != null ? Math.min(r.strifeChosen, t.strife) : Math.min(dflt, t.strife);
         const strife = el('input', { class: 'text num small', type: 'number', min: 0, max: t.strife, value: shown, title: 'The strife the character receives: the kept (st), unless the player and GM settle on less',
           oninput: (ev) => { r.strifeChosen = Math.max(0, parseInt(ev.target.value || '0', 10) || 0); } });
+        const keepHint = compact ? 'Tap the dice you keep.' : 'Click dice to keep them — nothing is kept for you.';
+        const strifeUi = compact ? (t.strife ? stepper(strife, 0, t.strife, 'Strife taken') : null) : el('label', { class: 'small' }, ['Strife received ', strife, el('span', { class: 'muted' }, [' of ' + t.strife + ' (st) kept'])]);
         result.appendChild(el('div', { class: 'chiprow tight' }, [
-          anyKept(r) ? el('label', { class: 'small' }, ['Strife received ', strife, el('span', { class: 'muted' }, [' of ' + t.strife + ' (st) kept'])]) : el('span', { class: 'muted small' }, ['Click dice to keep them — nothing is kept for you.']),
+          anyKept(r) ? strifeUi : el('span', { class: 'muted small' }, [keepHint]),
           el('button', { class: 'btn tiny', type: 'button', disabled: anyKept(r) ? null : true, onclick: () => {
             r.note = note.value.trim() || null;
             resolve(r, r.strifeChosen != null ? r.strifeChosen : dflt, extra);
@@ -392,6 +422,8 @@ window.L5RDice = (function () {
             assistSkilled.value = 0;
             assistUnskilled.value = 0;
             note.value = '';
+            if (compact) box.querySelectorAll('.roller-more .step-v').forEach((x) => { x.textContent = '0'; });
+            if (compact) box.querySelectorAll('.roller-more .toggle').forEach((x) => { x.classList.remove('on'); });
             drawTray();
             if (o.onResolve) o.onResolve(r);
           } }, ['Resolve']),
@@ -403,9 +435,30 @@ window.L5RDice = (function () {
         if (open.length) result.appendChild(el('div', { class: 'chiprow tight' }, open.map((a) => el('button', { class: 'btn ghost tiny', type: 'button', onclick: () => { a.claimed = true; o.onAdversityFailed(r, a); drawTray(); } }, ['It failed: +1 Void point (' + a.label + ')']))));
       }
     }
-    drawRings();
     const rollBtn = el('button', { class: 'btn', type: 'button', onclick: () => { current = roll(values()); mode = null; marks = []; drawTray(); } }, ['Roll']);
-    box.appendChild(el('div', { class: 'roller-controls' }, [
+    // compact: what is being rolled, in words; the TN as buttons; Void as a switch; the rest under More
+    const what = el('div', { class: 'roll-what' });
+    const drawWhat = () => { what.textContent = p.ring + ' ' + int(ringValue, 1) + ' · ' + (p.skill ? p.skill + ' ' + int(skillRank, 0) : 'no skill'); };
+    const tnPick = el('div', { class: 'tn-pick' });
+    const drawTn = () => {
+      tnPick.innerHTML = '';
+      tnPick.appendChild(el('span', { class: 'step-k' }, ['TN']));
+      [''].concat(difficulty().map((d) => String(d.tn))).forEach((x) => tnPick.appendChild(el('button', { class: 'tn-btn' + (tn.value === x ? ' on' : ''), type: 'button', title: x ? (difficulty().find((d) => String(d.tn) === x) || {}).text || null : 'not set', onclick: () => { tn.value = x; drawTn(); } }, [x || '?'])));
+    };
+    if (compact) {
+      const voidT = toggle(voidBox, 'Void point');
+      const concealT = o.onConceal ? toggle(concealBox, 'TN concealed · +1 Void') : null;
+      box.appendChild(el('div', { class: 'roller-controls compact' }, [ringPick, what, tnPick,
+        el('div', { class: 'chiprow tight roll-go' }, [voidT, rollBtn]),
+        ringValue, skillRank, tn]));
+      ringValue.hidden = true; skillRank.hidden = true; tn.hidden = true;
+      box.appendChild(el('details', { class: 'roller-more' }, [el('summary', {}, ['More']),
+        el('div', { class: 'chiprow tight' }, [stepper(assistSkilled, 0, 9, 'Assisting, skilled'), stepper(assistUnskilled, 0, 9, 'unskilled')]),
+        concealT, note]));
+      drawRings(); drawWhat(); drawTn();
+    }
+    drawRings();
+    if (!compact) box.appendChild(el('div', { class: 'roller-controls' }, [
       ringPick,
       el('label', { class: 'small', hidden: o.fixed || null }, ['Ring ', ringValue]),
       el('label', { class: 'small', hidden: o.fixed || null }, [(p.skill ? p.skill + ' ' : 'Skill ') , skillRank]),
@@ -413,7 +466,7 @@ window.L5RDice = (function () {
       el('label', { class: 'small', title: 'Seize the Moment: spend 1 Void point to roll one additional Ring die and keep one additional die' }, [voidBox, ' Void point']),
       rollBtn,
     ]));
-    box.appendChild(el('div', { class: 'roller-controls more' }, [
+    if (!compact) box.appendChild(el('div', { class: 'roller-controls more' }, [
       el('label', { class: 'small', title: 'Assistance (p. 26): each assisting character with ranks in the skill adds a Skill die, each without adds a Ring die, and each adds a kept die' }, ['Assisting: skilled ', assistSkilled]),
       el('label', { class: 'small' }, ['unskilled ', assistUnskilled]),
       o.onConceal ? el('label', { class: 'small', title: 'After the GM conceals the TN of a check from the players, the character gains 1 Void point (Void Points, p. 297)' }, [concealBox, ' TN concealed (+1 Void point)']) : null,
@@ -431,7 +484,8 @@ window.L5RDice = (function () {
       if (patch && patch.tn !== undefined) tn.value = patch.tn == null ? '' : patch.tn;
       drawRings();
       const lab = skillRank.parentNode;
-      if (lab && lab.firstChild) lab.firstChild.textContent = (p.skill ? p.skill + ' ' : 'Skill ');
+      if (!compact && lab && lab.firstChild) lab.firstChild.textContent = (p.skill ? p.skill + ' ' : 'Skill ');
+      if (compact) { drawWhat(); drawTn(); }
     };
     box.current = () => current;
     box.skill = () => p.skill || null;   // the check's skill, for a picker that shows it (sheet.js skillPicker)
@@ -441,7 +495,8 @@ window.L5RDice = (function () {
 
   // one log line: a resolved roll with how it came to be, or an event on a character
   const logDie = (type, key) => el('img', { class: 'logdie', src: artBase() + 'dice/' + key + '.svg', alt: key, title: (type === 'ring' ? 'Ring die ' : 'Skill die ') + key });
-  function logLine(entry) {
+  function logLine(entry, opts) {
+    const compact = !!(opts && opts.compact);
     if (entry.kind === 'event') return el('div', { class: 'roll-line event' }, [
       el('span', { class: 'roll-who' }, [entry.who || '']),
       el('span', {}, [entry.text || '']),
@@ -451,7 +506,7 @@ window.L5RDice = (function () {
     const t = entry.tally || {};
     const s = summary(t);
     const chips = [];
-    if (entry.limit != null) chips.push(el('span', { class: 'logchip' + (entry.keptFewer ? ' warn' : '') }, ['kept ' + entry.keptBase + ' of ' + entry.limit + (entry.keptFewer ? ' — fewer than allowed' : '')]));
+    if (entry.limit != null && !compact) chips.push(el('span', { class: 'logchip' + (entry.keptFewer ? ' warn' : '') }, ['kept ' + entry.keptBase + ' of ' + entry.limit + (entry.keptFewer ? ' — fewer than allowed' : '')]));
     if (entry.assistSkilled) chips.push(el('span', { class: 'logchip' }, ['assisted: ' + entry.assistSkilled + ' skilled']));
     if (entry.assistUnskilled) chips.push(el('span', { class: 'logchip' }, ['assisted: ' + entry.assistUnskilled + ' unskilled']));
     if (entry.concealed) chips.push(el('span', { class: 'logchip' }, ['TN concealed']));
@@ -471,7 +526,7 @@ window.L5RDice = (function () {
       entry.note ? el('span', { class: 'muted small' }, ['“' + entry.note + '”']) : null,
       entry.source ? el('span', { class: 'muted small' }, ['via ' + entry.source + (entry.sourceType ? ' (' + entry.sourceType + ')' : '')]) : null,
       chips.length ? el('div', { class: 'logchips' }, chips) : null,
-      first || events.length ? el('details', { class: 'log-prov' }, [el('summary', { class: 'muted small' }, ['how it was rolled']), first, events]) : null,
+      !compact && (first || events.length) ? el('details', { class: 'log-prov' }, [el('summary', { class: 'muted small' }, ['how it was rolled']), first, events]) : null,
     ]);
   }
   // what a resolved roll leaves in the log: the check, every die first rolled, each reroll and
@@ -497,6 +552,6 @@ window.L5RDice = (function () {
   return {
     DEFAULT_TN, SEIZE_THE_MOMENT, EXPLOSION, ASSISTANCE, faces, symbolDefs, resolutionOrder, checkSteps, difficulty,
     rule, rerollRule, roll, toggleKeep, explode, reroll, rerollNeed, tally, resolve, summary, keepLimit,
-    roller, faceImg, ringIcon, symbolsHtml, logLine, logEntry, esc,
+    roller, faceImg, ringIcon, symbolsHtml, logLine, logEntry, esc, stepper, toggle,
   };
 })();
