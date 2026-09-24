@@ -447,6 +447,6 @@ window.VttSiteTabs = (function () {
     { id: 'search', label: 'Search', render: renderSearch, books: true },
   ];
   // the creator adds its tab when it is loaded (system/l5r5e/creator.js)
-  if (window.L5RCreator) tabs.splice(5, 0, { id: 'create', label: 'Make a character', render: window.L5RCreator.render });
+  if (window.L5RCreator) tabs.splice(5, 0, { id: 'create', label: 'Make a character', render: window.L5RCreator.render, books: true });
   return tabs;
 })();

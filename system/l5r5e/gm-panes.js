@@ -70,7 +70,7 @@
       const drawHits = () => {
         hits.innerHTML = '';
         const r = G.search(searchQ);
-        if (searchQ.trim().length >= 2) hits.appendChild(el('div', { class: 'muted small' }, [r.length + (r.length === 1 ? ' place' : ' places')]));
+        if (searchQ.trim().length >= 2) hits.appendChild(el('div', { class: 'muted small' }, [r.length + ' found']));
         r.slice(0, 40).forEach((x) => hits.appendChild(el('div', { class: 'gm-hit' }, [
           el('button', { class: 'ref', type: 'button', onclick: () => G.goTo(x) }, [x.title]),
           el('span', { class: 'muted small' }, [' · ' + ((Panels.PANELS[x.pane] || {}).label || x.pane)]),

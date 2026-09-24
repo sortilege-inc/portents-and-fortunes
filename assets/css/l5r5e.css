@@ -437,6 +437,7 @@ details.lore-full > summary { cursor: pointer; font-family: var(--caps); letter-
 .gm-tag-note { background: #6e5f48; color: #f5ece0; }
 .gm-sec { border-left: 3px solid var(--edge); padding: 2px 0 4px 10px; margin: 8px 0; }
 .gm-sec.editing { border-left-color: var(--gold); }
+.gm-sec.editing > input.text { width: 100%; margin-bottom: 6px; }
 .gm-sec-h { display: flex; align-items: center; gap: 8px; }
 .gm-fold { background: none; border: 0; padding: 2px 0; font: 600 1.02em var(--serif); color: var(--ink); cursor: pointer; text-align: left; flex: 1; }
 .gm-caret { display: inline-block; width: 1em; color: var(--ink-dim); }
@@ -454,7 +455,7 @@ details.lore-full > summary { cursor: pointer; font-family: var(--caps); letter-
 .gm-flash { outline: 2px solid var(--gold-lit); outline-offset: 2px; transition: outline-color 1.2s; }
 .arc-session { display: block; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--edge-soft); padding: 8px 0 4px; margin-top: 8px; font: 600 .82rem var(--caps); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); cursor: pointer; }
 .arc-session.played { color: var(--ink-dim); }
-.arc-card.running { border-left-color: var(--crimson); background: var(--crimson-soft); padding-top: 4px; }
+.arc-card.running { border-left-color: var(--crimson); background: rgba(182, 36, 50, .06); padding-top: 4px; }
 .arc-card.played { border-left-color: var(--jade); }
 .arc-card.played .gm-fold { color: var(--ink-soft); }
 .arc-badges { display: inline-flex; gap: 4px; }
@@ -466,6 +467,7 @@ details.lore-full > summary { cursor: pointer; font-family: var(--caps); letter-
 .gm-questions li .gm-q { flex: 1; }
 .gm-questions li.asked .gm-q { color: var(--ink-dim); text-decoration: line-through; }
 .thread-notes { margin-top: 6px; }
+.house-rule { margin: 6px 0 6px 14px; line-height: 1.45; }
 .gm-veil { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; background: var(--lacquer); padding: 16px; }
 .gm-veil-box { max-width: 460px; text-align: center; padding: 22px 20px; }
 .gm-veil-title { font: 600 1.4em var(--disp); margin-bottom: 8px; }
