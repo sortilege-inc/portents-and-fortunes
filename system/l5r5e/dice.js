@@ -471,17 +471,26 @@ window.L5RDice = (function () {
       rollBtn.disabled = compact && !tnChosen ? true : null;
       rollBtn.textContent = compact && !tnChosen ? 'Choose the TN' : 'Roll';
     };
-    // the skill, chosen here (o.skills: { groups: [{ name, skills: [name] }], have: { name: rank } })
-    const skillSel = el('select', { class: 'scope skill-pick', 'aria-label': 'Skill' });
+    // the skill, chosen here (o.skills: { groups: [{ name, skills: [name] }], have: { name: rank } }):
+    // each group under its name, its skills with their ranks as dots; tapped, a skill is the check's,
+    // tapped again the check is the ring's alone
+    const skillList = el('div', { class: 'skill-list', role: 'listbox', 'aria-label': 'Skill' });
     const drawSkills = () => {
       if (!o.skills) return;
       const sk = o.skills();
-      skillSel.innerHTML = '';
-      skillSel.appendChild(el('option', { value: '' }, ['No skill (ring only)']));
-      sk.groups.forEach((g) => skillSel.appendChild(el('optgroup', { label: g.name }, g.skills.map((k) => el('option', { value: k, selected: p.skill === k || null }, [k + ' ' + (sk.have[k] || 0)])))));
-      skillSel.value = p.skill || '';
+      skillList.innerHTML = '';
+      sk.groups.forEach((g) => {
+        skillList.appendChild(el('div', { class: 'sg-h' }, [g.name]));
+        g.skills.forEach((k) => {
+          const n = Math.max(0, Math.min(5, sk.have[k] || 0));
+          const on = p.skill === k;
+          skillList.appendChild(el('button', { class: 'sk-row' + (on ? ' on' : ''), type: 'button', role: 'option', 'aria-selected': on ? 'true' : 'false',
+            onclick: () => box.set(on ? { skill: null, skillRank: 0 } : { skill: k, skillRank: sk.have[k] || 0 }) }, [
+            el('span', { class: 'sk-n' }, [k]), el('span', { class: 'sk-dots', 'aria-label': n + ' of 5' }, ['●'.repeat(n) + '○'.repeat(5 - n)]),
+          ]));
+        });
+      });
     };
-    skillSel.addEventListener('change', () => { const sk = o.skills(); box.set({ skill: skillSel.value || null, skillRank: skillSel.value ? sk.have[skillSel.value] || 0 : 0 }); });
     const voidRow = el('div', { class: 'roll-row' });
     const assistRow = (inp, label) => el('div', { class: 'roll-row' }, [el('span', { class: 'roll-row-k' }, [label]), stepper(inp, 0, 9)]);
     if (compact) {
@@ -489,7 +498,7 @@ window.L5RDice = (function () {
       voidRow.appendChild(el('span', { class: 'roll-row-k' }, ['Void point · +1 ring die, +1 kept']));
       voidRow.appendChild(toggle(voidBox, 'Spend'));
       box.appendChild(el('div', { class: 'roller-controls compact' }, [
-        note, tnPick, diceLine, ringPick, o.skills ? skillSel : null, voidRow,
+        note, tnPick, diceLine, ringPick, o.skills ? skillList : null, voidRow,
         assistRow(assistSkilled, 'Skilled assistance'), assistRow(assistUnskilled, 'Unskilled assistance'),
         rollBtn, ringValue, skillRank, tn, concealBox]));
       ringValue.hidden = true; skillRank.hidden = true; tn.hidden = true; concealBox.hidden = true;
@@ -534,10 +543,11 @@ window.L5RDice = (function () {
       drawRings();
       const lab = skillRank.parentNode;
       if (!compact && lab && lab.firstChild) lab.firstChild.textContent = (p.skill ? p.skill + ' ' : 'Skill ');
-      if (compact) { if (patch && patch.tn !== undefined) tnChosen = true; if (o.skills) skillSel.value = p.skill || ''; drawTn(); drawDice(); }
+      if (compact) { if (patch && patch.tn !== undefined) tnChosen = true; drawSkills(); drawTn(); drawDice(); }
     };
     box.current = () => current;
     box.skill = () => p.skill || null;   // the check's skill
+    box.roll = () => { if (!rollBtn.disabled) rollBtn.click(); };   // a Roll elsewhere on the page (the player's tab bar)
     return box;
   }
   const symbolsSpan = (text) => el('span', { html: symbolsHtml(esc(text)) });

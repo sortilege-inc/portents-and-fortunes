@@ -188,6 +188,17 @@ body.play { display: block; }
   body.play .pane-nav { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; background: var(--lacquer); border-top: 2px solid var(--crimson); padding-bottom: env(safe-area-inset-bottom); }
   body.play .pane-nav button { flex: 1; min-height: 54px; background: none; border: 0; color: #cdbf9f; font-family: var(--caps); font-size: 14px; letter-spacing: .1em; text-transform: uppercase; }
   body.play .pane-nav button.on { color: #fff; box-shadow: inset 0 3px 0 var(--crimson); background: var(--lacquer-2); }
+  body.play .pane-nav button.go { background: var(--crimson); color: #fff; box-shadow: none; font-weight: 600; }
+  /* the Roll tab rolls from the bar: the roller's own button is not shown there (it is in the
+     Conflict tab's initiative, and on a wider screen) */
+  body.play .sheet.live > .roller[data-pane="roll"] .roller-controls.compact > .btn { display: none; }
+  /* the skills: each group under a short-ruled name, its skills indented, ranks as dots on the right */
+  body.play .skill-list { display: flex; flex-direction: column; }
+  body.play .skill-list .sg-h { font-family: var(--caps); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); margin: 10px 0 2px; }
+  body.play .skill-list .sg-h::after { content: ''; display: block; width: 3.5em; margin-top: 2px; border-bottom: 2px solid var(--crimson); }
+  body.play .sheet.live .skill-list .sk-row { display: flex; justify-content: space-between; align-items: center; min-height: 40px; padding: 0 4px 0 16px; border: 0; border-bottom: 1px dotted var(--edge); background: none; text-align: left; font-family: var(--serif, inherit); font-size: 16px; color: var(--ink); }
+  body.play .sheet.live .skill-list .sk-row.on { background: var(--crimson-soft); color: var(--crimson-deep); box-shadow: inset 3px 0 0 var(--crimson); }
+  body.play .skill-list .sk-dots { color: var(--crimson); letter-spacing: .12em; font-size: 14px; }
 
   /* the head: portrait, name, the line under it */
   body.play .sheet-head { display: flex; gap: 12px; align-items: center; }
