@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 convert_house_rules.py — one-way conversion of the house rules established in play (the state
-document's §10, campaign/docs/state.html) into campaign/dsl/portents-house-rules.ttrpg: one MODIFY
+document's §10, campaign/docs/state.html — retired by decision 67; it is in git at 540d3fa) into campaign/dsl/portents-house-rules.ttrpg: one MODIFY
 per rule and target, carrying the rule as a GUIDANCE entry, so the VTT shows it beside the rule it
 changes, the way it shows errata. Kept for provenance; once run, the DSL is the source.
 **Do not re-run it:** the DSL has been edited since (H1's hashes, M4's `Off-Approach Reroll Dice`), and

@@ -16,6 +16,7 @@ What stays here is what is Portents' own:
   panes, the seed and gated Notes, the player's page on a phone, the Conflict tab, advancement.
 - **The instance's own scripts** — `campaign/source/`: `convert_*.py` (one-way conversions, kept for
   provenance; `convert_house_rules.py` must not be re-run), `check_npcs.py`, `check_norikage.py`,
-  `migrate_docs.py`, `scope_css.py`, `build_seed.py`.
+  `migrate_docs.py`, `scope_css.py`; `absorb_state.py` and `check_absorb.py` (the one-time move of
+  Behind the Veil into the GM tabs, and its every-word gate).
 - **Deploy** — Pages from `main` at portents.sortilege.online (HTTPS enforced); the Worker
   `portents-vtt`, redeployed after any upstream op change (`cd worker && npx wrangler deploy`).

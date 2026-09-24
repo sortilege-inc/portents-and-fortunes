@@ -3,10 +3,385 @@
  "version": 1,
  "arc": [
   {
+   "id": "scene-s7-coming-down",
+   "title": "Coming down",
+   "session": "Session Seven",
+   "played": true,
+   "text": "SET They are camped outside the torii the night after. He is unclean and has not purified himself; she has kept everything of hers apart from everything of his. The mule is below with them.\nSET The charge is not discharged. She has still not taken whatever it was she came to take, and the second half stands regardless: finding her somewhere she can actually stay. Only then is he released.\nOPEN What she takes away from the shrine, whether it is an object or something she now knows, and whether she says so.\n— White Flower does not know\n— Six deaths, and nobody left to read them\n— The Refuge of the Three Sisters\n— What he is carrying down\n— What is under the cairns\n(Behind the Veil › Next session — prep)"
+  },
+  {
+   "id": "scene-s7-ambush",
+   "title": "The ambush on the track",
+   "session": "Session Seven",
+   "played": true,
+   "text": "NOTE Runs once they are down and moving again, on the unmaintained eastern track — not an Imperial road but an agreement between villages that a path exists, a goat’s width within a mile of anywhere (Places › The country).\n— Who they are\n— What they want\n— How it opens\n— The ways out that are not fighting\n— What Juri does, and what it costs\n(Behind the Veil › Next session — prep)"
+  },
+  {
    "id": "scene-s8-white-flower",
-   "title": "Session Eight — White Flower at nightfall",
-   "played": false,
-   "text": "SET 23 Sep They reach White Flower around nightfall. He wants the village told so that the dead can be buried properly, a safe night, and rest. The scene’s end halves his fatigue to 5; a night’s rest takes twice his Water off it.\nSET The charge is not discharged. She has still not taken whatever it was she came to take, and the second half stands regardless: finding her somewhere she can actually stay — and her next stop is the Three Sisters. Only then is he released.\nOPEN What she takes away from the shrine, whether it is an object or something she now knows, and whether she says so.\n— White Flower does not know\n— Six deaths, and nobody left to read them\n— What is under the cairns\n— The road to the Three Sisters\n(Behind the Veil › Next session — prep)"
+   "title": "White Flower at nightfall",
+   "session": "Session Eight",
+   "summary": "White Flower at nightfall: he comes down the pilgrim track clean, with a Phoenix and a death to report, and the road runs on from there to the Three Sisters.",
+   "text": "[SET 23 Sep] They reach White Flower around nightfall. He wants the village told so that the dead can be buried properly, a safe night, and rest. The scene’s end halves his fatigue to 5; a night’s rest takes twice his Water off it.\n\n[SET] **The charge is not discharged.** She has still not taken whatever it was she came to take, and the second half stands regardless: finding her somewhere she can actually stay — and her next stop is the Three Sisters. Only then is he released.\n\n[OPEN] What she takes away from the shrine, whether it is an object or something she now knows, and whether she says so.",
+   "sections": [
+    {
+     "id": "scene-s8-white-flower-white-flower-does-not-know",
+     "title": "White Flower does not know",
+     "text": "[NOTE] The village has lost an elder. Apart from Juri and whoever did it, Norikage is the only living person who knows.\n\n[NOTE] He arrives clean, with a Phoenix, on a Togashi errand, with authority over no one, carrying a death. Last time he was there he left a promise behind him.\n\n[NOTE] **Sadao is a Kitsuki.** Investigation is his family’s whole art, his gempukku was made on this mountain, and one of his three remaining elders is the one who walked it. What he does with that is not a village matter.\n\n[OPEN] Whether the bandits reached White Flower first, and what they said there (Threads)."
+    },
+    {
+     "id": "scene-s8-white-flower-six-deaths-and-nobody-left-to-read-them",
+     "title": "Six deaths, and nobody left to read them",
+     "text": "[NOTE] **The site is gone.** The bodies came off the stone, the arrangement was broken, and the plateau was spiritually cleansed. Both of them had sound reasons and neither was thinking about evidence. Whatever the circle would have told an investigator is no longer there to be told.\n\n[NOTE] What is left: six cairns below the torii, which can be reopened; one talisman he recognised; and two witnesses.\n\n[OPEN] Who the other five were. Pilgrims she was guiding is the obvious answer and has not been established.\n\n[OPEN] Why a cult that meets in secret left six bodies arranged on the most-visited shrine in the Togashi lands."
+    },
+    {
+     "id": "scene-s8-white-flower-what-is-under-the-cairns",
+     "title": "What is under the cairns",
+     "text": "[NOTE] **The six had no rites and were not burned.** They were laid under stone by an exhausted man with no shovel and no fuel. Rokugani funeral rites call for remains to be burned with prayers offered, and any shugenja, priest or monk can officiate (Rules › Uncleanliness and purification) — which means both of them are qualified and neither has done it.\n\n[NOTE] None of the six received the featureless mask, whose stated purpose is that *any lingering spirit will not recognize its former body or attempt to reclaim it* (Rules › Uncleanliness and purification).\n\n[NOTE] **The published precedent is that the spirit stays with the remains until the remains are handled properly**, and departs when they are (Rules › Uncleanliness and purification). Six sets of unburned remains lie below the torii of a shrine that was spiritually cleansed the same day — the cleansing took the stain off the plateau, not out of the cairns.\n\n[NOTE] Wood is the obstacle, not will. Trees are scarce that high and there is no fuel on a rock plateau for six pyres. Bringing wood up means a village, and White Flower is the one he is walking into.\n\n[OPEN] Whether anything is actually stirring, or whether the dread is his and correct anyway. Both play the same for a session.\n\n[OPEN] Whether the five unnamed dead have anyone to be worshipped by. An ancestor nobody remembers becomes muenbotoke (Rules › Uncleanliness and purification), and nobody yet knows who these people were.\n\n[NOTE] **The premonition is ageing into evidence.** He told Oharu that White Flower will not last the year and that he did not see the cause. The guide of its pilgrim road is now dead on the mountain above it. Reisui-ji is three days back the way they came.\n\n[NOTE] Four XP unspent.\n\n[OPEN] Whether Oharu carries the premonition further, and to whom."
+    },
+    {
+     "id": "scene-s8-white-flower-the-road-to-the-three-sisters",
+     "title": "The road to the Three Sisters",
+     "text": "[NOTE] What the place is said to do is answer any question put to it, in riddles, and to visit misfortune on whoever dares ask (Threads). He is a man with questions and no answers, and it stands beside the mountain."
+    }
+   ],
+   "played": false
   }
- ]
+ ],
+ "threads": [
+  {
+   "id": "pf-thread-moon-cults",
+   "title": "Moon cults",
+   "text": "[SET 16 Sep] **The Refuge of the Three Sisters is a moon cultist temple**, and one of the few that is openly what it is. People go there to have questions answered. It stands near the [Wrath of the Kami](#atlas/wrath-of-the-kami), which puts a known moon-cult site beside the mountain this chronicle is about.\n\n[SET 16 Sep] Juri asked him, unprompted, whether he had ever been there — the same evening she named Onnotangu on the plateau.\n\n[NOTE] A third thing lands in the same place: Brother Ujiyasu’s last unwinnable debate was against a moon cultist who knew the teachings as well as he did.\n\n[SET 23 Sep] **She means to go.** She asked him to extend the journey there. He told her the place unsettles him, and not because of the Sisters. Her answer: *“It is not a wrong impulse to have. It may even be correct. I have some small understanding, perhaps, that the three sisters and the followers of the moon god are folk whom I must treat with caution when I interact with them, at best. But I have far more concern with the mountain near there, for myself.”*\n\n[OPEN] What she means to ask the Sisters, or take from them.\n\n[SOURCE] `writ-of-wilds-dragon-clan.lore` — **Refuge of the Three Sisters**, in the mountains called the Dragon's Teeth, *a rarity in Rokugan—a shrine devoted to Onnatangu, Lord Moon.* The ascent is a narrow switch-back path called the **Climb to the Moon**. Past a weather-beaten torii the shrine is different for each visitor: some describe a small stone hut, some a cave, some a grove of ancient pine. Three women — adolescent, matron, crone — answer any question in riddles, *but misfortune befalls those who dare ask.*\n\n[SOURCE] `core-systems.ttrpg` — cults are *at best fringe elements, and at worst blasphemies deserving of eradication*, are *secretive in the extreme*, and *can operate at all levels of society.* Of Lord Moon specifically: *there are still those in the Empire who consider Lord Moon to be the preeminent divine figure, devoting themselves to him in clandestine ceremonies.* Cults to him *seek to empower him and hasten his judgment upon his children.*\n\n[SOURCE] `path-of-waves-hirosaka.lore` — *Moon cultists tend, like their Celestial patron, to be more than a little paranoid themselves, so their clandestine meetings and rituals are typically held in the moonlight, well away from any towns or villages.*\n\n[SOURCE] **Statblock recipe** (`core-systems.ttrpg`): *For the Moon Cultist profile, use the Wicked Mahō-tsukai but replace their mahō with these invocations: By the Light of the Lord Moon, Summon Fog, Tempest of Air, and Vapor of Nightmares.*\n\n[SOURCE] **Moon Cultist** is a playable title (`celestial-realms-gm-tools.ttrpg`, source p.140): assigned by another moon cultist, carries the **Dark Secret** disadvantage, **honor −5** to a floor of 15, 30 XP to completion, ability **Swallow the Light**. Its entry condition is doctrinal rather than ceremonial — *practice their faith unquestioningly and remind others that there is perfection in chaos.*\n\n[SOURCE] `celestial-realms-character-options.lore` — the flavour text of the **Conspiracy** anxiety is two servants arguing about their lady: *“Moon people don't exist, you know.” “They do! They eat the dreams of their lovers, causing terrible nightmares.”* … *“Now, moon people have a crescent-shaped birthmark on their—”* Servants' gossip, not cult doctrine, and the mark it names is a crescent.\n\n[MINE] If the seven moles are canon for him, a cultist reads that mark as belonging to a different sky than the priest claimed. This thread attacks his identity rather than his duty.\n\n[NOTE] The published mark is **a crescent**, not seven moles in a circle. A cultist who wants Norikage to be a moon person has to work for it, which is the more useful version: the reading is a stretch, and it is made anyway.\n\n[OPEN] Whether he ever asks the Sisters about the mountain, and what it costs.",
+   "open": true
+  },
+  {
+   "id": "pf-thread-yobanjin",
+   "title": "Yobanjin",
+   "text": "[SOURCE] `writ-of-wilds-peoples.lore` — Great Clans maintain contact with multiple Yobanjin tribes for trade and intelligence.\n\n[SOURCE] `writ-of-wilds-wilderness.lore` — **Yobanjin Mura**, a trade village in the Phoenix foothills frequented by passing Yobanjin tribes, overlooked despite technically violating Imperial decree. Also **Sachihoko Tower**, watchtower-monastery erected at Seppun behest to warn the Dragon of northern invasion; *in a thousand years its signal has never been lit.*\n\n[MINE] Tip of the Tongue implies fluency in multiple languages; in the far north that plausibly includes Yobanjin dialects. If so, he can hear a version of what the mountain is that nobody around him can.\n\n[OPEN] Whether the anxiety's languages are Yobanjin at all.",
+   "open": true
+  },
+  {
+   "id": "pf-thread-yokai",
+   "title": "Yokai",
+   "text": "[SOURCE] `celestial-realms-phoenix-clan.lore`, **The Lost Shrine** — an abandoned shrine near Beiden Pass, lost to administrative errors. Its neglected spirit transformed into a yokai with an affinity for spiders; approaching within an hour's walk causes mounting strife; the Forgotten Spirit appears as a pony-sized black spider to anyone passing the torii, demanding worship and attacking if refused.\n\nThe published precedent for “abandoned village → abandoned shrines → yokai”, and it is a spider — the same motif as his tattoo.\n\n[SOURCE] `writ-of-wilds-wilderness.lore` — the most frightening yokai are former humans cut off from civilization: bog hags of the Shinomen and **kobukaiba**, whip-haired forest hags of the **northern Dragon mountains**. Elders use these as warnings against severing oneself from civilization — which is precisely what displaced villagers are being forced to do.\n\n[SOURCE] A **Yokai Hunter** title exists in `writ-of-wilds-gm-tools.ttrpg` — a possible advancement path, and one that would cost a monk his pacifism.\n\n[SET 23 Sep] **Four men on the pilgrim track call him a yokai.** They watched him break a chained sickle bare-handed and take a katana through the body without effect, and ran. One fled from the ledge before the katana; three saw it.\n\n[OPEN] Where the story goes, and how it is told. The track they fled along is the one to White Flower.",
+   "open": true
+  },
+  {
+   "id": "pf-thread-people-not-yet-met",
+   "title": "People not yet met",
+   "text": "**Yogo Kenzan** — [AGREED] The Scorpion name is deliberate. The sect thread runs directly through him.\n\n[MINE] The Yogo curse — betray the one you most love — works best played straight and late, as an act of virtue rather than villainy: an honest report, a truthful answer to a direct question. His integrity is the weapon.\n\n[OPEN] Whether the curse is in play at all, or the family name is texture only.\n\n**The priest who came down the mountain** — [OPEN] Twenty years of retelling means nobody agrees on the exact wording of the prophecy. Recovering the actual sentence is an investigation in itself.",
+   "open": true
+  },
+  {
+   "id": "pf-thread-places-held-in-reserve",
+   "title": "Places held in reserve",
+   "text": "- [SOURCE] **Wrath of the Kami Temple** — Agasha-built, on a plateau adjacent to the volcano, all stone, designed to withstand earthquakes, with one of the Empire's finest rock gardens. Home to the **Brothers of Wrath**, a small order who consider the heat near the crater holy and are rumored immune to fire, though they have taken a vow of silence. There is a statted NPC, **Agasha Hayato, Stoic Guardian** (Combat Conflict Rank 4), guardian of this temple, with deep elemental insight and mastery of fire kihō.\n- [SOURCE] **Furthest Fortress** — remote Dragon outpost in the second-largest mountain in Rokugan, containing an ancient vault with a puzzle-box lock designed by Togashi himself. The Last Riddle is the only way to open it.\n- [SOURCE] **Serpent's Tail Mine** — intertwined gold and iron veins believed to be the tracks of two rival spirits who escaped *from the Wrath of the Kami volcano.* Possibly relevant to what left the mountain, or what is in it.\n- [YOURS] A war against the Great Climb, with Kitsuki primarily fighting. The published Dragon imbalance manifestation includes an avalanche isolating the Kitsuki — those may be the same event.",
+   "open": true
+  },
+  {
+   "id": "pf-thread-the-opening-that-was-never-used",
+   "title": "The opening that was never used",
+   "text": "[YOURS] Kick off with a festival, and track the superstitions of the general populace as an ongoing element.\n\n[MINE] These combine: run a festival as a catalogue of local practice, then let the practices that are *drifting* — half-remembered, performed slightly wrong by people with nobody left to correct them — be the campaign's early-warning instrument for the imbalance. Plays entirely to Theology 2 and Meditation 2 rather than exposing Melee 0.\n\n[OPEN] Which festival, what season relative to the expected eruption, and what actually happens.",
+   "open": true
+  },
+  {
+   "id": "pf-still-to-decide",
+   "title": "Still to decide",
+   "text": "",
+   "sections": [
+    {
+     "id": "pf-still-to-decide-tobei",
+     "title": "Tōbei",
+     "text": "[OPEN] Tōbei has no tarot card, no trade and no age. Also open: whether the child's death is common knowledge in the village or something he and Ume carry privately.\n\n[MINE] *Tōbei:* water. In a village of terraces the meltwater is allocated by custom, and he is the custom — he says whose shelf drinks first and in what order down the hillside, and has settled every water dispute White Flower has had without once involving a samurai.\n\n[MINE] *His birthplace:* split it from the posting — born in a Kinenkan mountain village near the volcano, so that he learns about the mountain late and secondhand, which is how he learns everything else."
+    }
+   ],
+   "open": true
+  }
+ ],
+ "gm": {
+  "overview": [
+   {
+    "id": "pf-premise",
+    "title": "The premise",
+    "text": "[SET] Togashi Norikage is 24, and Wrath of the Kami has **not erupted once in his lifetime** — a silence twenty-four years old and chronic, not one winter's failure. A priest at his cradle said the mountain would not wake while he lived. The Agasha have been living with the worst omen in their tradition for a generation. He is afraid the prophecy is true — that the mountain is not quiet but held, and that the eruptions it has not had are still owed.\n\n[SOURCE] `writ-of-wilds-wilderness.lore` — Wrath of the Kami is an active volcano at the center of Kinenkan province, causing tremors felt as far as the Centipede lands. *Its annual winter eruption is so dependable that the Agasha consider it a troubling omen if it fails to erupt.*",
+    "sections": [
+     {
+      "id": "pf-premise-his-ninjo-is-harder-than-it-looks",
+      "title": "His ninjō is harder than it looks",
+      "text": "[SOURCE] `writ-of-wilds-wilderness.lore` — *The Phoenix have not yet revealed this to the other clans for political reasons.*\n\nHis ninjō is to study with the Phoenix because they seem to understand the imbalance — but they are actively concealing it, so the goal is not to be taught. It is to get at a secret a Great Clan is deliberately keeping.\n\n[SOURCE] The Kaito are the family deployed to investigate, they practice mikodo (the Way of Shrines), and they descend from the **Hyoketsu**, a Yobanjin tribe absorbed into the Phoenix in the 5th century. Their ancestral shrine Sanpuku Seido sits on the northern border in the Great Wall of the North and contains the well imprisoning Ateru's spirit, which weakened the boundary to Toshigoku.\n\nThe Phoenix most likely to teach him about neglected shrines are half the thing his Empire calls barbarian, and have their own containment problem. **His ninjō and the Yobanjin thread are the same door.**"
+     }
+    ]
+   },
+   {
+    "id": "pf-posting",
+    "title": "The posting",
+    "text": "[SET] **Seiya Mori**, daimyō of the province, of a vassal family sworn to the **Agasha**, has ordered a consolidation. Two or three villages are being given up entirely; their people are divided among settlements that can still hold them. Terraces failing, population past the point where a village can feed the work of being a village.\n\n[SET] **Togashi Oharu**, Norikage's abbot, sent him along as an **observer in a religious capacity** — outside the daimyō's chain of command, carrying no responsibility for moving anyone.\n\n[SET 9 Sep] **Oharu reads it as a fault line.** Told the premonition, he answered that he could see the truth of the vision in Norikage's eyes, that there are *deep disturbances amongst the spirits and amongst the people*, and that he hopes the shugenja Norikage travels with can give the temple some way of *rectifying, or shoring up, so that we can persist through the coming distresses.* Asked whether the pressure is external: *“I think there are people and spirits and even greater things at work, and we find ourselves at a time and a place that is a fault line.”*\n\n[NOTE] He named no antagonist and did not rule one out. Norikage's mind went to the mountain and he left it there.\n\n[SET] Oharu **had nothing particular in mind.** No brief, no target — so Norikage chooses what the report is about, and whatever he writes back becomes what the temple knows and acts on. He has not noticed.\n\n[SET] Destination: **White Flower Village** (this spelling is canonical for the chronicle; “White Blossom” was drift).\n\n[SET] The village being emptied is **not marked on any map Norikage has seen.**\n\n[OPEN] Why is the origin village unmapped? Too small to survey / struck from the record / Norikage's maps are temple maps and this is a Seiya administrative matter?\n\n[SET] Sincerity paramount, Duty least significant. He has never had to choose between them because he has never been asked to do anything dishonest. Now he has.\n\n[SET] The consolidation is policy, not cruelty — failing terraces, villages that cost more than they return. The reasoning offered *is* arithmetic, so his Sincerity collides with someone else's sincerity rather than with malice.\n\n[OPEN] Whether Mori's arithmetic is the whole of it, and on whose counsel."
+   },
+   {
+    "id": "pf-disturbance",
+    "title": "The disturbance",
+    "text": "[SET] The chill Norikage felt on the road and the premonition are **one phenomenon, not two.** He is picking up a disturbance in the **local earth kami.** Its content: within a year, **White Flower Village will be uninhabited or uninhabitable.**\n\n[SET] He knows roughly where it is. He does not know what it is, and Session Two did not change that — the column reached the village without the premonition acquiring a mechanism. The player named the problem exactly: *a fact without a direction.*\n\n[SOURCE] `writ-of-wilds-wilderness.lore` — one leading theory of localized imbalance is the displacement of elemental spirits: *kami taken from their enshrined places bring their elemental phenomena elsewhere, manifesting as natural disasters or unusual weather. Kami may be displaced when shrines fall into disrepair, when they are offended, or when encroaching spirits force them to flee.*\n\n[SET] **Nothing physically sits at that spot on the road.** There is no shrine, no boundary stone, no grave, no thing walking with the column — there is nothing there to find, and no scene to be had by going and looking. The location he fixed is where he *felt* it, not where an object is. Do not build a discovery there — two opportunity bought a bearing, and that is all they bought.\n\n[OPEN] Are the kami *leaving* the abandoned villages? That chain would deliver “uninhabitable within a year” without a single grain of volcanic ash.\n\n[OPEN] “Uninhabitable” implies a physical cause — ash, gas, fouled water, landslide. Still to be chosen, and now to be found at White Flower rather than on the way to it.",
+    "sections": [
+     {
+      "id": "pf-disturbance-the-pressure-loop",
+      "title": "The pressure loop",
+      "text": "> Village empties → shrines go untended → kami are displaced → the ground gets strange → the mountain's behavior changes → the prophecy comes into question → Togashi authority erodes → the sect grows → more people leave.\n\n[SOURCE] `writ-of-wilds-wilderness.lore` — the Kaito, deployed to investigate the imbalance, have been *discovering many neglected or corrupted shrines.*\n\n[SOURCE] The theory that humans are the ultimate cause belongs to the **Asako** family: *thoughtless interaction with natural resources has been slowly wearing away at elemental balance over generations.* If accepted it would disrupt Rokugan's entire way of life."
+     }
+    ]
+   },
+   {
+    "id": "pf-how-he-plays",
+    "title": "How he plays",
+    "text": "[NOTE] The [sheet](gm/play.html) is authoritative for the numbers. What those numbers force:\n\n- **Earth Needs No Eyes raises Vigilance by his Earth Ring.** Vigilance 1 → 4, plus sensing three range bands in all directions through the ground. He is oblivious while moving and perceptive only when he stops, kneels, and listens. Build scenes that reward the pause.\n- **Blood of the Kami** adds bonus successes equal to school rank when activating a kihō linked to a tattoo. [AGREED] The motif is a spider, across both pectorals.\n- **Combat is a failure state.** Melee 0, Unarmed 1, Air 1, Water 2. One competent bandit is a genuine threat and there is no party to absorb damage. **Breaking Blow** is his first Fire kihō and an Attack and Support action — a way into a fight that is not a staff swing, and it breaks objects rather than people.\n- **Strife spikes hard.** Composure 10, and Tip of the Tongue hands him 3 strife at a stroke; Brushwork is the only thing on the sheet that takes 3 back off. His stated stress response is to slow down — he doesn't explode, he grinds to a halt at the worst moment.\n- **He is a terrible spy who gets away with it.** No Skulduggery, no Sentiment, Air 1. Affect of Harmlessness is the entire mechanism.\n- **He cannot read ground.** Survival 0 — three ring dice and nothing else, which is how the troll came to be eight feet in front of him before he saw it. His own list of what is dangerous on a road is large animals and banditry, in country known but little walked; weather and rockfall trouble him least, because he knows to hug the wall and where the stone looks ready to come down. He is not a lucrative target. He is an easy one.\n- **Lord Togashi's Insight** is the built-in hint valve for solo play — TN 2 Meditation (Void) for a partial hint from the GM. Use it deliberately.\n\n[OPEN] The Left Green Armband-sash has no description and no established meaning.\n\n[OPEN] [SOURCE] The seven moles in a perfect circle are the published flavor text for Portentous Birth, not necessarily his. [AGREED] Not visible in art, which conflicts with the moon-cult thread at Threads — there, the mark is what a cultist reads."
+   }
+  ],
+  "places": [
+   {
+    "id": "pf-white-flower",
+    "title": "White Flower Village",
+    "text": "[SET] Tradition of Fortunism. **Four prominent families, and a bench of four elders** — the roster is Cast › The elders. **Two of the four are Perfect Land devotees** before the newcomers arrive — Ume first, then Heisuke.\n\n[SET] The incoming households are largely Shinseist/Fortunist.\n\n[SET] The arc's engine is not the uprooting but the **mixing**. Households with no shared history and no inherited order of precedence, expected to become one village by arriving in the same place — jostling for position with no settled basis to resolve it. Norikage spent the road courting the elders and family heads specifically so that there would be one.\n\n[SET 13 Aug] **The mountain above the village carries [Seidō Fukurokujin](#atlas/seido-fukurokujin)** — not a local shrine but **the largest shrine to the Fortune of Wisdom in the Empire**, and the least resplendent shrine to any Great Fortune. Its tradition asks an offering made by the petitioner's own hands. The danger on the pilgrim road is **natural, not agentive** — in places the wind will take a careless walker off the cliff — which is why one old woman is escort enough.\n\n[SOURCE] `path-of-waves-ronin.lore` — the sect holds that *all are equal in the eyes of the Little Teacher*, and that chanting **“Shoshi ni kie”** admits a person to the Perfect Land at death, bypassing the wheel.\n\n[SOURCE] `path-of-waves-hirosaka.lore` — villages are prime recruitment targets precisely because *daimyō take little interest in what villagers do as long as they pay taxes.* Some daimyō who suspect sect control act ruthlessly, up to destroying entire villages.\n\n[SOURCE] `writ-of-wilds-dragon-clan.lore` — the Agasha are *less concerned about the Perfect Land Sect than other Dragon families, viewing it as a practical rather than spiritual problem.* Seiya attitudes plausibly inherit this.\n\n[SOURCE] `emerald-empire-history.lore` — late ninth century doctrine that the age is one of Declining Virtue and that chanting a mantra brings Shinsei's return. Offered peasants freedom from mortal trials and rebirth. Samurai considered it heretical; outlawed in Phoenix lands by the tenth century.\n\n[SOURCE] There is a “Ties to the Perfect Land Sect” entry in `writ-of-wilds-mechanics.ttrpg` and a “Perfect Land Sect Member” in `path-of-waves-systems.ttrpg`.",
+    "sections": [
+     {
+      "id": "pf-white-flower-the-bind",
+      "title": "The bind",
+      "text": "The arrivals dilute the sect numerically and hand it its best argument. Strangers with no inherited order of precedence need an answer to who defers to whom, and the Perfect Land's answer is *nobody.* The doctrine needs no teacher, no shrine and no rites the two villages would have to agree on.\n\nHe said he would report the presence, not the person. **In a bench of four, naming the presence names the person.**\n\n[SET 18 Aug] **The village took them in.** Not by Sadao's decision and not on the daimyō's authority — Ume walked the line of newcomers, made up her mind, told Sadao *“they're gonna stay here”*, and waved the column past while he and Fusae were still deadlocked.\n\n[OPEN] Is the sect open in the village? Do the other two elders know, and live with it because no samurai has ever asked? Sadao does not know, which is now established rather than assumed.\n\n[NOTE] **White Flower is the village beneath a shrine of Imperial standing, and nobody has said so in four sessions.** A **Kitsuki's gempukku** includes this pilgrimage and three days here in contemplation, and many Kitsuki return through their lives to ask the Fortune's help with a hard matter — so **Kitsuki Sadao made this climb as a young man**, and has lived underneath it since. The road to the shrine does not require the village, which is how the place can be both well known and unvisited.\n\n[SET 16 Sep] **Six people were killed at the seidō and laid out in a circle on the offering stone.** Fresh by a couple of days when Norikage and Juri came up. Juri named what it was: it is not right for Onnotangu to claim a space intended for Fukurokujin. She cleansed the plateau and welcomed the kami back; he carried the bodies below the torii and built cairns.\n\n[SET 16 Sep] **Nui is one of the six.** He identified her by a small Fortunist talisman at her neck, of a kind made in White Flower. **Nobody in the village knows.** The two of them came up the far side of the range and have not been down to it.\n\n[OPEN] Who the other five were, and whether they were pilgrims she was guiding up.\n\n[OPEN] Whether the village keeps an everyday hokora distinct from the seidō, and who tends it now."
+     }
+    ]
+   },
+   {
+    "id": "pf-country",
+    "title": "The country",
+    "text": "[SET] Where White Flower sits, and how far that is from Wrath of the Kami, is read off the [Atlas](#map). Its position is fixed and settled.\n\n[SOURCE] The village has no lore text in the project files — a label on the map and nothing more.",
+    "sections": [
+     {
+      "id": "pf-country-the-shape-of-the-country",
+      "title": "The shape of the country",
+      "text": "The Dragon lands do not rise and fall so much as fold. A traveller walks an hour along a slope of grey scree — loose broken rock, the kind that shifts underfoot — with a valley floor far below and no way down into it. Then the path turns and that valley is gone, replaced by another that looks nearly identical and lies in a different direction. This is why holdings a short distance apart as the crow flies can be days apart on foot, and why [SOURCE] the Agasha call their portion of these mountains the **Twisting Labyrinth**.\n\nWater is the constant. Meltwater threads down every rock face, gathers into streams too loud to speak over, and falls in white ribbons that never appear to reach anything."
+     },
+     {
+      "id": "pf-country-what-is-farmed-and-what-is-not",
+      "title": "What is farmed, and what is not",
+      "text": "There is virtually no flat ground, so the fields are terraces — narrow shelves cut into the hillsides and held up by dry stone retaining walls, each shelf perhaps two paces deep. They grow wheat and barley here rather than rice; the growing season is too short and the water too cold for paddy. Terraces require constant repair, because winter frost swells the ground and pushes the walls outward. A terrace that goes one season unattended slumps. A terrace that goes three is gone.\n\nPerhaps one in three is worked. The rest have gone to thistle and stonecrop, their walls bowed and spilled. A farmhouse stands roofless in the middle of a field of volunteer barley — barley self-seeded from last year's unharvested crop, which grows thin and scattered and tells anyone who knows fields that no one gathered what stood there."
+     },
+     {
+      "id": "pf-country-animals",
+      "title": "Animals",
+      "text": "Goats, mostly, because goats are what this ground supports. Herds work ledges no wider than a hand, and their bells carry for a long way, sometimes the only human-made sound for an hour. Two boys minding forty goats between them is a detail that carries information: that is too many animals for two children, and it means the households behind them have no one else to send.\n\nRavens work the high air. Occasionally a hawk-eagle drops past below the level of the path. Woodsmoke arrives on the wind from valleys that never become visible."
+     },
+     {
+      "id": "pf-country-weather",
+      "title": "Weather",
+      "text": "It turns several times in a day. Cold sun, then a grey that swallows the far side of the valley, then thin driving sleet that stops as abruptly as it began, leaving the rock steaming where the sun finds it again. [SOURCE] Dragon winters in recent years have been the harshest in living memory — deep snows, avalanches — and the evidence is legible on the slopes: long tongues of raw stone and shattered pine below the treeline, too recent to have greened over."
+     },
+     {
+      "id": "pf-country-the-road-east",
+      "title": "The road east",
+      "text": "[YOURS] The pilgrim road out of Fuchi Mura runs west toward the High House of Light, and it is maintained, because the clan cares what strangers make of the approach to the mountain. The eastern track toward White Flower Village is not maintained. It is an agreement between villages that a path exists. Within a mile it is the width of a goat."
+     },
+     {
+      "id": "pf-country-the-roadside-shrines",
+      "title": "The roadside shrines",
+      "text": "Small wayside shrines are called **hokora** — a stone box with an open front, set at a bend in the road or beside a spring, housing a figure worn past identification. It might be a Fortune; it might be the kami of that particular spring. Nobody local necessarily distinguishes. These are the ordinary furniture of Rokugani roads and cost nothing to pass.\n\nWhat is legible is *which ones are kept*. A tended hokora has a recent offering — a cedar sprig, river stones set in a deliberate row, something placed by hand within the last few days. An untended one has a season of leaf litter drifted onto the altar and its **torii** — the gate marking the boundary between ordinary ground and sacred ground — rotted through at the base and leaning.\n\nThe distinction matters more than it looks. [SOURCE] The Phoenix have quietly deployed the Kaito family across the Empire to investigate the elemental imbalance, and what they keep finding is neglected and corrupted shrines. One theory holds that kami abandon shrines that fall into disrepair or that offend them, and manifest their element somewhere else, as strange weather or worse. So a leaning torii on a mountain road is either an ordinary consequence of the people who tended it being moved elsewhere, or the beginning of something. **From the road, both look the same.**\n\n[NOTE] This is the pressure loop from Portents & Fortunes › The disturbance made walkable, and it is Theology 2 / Meditation 2 territory — his actual competencies. Kiyo keeps her village's hokora; she is the natural witness for what happens to a shrine whose village leaves."
+     }
+    ]
+   },
+   {
+    "id": "pf-reisui-ji",
+    "title": "Reisui-ji",
+    "text": "[SET 9 Sep] **The Temple of Cold Water**, Oharu’s house and Norikage’s. The place itself — the wind that has to be walked into and the wall of stopped air behind it, the four stone buildings and the bathhouse above the gorge, the thirty-odd people who all know each other — is written up in the [Atlas](#atlas/reisui-ji). What follows is only what the house has not settled.\n\n[SOURCE] The stone-rather-than-wood note in that entry is `writ-of-wilds-temples.lore`.\n\n[SET 9 Sep] **Brotherhood monks are visiting, and Norikage does not recognise them.** **Brother Ujiyasu** is one of them — his card is on the [Dramatis Personae](#personae).\n\n[NOTE] **Oharu is his superior ecclesially and his peer in practice.** Not familiar, and nothing like a soldier in front of a general. In a house this size that is a structural fact, not a mood.\n\n[OPEN] Who else is in residence."
+   }
+  ],
+  "people": [
+   {
+    "id": "pf-seiya-fusae",
+    "title": "Seiya Fusae",
+    "text": "[SOURCE] `writ-of-wilds-dragon-clan.lore` — virtually all Dragon shugenja are Agasha, so a Seiya not attuned to kami cannot train with her own parent family; she goes to **Iron Mountain Dojo**, training academy for most Dragon bushi, where instruction is *surprisingly unfocused by Rokugani standards, with students encouraged to follow their interests.*\n\n[SET 13 Aug] **She saw him chant.** Recognition and exposure landed in the same instant — the melody became words as he was completing them, beside a peasant, in her hearing. She now has something on the observer sent to observe her.\n\n[SET] **She takes it to the daimyō.** What she saw goes up the chain to **Seiya Mori** — her own family's daimyō, and the author of the consolidation order. That she escalates is settled; only the timing is not.\n\n[SET 26 Aug] **She has not raised it.** Through the arrival and the two weeks of road since, she has never mentioned it and treats him with no particular suspicion. He decided not to raise it either, wanting privacy first, and got none. It is still hers to raise.\n\n[SET] **She introduces herself as “Agasha Fusae”**, and cites “the daimyō Agasha Mori”. That is a claim on status, not a name — reaching past the Seiya vassal line for the weight of the parent family. She is Seiya Fusae. It did not work on Sadao, whose objection was precisely that the Agasha have never come here.\n\n[SET 18 Aug] **Sadao humiliated her in front of both villages** — bowed, then spat at her feet, with *“Agasha don't come here. We've taken care of the place well enough ourselves.”* She led with charm against the one man charm cannot move, failed, changed footing, and failed again. She achieved nothing in the scene.\n\n[SET 18 Aug] **She is under Sadao's terms**: return in person by spring with either new homes for the arriving households or the resources and hands to build them.\n\n[OPEN] Whether she puts it to Norikage before she puts it to Mori. Whether she knew there were sect devotees at the destination, and whether she has orders about it.",
+    "about": [
+     "#PFnpcSeiyaFusae"
+    ]
+   },
+   {
+    "id": "pf-elders",
+    "title": "The elders",
+    "text": "[SET 16 Sep] **Nui is dead** — one of the six killed at the shrine (Places › White Flower Village). The bench is three, and does not yet know it.\n\n[SET] **White Flower Village is administered by four elders**, collectively: **Kitsuki Sadao**, **Ume**, **Heisuke**, and **Nui**. **Tōbei is not an elder** — he is married to Ume, and stands with them as a peer regardless. Walking east with the column: **Genzō, Kiyo, Rokurō**. That is **four elders but eight named people**. All but Tōbei are keyed to a tarot card.\n\n[SET] **Sadao could administer the village alone.** By rank there is no structural reason for him to share power, and he has chosen to anyway. He does not explain it. Norikage has clocked it.\n\n[SET] Norikage spent the road working the family heads and village elders — not the households, but those with standing enough by office or by age to speak for the people behind them — to get one mind before arrival. Culture (Void), TN 3, untrained, Void point spent on Seize the Moment. Three successes, both opportunity spent on the supernatural detection. Three strife carried. He got his buy-in, and it cost him feeling he had not walked in with.\n\n[SET] **Tōbei** — an older man in a straw hat. When Norikage arrived he was speaking into Sadao's ear, and the two carry themselves as peers despite the status gap. He went to fetch his wife. He and Ume had a child; the child died, and died badly — **Norikage does not know this.**\n\n[NOTE] Peasants bear a single given name — no family name — so all of these are one word, *except Sadao*, who is samurai and therefore Kitsuki Sadao. The village head is a **nanushi**, a commoner appointed or acknowledged to speak for the settlement and answer to the samurai administrator. The office is not restricted by sex.\n\n[NOTE] **Religion is the sharpest fault line across the two benches**, ahead of land and water. Sect: Ume, Heisuke, **Genzō**. Fortunist: Sadao. Shinseist-leaning: Nui. Unstated: Tōbei, Kiyo, Rokurō. Three of the eight named are devotees, and the senior voice of the arriving bench is one of them.\n\n[NOTE] **Genzō and Ume arrived at the doctrine the same way.** He lost his ancestors' graves to the move; she lost a child. Both took the kie. The doctrine is not a rival account of grief in this village; it is the account.\n\n[SET] **The column left its dead behind**, and the farming knowledge these households carry is knowledge of *specific plots* worked for generations, which does not transfer to a new hillside.\n\n[SET] **Heisuke is carrying 2 strife** from the Fire opportunity Norikage spent to inflame him.\n\n[OPEN] How many households, and from how many origin villages. These people arrive carrying his promise.",
+    "about": [
+     "#PFnpcKitsukiSadao",
+     "#PFnpcUme",
+     "#PFnpcHeisuke",
+     "#PFnpcNui",
+     "#PFnpcGenzo",
+     "#PFnpcKiyo",
+     "#PFnpcRokuro"
+    ]
+   },
+   {
+    "id": "pf-kaito-juri",
+    "title": "Kaito Juri",
+    "text": "[NOTE] Her card holds who she is. What the road has not settled is what she is willing to say, and to whom.\n\n[SET 16 Sep] **She has told him the shape of her commission but not the substance** — a task from her lord and from the Isawa, its manner left to her discretion, its specifics steered by her dreams. She has not said what it is for.\n\n[SET 16 Sep] **He has caught her keeping the line.** Every example she gave about disturbed kami was a single shrine, a single kami, a single bound object; the question he asked was about something large and lasting, and she answered around it truthfully. He knows she did.\n\n[NOTE] She has not told him she is an ishiken. She has told him there are no kami of the Void, that the nothingness can answer, and that it came easier to her than to most — which is the whole of it except the word.\n\n[SET 23 Sep] **She turned a killing blow on the road, with the Essence Eternal inversion.** Theology (Void), two explosions kept, no visible effect: bō planted against her left shoulder, wakizashi held out upright at arm’s length, left hand bracing the blade. Then the katana went through him and did nothing. *“I am not of great use in a fight, but sometimes I can at least prevent harms that might occur.”* She told him she was not sure it would work and had never needed it before.\n\n[SET 23 Sep] **She knows the silence is his age.** On the road, after she named the mountain as her greater concern near the Three Sisters: *“It silenced the year I was born. It has not erupted in my lifetime.”*\n\n[OPEN] What she makes of it, with the mountain her greater concern.\n\n[SOURCE] `celestial-realms-mechanics.ttrpg` (p. 119), **Essence Eternal**, an Inversion, rank 5 — Activation: *As a Support action, you may make a TN 4 Theology (Void) check targeting one character or object at range 0–2.* Effect: *If you succeed, you bind your target to its current state and location. Note your target's fatigue, strife, conditions, persistent effects, and critical strikes suffered, as well as their position. This effect persists until the end of your next turn, and when it ends, your target returns to this state and position, even if they no longer exist. Your target remembers everything they did once they revert back to this location.* Magnitude: *Magnitude 1–3: This effect persists for a number of additional rounds equal to the magnitude.* *Magnitude 4+: After the first effect ends, until the end of the scene, the target returns to the noted state and position at the end of each of your turns.*\n\n[NOTE] He saw a blade held upright and a stab that did nothing. He has *so many questions*, and she still has not said the word.\n\n[OPEN] Whether it left **Imbalanced (Void) terrain** on the track — an inversion at magnitude 3 or more does (“Ishiken, and why it is not invocation”, below). She is commissioned to find imbalance, and saving his life this way may have made one on a road she will have to report.\n\n[OPEN] Whether a man who has now buried six people for her counts as outside the Phoenix.\n\n[OPEN] What she made of him doing the unclean work, and whether it changes what she offers him.",
+    "about": [
+     "#PFnpcKaitoJuri"
+    ]
+   },
+   {
+    "id": "pf-juri-teaches",
+    "title": "What Juri can teach",
+    "text": "Four things she has, at four different depths. The road is two weeks long and she is Detached — Void is the cheap approach, and the Void is his.",
+    "sections": [
+     {
+      "id": "pf-juri-teaches-the-perfect-land-sect",
+      "title": "The Perfect Land Sect",
+      "text": "[SOURCE] `imperfect-land.lore` — the sect holds that the Empire has passed out of the Age of Celestial Virtue into the **Suijindai**, the Age of Declining Virtue, *its corruption undermining the Celestial Order and the Tao itself insufficient to free people from suffering.* The remedy is **tariki**, *the saving “power of the Little Teacher,” or absolute trust in him — rather than **jiriki**, salvation through one’s own effort.*\n\n[SOURCE] `enlightenment.lore` — *The Phoenix are known as the “Keepers of the Tao” in recognition of Shiba’s having recorded that document.* Most other clans defer to Phoenix judgement on Shinseist theology.\n\n[NOTE] That is the whole of the Phoenix objection, and she can state it in one sentence: the sect’s founding claim is that the Tao is not enough. Her clan recorded it.\n\n[SOURCE] `imperfect-land.lore` — *Outlawed in Phoenix lands but tolerated by the Dragon, it needs no temples or libraries — only three simple words chanted in secret.*\n\n[SOURCE] `enlightenment.lore` — the half that frightens samurai is not doctrinal: *the sect’s vision of a commonwealth government overseen by populist preachers and peasant elders—a stark affront to Rokugan’s entrenched feudal governance.* Its warrior-monks wear novice white, are mostly illiterate in their own texts, and hold *unshakable faith that to die while fighting for those causes ensures a superior reincarnation.*\n\n[NOTE] He chanted the kie in front of a bushi and let the reading stand. She comes from the lands where those three words are illegal. If he does it in front of her, she does not have to be told what it was.\n\n[MINE] The Brotherhood conclave that votes on whether the sect is a False Path is held at [Mountain Song Temple](#atlas/mountain-song-temple), in Dragon lands (`imperfect-land.lore`) — a temple already in the Atlas, and a Brotherhood party is on the road north right now."
+     },
+     {
+      "id": "pf-juri-teaches-moon-cults",
+      "title": "Moon cults",
+      "text": "[SOURCE] `emerald-empire-religion.lore` — *Cults to Lord Moon, who hates all mortals, seek to empower him and hasten his judgment upon his children.*\n\n[NOTE] She has the doctrine and has never met one. The Kaito are given the shrines of the Phoenix holdings to keep, and a shrine to Lord Moon standing in Dragon mountains (Threads) is the kind of entry that goes on a survey list and stays there.\n\n[NOTE] The limit is structural, not personal: what a cult is organised to be is unfindable by someone who goes from shrine to shrine in daylight (Threads). She can tell him what they believe. She cannot tell him whether there is one within a week of here."
+     },
+     {
+      "id": "pf-juri-teaches-ishiken-and-why-it-is-not-invocation",
+      "title": "Ishiken, and why it is not invocation",
+      "text": "[SOURCE] `celestial-realms-character-options.lore` — *Air, Earth, Fire, Water: these four elements work together to create all tangible things in the world, and shugenja commune with the kami who are the embodiments of these elements. But the fifth element, Void, has no kami. Very few Rokugani realize that the Void can be called upon nonetheless—by the vanishingly rare ishiken. These individuals are capable of delving into the Void and pulling at the seams of reality at the cost of the self.*\n\n[SET 16 Sep] **She has already taught him this half**, on the road, unprompted and accurately: no kami of the Void, and what one entreats is the nothingness where a kami would be, which can answer. The second half — that she does it — is still unsaid.\n\n[SOURCE] Same file — *Void inversions are journeys into nothingness; therefore, unlike techniques, inversions can make use of blank results via magnitude*, and *Inversions put a significant strain on the wielder, for as they twist reality around themselves, reality often twists back.* At magnitude 3 or more the ground around her becomes **Dangerous and Imbalanced (Void) terrain**, *subject to inexplicable phenomena, from common items going missing to shadows pointing the wrong way to ghostly images of recent events periodically flashing before the eyes of passersby.*\n\n[NOTE] She is commissioned to find imbalance, and working hard enough leaves imbalance behind her. She knows it.\n\n[SOURCE] Same file — *Those trained in the art of the Void are also trained in the elemental arts of traditional shugenja.* She can discuss invocation as the shugenja everyone takes her for, at length, accurately, and never once from experience of the thing she actually does."
+     },
+     {
+      "id": "pf-juri-teaches-the-imbalance-and-the-line-she-will-not-cross",
+      "title": "The imbalance, and the line she will not cross",
+      "text": "[SOURCE] `writ-of-wilds-wilderness.lore` — *For now, the Phoenix have chosen not to reveal this to the other clans.* The reasons given are political: that rivals who suspected Phoenix shugenja could not defend their lands would force conflicts the Phoenix could only surrender, and that the Emperor should not be brought in before there is a solution, *lest another clan propose something that makes things worse.*\n\n[SOURCE] Same file — *Each elemental imbalance has proven to have a different localized cause, often relating to the spirits of that place. Restoring the balance means appeasing the spirits, something in which the Kaito have excelled. But this has done little to stop the many imbalances altogether, nor to illuminate a singular event that caused these different imbalances in the first place.*\n\n[SOURCE] Same file — the prevailing theory is **displacement**: *Kami who are enshrined in one place, but then dislocated and moved to another, bring their elemental phenomenon with them.* They go when *a shrine falls into disrepair* or when *the kami are offended by improper offerings or behavior*, and *a fire kami taken from their shrine and released elsewhere results in higher temperatures and more fires.* Some Phoenix blame Unicorn meishōdō; others note that many imbalances have no such cause. *At present, the Elemental Masters are willing to entertain almost any theory.*\n\n[NOTE] **She does not know why, and that is not a withheld answer.** Nobody has one. What she can do is stand in front of a particular shrine and say what left it and when.\n\n[SET 16 Sep] **The line held, and he saw it hold.** She may say anything about the shrine in front of her. She may not say that an Empire-wide pattern exists, because her clan has decided the other clans do not get told. Norikage is being moved through emptied villages, which is to say through shrines with nobody left to tend them, under a mountain that has held its breath for twenty-four years. He can be walked to the edge of it and no further, by someone who is not lying to him.\n\n[OPEN] What it costs her to hold that line with a monk who asks well, and whether a Dragon temple counts as outside the Phoenix."
+     }
+    ],
+    "about": [
+     "#PFnpcKaitoJuri"
+    ]
+   }
+  ],
+  "pc": [
+   {
+    "id": "pf-norikage-believes",
+    "title": "What Norikage believes",
+    "text": "- **Prophecy vs. the kami's will:** if the mountain wakes tomorrow, the priest was not necessarily a liar. To hold that prophecy binds the heavens grants humanity a power that isn't ours.\n- **On being a harbinger:** people see the omen, not the man. Twenty-four years of Agasha unease have made him half-believe them.\n- **Past lives:** remembers none. Has flashes of competence he has no right to. Won't call himself a new soul — presumptuous — but: if the world were only the past rearranged, nothing new could occur, and things must sometimes be new.\n- **His namesake:** a brutal martial master. Offerings continue out of obligation, not love. He assumes the man would be embarrassed of him, and will not say the man was wrong.\n- **Prayer:** the side trail around an obstacle you cannot climb.\n- **The Dragon and Kisshōten:** need first, not faith first. He does not condemn it.\n- **The Perfect Land Sect:** subversive. If a mantra carries you past judgment without merit, the apathy that follows outweighs the good. *Why would anyone do anything worth doing?*\n- **The Age of Declining Virtue:** cannot be known until much later; saying it now only makes people readier to do nothing.\n- **A villager who chants it:** report the presence, not the person. Argue with her, not unkindly.\n- **Whether the heresy is simply correct:** he has refused to follow that road, and knows it. *“It can't be true, therefore it isn't.”*\n\n[NOTE] His own words on each of these are in the [Chronicle](#chronicle), Session One, under *What he believes*.",
+    "about": [
+     "Togashi Norikage"
+    ]
+   },
+   {
+    "id": "pf-norikage-stands",
+    "title": "Where Norikage stands",
+    "text": "[SET] He ended Session Three **Compromised**, slept in the barn rafters, and spent all three Void points in the intrigue.\n\n[SET 18 Aug] **He knows what the report would do.** Lord Togashi's Insight answered his quandary with a lever rather than a fact: should the daimyō learn of the sect here, the village will not need its year. He could end the village himself by writing the truth down. He noted that **he does not report to Fusae**.\n\n[SET 18 Aug] **He is going back to the abbot.** Decided before he slept, and for that reason: he is unwilling either to make that call alone or to let it stop being his to make. **Two weeks of road** lie between White Flower and the temple.\n\n[SET 26 Aug] **Advancement.** Nine XP for three sessions, all spent: three on **Breaking Blow**, a rank-one Fire kihō and in-curriculum, and six on **Water 1 → 2**. Water lifts his composure from 8 to **10**; endurance, focus and vigilance are unchanged, vigilance rounding down from 1.5.\n\n[SET 9 Sep] **He did not report the sect.** He gave Oharu the successful move and the premonition, and asked sideways whether there is pressure on this land beyond what its people are doing to it — which was his way of asking whether any of this is larger than the Perfect Land at White Flower. The sect was never named in the room. He came carrying the thing he meant to hand over and handed over something else.\n\n[SET 9 Sep] **He has a charge again, and it is not the one he came for.** Escort Kaito Juri to Seidō Fukurokujin, then on to wherever she judges she needs to go next — another temple, back to Reisui-ji, whatever she deems appropriate — at which point he is released. The question he walked two weeks to put to his abbot is still in his mouth.\n\n[SET 23 Sep] **Thirteen XP earned, nine spent**, and four unspent — two for Session Seven.\n\n[SET 23 Sep] **He is clean.** His temple’s prescription: wash and fast until morning, bathe beneath a mountain waterfall, and be purified there by the shugenja. He took the cold at a waterfall on the pilgrim track southeast of the shrine, and Juri passed a long white cloth close about him without touching him and let it burn to ash above her fire. Until then she kept her food, her fire and her things apart from his.\n\n[SET 23 Sep] **The charge runs on to the Three Sisters.** Juri asked him to extend the journey to the Refuge of the Three Sisters, and he agreed; it is her next destination. They go by way of White Flower, reached at nightfall.\n\n[SET 23 Sep] **He fought, and should have died.** Four bandits on the pilgrim track. Breaking Blow destroyed the leader’s kusari-gama and put strife on all four before any of them moved. A yari and a sling took him to **8 of 10 fatigue**; the leader’s two-handed katana landed a critical strike of deadliness 7 — permanent injury, Bleeding and a scar — and it did nothing. Juri had bound him with **Essence Eternal** beforehand, unseen. The bandits broke, calling him a yokai.\n\n[SET 23 Sep] **He means to train his body.** *“Theology is all well and good in a room full of courtiers and theologians. On the road, it is not a protection.”*\n\n[SET 16 Sep] **He now knows what an ishiken does**, told plainly on the road: there are no kami of the Void, and what one entreats instead is the nothingness where a kami would be, which can answer. He also read the latent Void power in her, and it is considerable.\n\n[SET 16 Sep] **He calls Juri a prophet**, and means it as a plain description he would repeat to anyone with standing to hear it — the way he would say that a man is the abbot of his temple. Her intuition told her to take something away from the shrine rather than bring something to it, and then the shrine held six bodies.\n\n[SET 16 Sep] **His reading of the country changed.** An elder of a sect-filling village, killed by a moon cult, on the mountain above that village: the Dragon lands are thick with spiritual disturbance and he no longer assumes one cause. His words were that they are eating each other, that there is not enough space or prey for them all, and that they are overlapping.\n\n[SET 26 Aug] **Honor 55 → 52.** He unmasked at the troll — struck his bō against a tree and shouted at it. No offence given to any person; a setback on his own road, and he registered it as one.\n\n[SET 18 Aug] **Three ashigaru were gone by morning.** They went with Fusae.\n\n[SET 18 Aug] A girl of thirteen or fourteen fed him and asked whether he was *from the seidō*. The children of White Flower take a monk to mean a man from the shrine up the mountain, and he has been read that way without knowing it.\n\n[NOTE] **Half his Composure is his floor.** Scene and session ends reduce strife *to* 5 and never below it, and Calming Breath only functions above 5. He begins every scene halfway to Compromised unless something actively removes strife — Brushwork, an opportunity spend, another character reassuring him, or an unmask.",
+    "sections": [
+     {
+      "id": "pf-norikage-stands-met-on-the-road",
+      "title": "Met on the road",
+      "text": "[SET 26 Aug] **A mountain troll, and it is a person.** They met west of White Flower, fought briefly, and parted at an accord the troll believes it reached.\n\n[SOURCE] What a Theology check recovers: the **zokujin**, the **kenku**, the **Kitsu** and trolls among them are held to have been sentient civilizations predating humanity, a claim surviving as fable and superstition. Encounters are vanishingly rare, nothing remains that anyone would call a civilization, and some hold that what remnants exist have been corrupted by the Shadow.\n\n[NOTE] Earth Needs No Eyes confirmed it was alone to three range bands, so it acts on its own agency rather than as part of anything.\n\n[OPEN] What it said."
+     }
+    ],
+    "about": [
+     "Togashi Norikage"
+    ]
+   }
+  ],
+  "rules": [
+   {
+    "id": "pf-purification",
+    "title": "Uncleanliness and purification",
+    "text": "[SOURCE] `emerald-empire-religion.lore` — *Spiritual cleanliness is Fortunism’s primary concern. The soul is likened to a white cloth, and coming into contact with dirty conditions, known as kegare, stains the soul with filth.* A stained soul is *offensive to spirits, especially ancestors and kami*, and attracts misfortune.\n\n[SOURCE] What stains: sweat, blood and other secretions — *This is why manual labor is beneath samurai and the priesthood* — along with meat (red meat forbidden, poultry and fish acceptable), spicy food and fungi in excess, commerce and gambling, and negative emotion. *The three sins—fear, desire, and regret—attract misfortune and create evils in the world.*\n\n[SOURCE] Frequency follows station. **Samurai purify themselves daily**; priests avoid the sources outright; commoners are *already assumed to be dirty due to their professions and lot in life* and purify far less, some only at festivals.",
+    "sections": [
+     {
+      "id": "pf-purification-death-is-the-severe-case",
+      "title": "Death is the severe case",
+      "text": "[SOURCE] *Handling dead flesh is among the highest religious transgressions. Death is a strong source of kegare, and it clings to things. Even if done by accident, touching dead flesh coats the soul with spiritual filth. If a samurai were to die in such a state, they would not be permitted into Yomi.*\n\n[SOURCE] The remedy exists and is specific: *even this condition may still be cleansed through a more complex purification ritual, one known by every shugenja and many priests. It entails passing through a torii arch, undertaking a ritualistic bath, and symbolically becoming “reborn” in the presence of an enshrined spirit.*\n\n[SOURCE] *Hinin are not even allowed onto shrine grounds, lest their very presence offend the enshrined spirit and drive it away, invoking calamity on everyone.*"
+     },
+     {
+      "id": "pf-purification-the-ordinary-methods",
+      "title": "The ordinary methods",
+      "text": "[SOURCE] *The methods of purification vary widely between shrines, depending on the enshrined spirit.* Four are named: washing hands and face while a keeper waves a wand of paper streamers, which *attracts impurities like a duster might attract tangible filth* and is then burned by the visitor; sprinkling with salt, *which absorbs impure essences*, afterward swept from the shrine to a mantra; **misogi**, by water — *After fasting for a short period, the participant stands bare beneath an ice-cold waterfall while chanting a sacred mantra*, and it *can also be performed with cold still waters, and most shrines have a well for this purpose*; and, with no shrine to hand, feats of elemental endurance — *Walking across hot coals, plunging their hands into boiling water, or meditating bare on a cold, windy outcropping are all physical feats shugenja might attempt in order to purify themselves in the absence of shrines.*"
+     },
+     {
+      "id": "pf-purification-what-it-is-mechanically",
+      "title": "What it is, mechanically",
+      "text": "[NOTE] **Kegare has no mechanic.** No condition, no disadvantage, no tracker. It is a religious and social state and it is adjudicated in fiction. The only rule attached to it is the **Uncleanliness** anxiety (`celestial-realms-mechanics.ttrpg`), which Norikage does not have: *After performing a check to interact with something unclean, you receive 3 strife. If this is the first time this scene, gain 1 Void point.*\n\n[NOTE] **Not the same system as Taint.** *Cleansing Rite* (`core-techniques.ttrpg`) removes the Afflicted condition and Defiled terrain and guards against Shadowlands Taint. Nothing in the corpus points it at kegare."
+     },
+     {
+      "id": "pf-purification-funerals-and-what-lingers-without-them",
+      "title": "Funerals, and what lingers without them",
+      "text": "[SOURCE] `emerald-empire-enlightenment.lore` — *The funeral is held four days after the death.* The body is prepared by hinin under monks’ direction, *safely outside the bounds of the temple*, then *washed, anointed, and rubbed with salt. Then, a featureless mask is placed on the face, so that any lingering spirit will not recognize its former body or attempt to reclaim it.* The hinin norm is cremation (`emerald-empire-heart.lore`).\n\n[SOURCE] `path-of-waves-hirosaka.lore`, the published precedent for a spirit held by its remains — *Rokugani funeral rites call for the remains to be burned while appropriate prayers are offered. Any shugenja, priest, or monk can officiate over this.* The spirit in that adventure accompanies its remains until they are handled, and *Once the remains are properly disposed of, the zashiki-warashi vanishes, never to return.*\n\n[SOURCE] `emerald-empire-religion.lore` — a second way the dead go wrong: an ancestor with no living descendants to worship them *may feel that they have been forgotten. This can transform them into muenbotoke, listless spirits that haunt the living with curses.*"
+     }
+    ]
+   }
+  ],
+  "threadsNote": "[AGREED] Four subplots: moon cult, Perfect Land Sect, Yobanjin, Yokai. **Two are in play now** — the sect at Places › White Flower Village, and the moon cult since the killing at the seidō. The Yobanjin and the Yokai are held here.",
+  "questions": {
+   "note": "Untouched after four sessions. The Kenzan block and the Sincerity/Duty block have not been opened at all:",
+   "items": [
+    {
+     "id": "pf-q-01",
+     "text": "Have you told anyone you think the mountain sleeps because of you?",
+     "asked": false
+    },
+    {
+     "id": "pf-q-02",
+     "text": "The Agasha have watched that mountain for twenty-four years. Do you owe them anything?",
+     "asked": false
+    },
+    {
+     "id": "pf-q-03",
+     "text": "**If a village is emptied and its graves left behind, whose duty are those dead?**",
+     "asked": false
+    },
+    {
+     "id": "pf-q-04",
+     "text": "Seidō Fukurokujin asks an offering made by your own hands. What have you made?",
+     "asked": false
+    },
+    {
+     "id": "pf-q-05",
+     "text": "*Kenzan:* What was the first thing Brother Kenzan taught you that frightened you?",
+     "asked": false
+    },
+    {
+     "id": "pf-q-06",
+     "text": "*Kenzan:* Did he teach you what to believe, or how to doubt?",
+     "asked": false
+    },
+    {
+     "id": "pf-q-07",
+     "text": "*Kenzan:* He was born Yogo, of the Scorpion, and left for the Brotherhood. Did you ever ask him why?",
+     "asked": false
+    },
+    {
+     "id": "pf-q-08",
+     "text": "*Kenzan:* What did he say about the prophecy over your cradle?",
+     "asked": false
+    },
+    {
+     "id": "pf-q-09",
+     "text": "*Kenzan:* What did you never ask him?",
+     "asked": false
+    },
+    {
+     "id": "pf-q-10",
+     "text": "*Duty:* You rank Sincerity highest and Duty least. Where did that come from — the Tao, your clan, or Kenzan?",
+     "asked": false
+    },
+    {
+     "id": "pf-q-11",
+     "text": "*Duty:* You have been posted to watch people quietly and report on them. Is that a lie?",
+     "asked": false
+    },
+    {
+     "id": "pf-q-12",
+     "text": "*Duty:* If your abbot's account of the village and your own account differ, which goes in the report?",
+     "asked": false
+    },
+    {
+     "id": "pf-q-13",
+     "text": "*Duty:* Can a monk be sincere and still keep a secret?",
+     "asked": false
+    },
+    {
+     "id": "pf-q-14",
+     "text": "*Duty:* Which of your beliefs have you never tested?",
+     "asked": false
+    }
+   ]
+  }
+ }
 }

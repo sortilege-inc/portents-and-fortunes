@@ -39,6 +39,8 @@ PAGES = {
     # the masthead, and the #dp the cast is drawn into (campaign/site/personae.js)
     "dramatis-personae/index.html": ("personae", "personae", '<div class="wrap">'),
 }
+# documents since retired from campaign/docs/, and where their text went (--check skips them)
+RETIRED = {"state": "moved into the GM tabs, in the pack (decision 67); proven by check_absorb.py"}
 # pages whose content is not a document: the route a link to them takes
 OTHER = {}
 TABS = {"pf", "chronicle", "atlas", "map", "rokugan", "norikage", "personae"}
@@ -132,6 +134,8 @@ def prove(docs):
     by_route = {PAGES[p][1]: PAGES[p][0] for p in PAGES}
     npcs = npc_anchors()
     for page, (name, _, _) in PAGES.items():
+        if name not in docs:
+            continue
         new = parse(docs[name])
         b = "".join(new.out)
         # once the old pages are retired (M7), their text was proven at the commit that removed them
@@ -173,7 +177,9 @@ def main():
     check = "--check" in sys.argv
     docs = {}
     for page, (name, _, _) in PAGES.items():
-        if check:
+        if check and name in RETIRED:
+            print("%-11s retired: %s" % (name, RETIRED[name]))
+        elif check:
             docs[name] = open(os.path.join(DOCS, name + ".html"), encoding="utf-8").read()
         else:
             docs[name] = convert(page)
