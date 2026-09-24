@@ -167,9 +167,17 @@
           button('remove', () => { if (confirm('Remove ' + m.name + ' from the party?')) State.commit('removePartyMember', [m.id]); }, 'ghost tiny'),
         ]),
       ])));
+      // the GM's own notes on the characters (system/l5r5e/gm-text.js), about them by name
+      const G = window.L5RGmText;
+      if (G) {
+        container.appendChild(el('h4', { 'data-gm-id': 'pc' }, ['Behind the characters', el('span', { class: 'muted small' }, [' · never sent to players'])]));
+        G.sections(container, G.list('pc'), { redraw: draw, save: (l) => G.setList('pc', l), addLabel: 'Add a note on a character…' });
+        G.reveal(container);
+      }
     };
-    ctx.on('state:changed', draw);
-    ctx.on('state:remote', draw);
+    ctx.on('state:changed', () => { if (!editing(container)) draw(); });
+    ctx.on('state:remote', () => { if (!editing(container)) draw(); });
+    ctx.on('gm:reveal', draw);
     draw();
   }
 
@@ -216,6 +224,8 @@
           ]));
         }
         if (e.type === 'NPC' || D.applies(e, 'NPC') || rings) container.appendChild(Sheet.npcConditionsBlock(e));
+        const mine = window.L5RGmText && window.L5RGmText.aboutSections('people', e.id, draw);
+        if (mine) container.appendChild(mine);
         container.appendChild(el('div', { class: 'paper' }, [E.render(e)]));
       } else if (sel.kind === 'party') {
         const m = (S().party || []).find((x) => x.id === sel.id);
@@ -223,6 +233,8 @@
         container.appendChild(Sys().liveSheet(m));
         container.appendChild(el('div', { class: 'prop-k' }, ['GM notes', el('span', { class: 'muted' }, [' · never sent to players'])]));
         container.appendChild(el('textarea', { class: 'text', rows: 3, oninput: debounce((ev) => State.commit('setPartyNotes', [m.id, ev.target.value]), 400) }, [m.notes || '']));
+        const mine = window.L5RGmText && window.L5RGmText.aboutSections('pc', m.name, draw);
+        if (mine) container.appendChild(mine);
       } else container.appendChild(el('div', { class: 'empty' }, ['Nothing to show for ' + sel.kind + '.']));
     };
     ctx.on('select', draw);
@@ -234,8 +246,14 @@
   // ── Cast: the adventure's named NPCs, and every NPC in the books ───
   function renderCast(container, ctx) {
     let q = '';
+    const G = window.L5RGmText;
     const draw = () => {
       container.innerHTML = '';
+      // the GM's own notes on the people of the campaign (system/l5r5e/gm-text.js)
+      if (G && (G.list('people').length || (window.VttConfig || {}).ownAdventure)) {
+        container.appendChild(el('h4', { 'data-gm-id': 'people' }, ['The campaign’s people', el('span', { class: 'muted small' }, [' · the GM’s notes'])]));
+        G.sections(container, G.list('people'), { redraw: draw, save: (l) => G.setList('people', l), addLabel: 'Add a note on someone…' });
+      }
       const cur = Sys().currentSceneId();
       const sc = Sys().scene(cur);
       const put = (id) => State.commit('setSceneCast', [cur, Sys().castIds(cur).filter((x) => x !== id).concat([id])]);
@@ -246,7 +264,7 @@
       ]);
       const named = Sys().namedCast();
       if (named.length) {
-        container.appendChild(el('h4', {}, ['The adventure’s cast']));
+        container.appendChild(el('h4', {}, [Sys().module() && Sys().module().own ? 'The campaign’s cast' : 'The adventure’s cast']));
         container.appendChild(el('ul', { class: 'items toc' }, named.map(row)));
       }
       const search = el('input', { type: 'search', class: 'search', placeholder: 'Find an NPC in any book…', value: q });
@@ -264,7 +282,9 @@
       drawList();
     };
     ctx.on('scene:changed', draw);
-    ctx.on('state:remote', draw);
+    ctx.on('state:remote', () => { if (!editing(container)) draw(); });
+    ctx.on('state:changed', () => { if (!editing(container)) draw(); });
+    ctx.on('gm:reveal', () => { draw(); G && G.reveal(container); });
     draw();
   }
 
@@ -283,6 +303,23 @@
   // ── Rules & Book ───────────────────────────────────────────────────
   function renderRules(container, ctx) {
     container.innerHTML = '';
+    // the campaign's own rulings (system/l5r5e/gm-text.js), and its house-rules book when it has one
+    const G = window.L5RGmText;
+    const mine = el('div', { class: 'rules-mine' });
+    const drawMine = () => {
+      mine.innerHTML = '';
+      const houseBooks = D.books().filter((b) => b.kind === 'campaign');
+      const items = G ? G.list('rules') : [];
+      if (!items.length && !houseBooks.length && !(window.VttConfig || {}).ownAdventure) return;
+      mine.appendChild(el('h4', { 'data-gm-id': 'rules' }, ['This campaign', el('span', { class: 'muted small' }, [' · rulings and practice at this table'])]));
+      houseBooks.forEach((b) => mine.appendChild(el('div', { class: 'chiprow tight' }, [el('a', { class: 'btn ghost tiny', href: './#book/' + encodeURIComponent(b.id), target: '_blank' }, [b.label + ' — in the reader'])])));
+      if (G) G.sections(mine, items, { redraw: drawMine, save: (l) => G.setList('rules', l), addLabel: 'Add a ruling…' });
+      if (G) G.reveal(mine);
+    };
+    drawMine();
+    container.appendChild(mine);
+    ctx.on('state:changed', () => { if (!editing(mine)) drawMine(); });
+    ctx.on('gm:reveal', drawMine);
     const input = el('input', { type: 'search', class: 'search', placeholder: 'Search the books… ( / )', autocomplete: 'off' });
     const scope = el('select', { class: 'scope' }, [el('option', { value: 'core' }, ['Core Rulebook'])].concat(D.books().filter((b) => b.id !== 'core').map((b) => el('option', { value: b.id }, [b.label]))).concat([el('option', { value: '*' }, ['Every book'])]));
     const results = el('div', { class: 'results' });

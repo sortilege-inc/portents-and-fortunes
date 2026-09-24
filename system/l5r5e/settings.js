@@ -16,5 +16,21 @@ window.L5RSettings = (function () {
     draw();
   }
   if (window.VttPanels) window.VttPanels.register('settings', { label: 'Settings', render: renderPane });
+
+  // The public site's book tabs (engine/site.js): off on an instance unless turned on — here, for
+  // this browser only. Nobody else's view of the site changes.
+  const CFG = window.VttConfig || {};
+  const BOOKS_KEY = (CFG.storagePrefix || 'sortilege-vtt') + ':site-books';
+  section({ id: 'site-books', render: (box, redraw) => {
+    const { el } = window.VttRender;
+    let on = !!CFG.siteBooks;
+    try { const v = localStorage.getItem(BOOKS_KEY); if (v !== null) on = v === '1'; } catch (e) { /* default */ }
+    box.appendChild(el('div', { class: 'guidance-k' }, ['The books on the site']));
+    box.appendChild(el('p', { class: 'muted small' }, ['Whether the site’s pages show the books — the shelf, schools, techniques, NPCs, adventures and search. Off, the site shows the campaign’s own tabs and the dice. This setting is for this browser only; other visitors see the site’s default (' + (CFG.siteBooks ? 'on' : 'off') + ').']));
+    box.appendChild(el('label', { class: 'set-row' }, [
+      el('input', { type: 'checkbox', checked: on || null, onchange: (ev) => { try { localStorage.setItem(BOOKS_KEY, ev.target.checked ? '1' : '0'); } catch (e) { /* private mode */ } redraw(); } }),
+      ' Show the books on the site, in this browser',
+    ]));
+  } });
   return { section };
 })();

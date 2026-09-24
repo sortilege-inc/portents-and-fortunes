@@ -21,12 +21,14 @@
   const SHARED_KEYS = [];
 
   const UNCLAIMED = {};        // ops a player may send before claiming a character (opts.unclaimed)
+  const LOCAL = {};            // ops on the GM's own, unshared keys (opts.local): never sent to the room
 
   function register(name, fn, playerRule, forPlayers, opts) {
     OPS[name] = fn;
     if (playerRule) PLAYER_RULES[name] = playerRule;
     if (forPlayers) FOR_PLAYERS[name] = forPlayers;
     if (opts && opts.unclaimed) UNCLAIMED[name] = true;
+    if (opts && opts.local) LOCAL[name] = true;
   }
 
   function shared(keys) {
@@ -198,5 +200,5 @@
     return doc;
   });
 
-  return { OPS, PLAYER_RULES, SHARED_KEYS, register, shared, playerFilter, apply, permits, playerView, forPlayers, sharedSlice };
+  return { OPS, PLAYER_RULES, SHARED_KEYS, LOCAL, register, shared, playerFilter, apply, permits, playerView, forPlayers, sharedSlice };
 });

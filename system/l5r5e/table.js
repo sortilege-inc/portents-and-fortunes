@@ -8,6 +8,11 @@
 // when the adventure's book is not yet in memory this loads it and asks the page to redraw.
 // The cast of a scene is the GM's own (system op `setSceneCast`), beside the NPCs the arc names.
 // One map ships: the map of Rokugan from the owner's art, offered as an image.
+//
+// An instance whose campaign is its own adventure (VttConfig.ownAdventure = { title }) has no .arc:
+// its module is built from the GM's arc (the Scenes pane, state `arc`), sessions as its parts, and
+// its cast is the instance's own layer's NPCs. The arc is the GM's alone, so a player's page knows
+// only the current scene's id (`current`, shared) and who is in it (`cast`, shared).
 window.VttSystem = (function () {
   const D = window.L5RData;
   const State = window.VttState;
@@ -15,9 +20,22 @@ window.VttSystem = (function () {
   const S = () => State.state;
   const Sheet = () => window.L5RSheet;
 
-  const moduleId = () => ((S().campaign || {}).modules || [])[0] || null;
+  const OWN = (window.VttConfig || {}).ownAdventure || null;
+  const OWN_ID = 'campaign';
+  const moduleId = () => (OWN ? OWN_ID : ((S().campaign || {}).modules || [])[0] || null);
+  function ownModule() {
+    const scenes = (S().arc || []).map((x) => ({ id: x.id, name: x.title || 'Untitled', session: x.session || null, played: !!x.played, own: true }));
+    const phases = [];
+    scenes.forEach((s) => {
+      const last = phases[phases.length - 1];
+      if (last && last.name === s.session) last.scenes.push(s.id);
+      else phases.push({ name: s.session, scenes: [s.id] });
+    });
+    return { id: OWN_ID, name: OWN.title || (window.VttConfig || {}).title || 'The campaign', book: null, own: true, phases, scenes, blocks: [] };
+  }
   let asked = {};
   function module() {
+    if (OWN) return ownModule();
     const mid = moduleId();
     if (!mid) return null;
     const m = D.module(mid);
@@ -34,7 +52,7 @@ window.VttSystem = (function () {
   function scenes() {
     const m = module();
     if (!m) return [];
-    return m.scenes.map((s) => ({ id: s.id, name: s.name, phase: s.part ? s.part.name : null, moduleId: m.id }));
+    return m.scenes.map((s) => ({ id: s.id, name: s.name, phase: s.part ? s.part.name : (s.session || null), moduleId: m.id }));
   }
   const scene = (id) => {
     const m = module();
@@ -44,7 +62,10 @@ window.VttSystem = (function () {
     const mid = moduleId();
     const cur = mid ? (S().current || {})[mid] : null;
     const all = scenes();
-    return (all.find((s) => s.id === cur) || all[0] || {}).id || null;
+    if (OWN && !all.length) return cur || null;             // a player's page: no arc, only the id
+    // with nothing chosen, the campaign's own arc runs its first unplayed scene
+    const next = OWN ? module().scenes.find((s) => !s.played) : null;
+    return (all.find((s) => s.id === cur) || next || all[0] || {}).id || null;
   }
 
   // who is in a scene: the GM's own list (entity or record ids — a record's book loads when opened)
@@ -57,6 +78,10 @@ window.VttSystem = (function () {
   function namedCast() {
     const m = module();
     if (!m) return [];
+    if (m.own) {
+      const mine = D.books().filter((b) => b.kind === 'campaign').map((b) => b.id);
+      return D.npcs().filter((r) => mine.indexOf(r.book) !== -1);
+    }
     const names = [];
     const visit = (list) => (list || []).forEach((b) => {
       if (!b || typeof b !== 'object') return;

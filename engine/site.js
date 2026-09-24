@@ -4,7 +4,14 @@
 // and writes nothing: no campaign, no session — those live under gm/.
 (function () {
   const { el } = window.VttRender;
-  const tabs = window.VttSiteTabs || [];
+  const CFG = window.VttConfig || {};
+  // A tab marked `books` shows the books' own text. On an instance's public site those tabs are
+  // off unless the deployment turns them on (VttConfig.siteBooks) or this browser does (the GM
+  // Settings pane writes BOOKS_KEY, system/l5r5e/settings.js) — per browser, never for everyone.
+  const BOOKS_KEY = (CFG.storagePrefix || 'sortilege-vtt') + ':site-books';
+  let booksOn = !!CFG.siteBooks;
+  try { const v = localStorage.getItem(BOOKS_KEY); if (v !== null) booksOn = v === '1'; } catch (e) { /* storage off: the deployment's default */ }
+  const tabs = (window.VttSiteTabs || []).filter((t) => !t.books || booksOn);
   // The deployment's name, as the GM's table (engine/app.js) and the map table (engine/vtt.js)
   // already take it: an instance names its pages in engine/config.js, never in upstream HTML.
   const TITLE = (window.VttConfig || {}).title;
