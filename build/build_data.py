@@ -110,6 +110,9 @@ PAGE_RE = re.compile(r"\((?:pages?|pp\.)\s+(\d+)")
 # records: entities a view lists across books without loading them. A record is an entity
 # with an EXTENDS type, or one whose body carries a RANK (a technique), or a codex ENTITY.
 # The scalar fields a list shows (keys only, never values):
+# a reference a list view needs: an archived sheet names the character it is a version of (an
+# instance's layer — the sheet gathers them; the pregen list leaves them out)
+REF_RECORD_FIELDS = ["Version Of"]
 RECORD_FIELDS = ["Type", "Technique Type", "Subtype", "Rank", "Clan", "Category", "Combat Conflict Rank",
                  "Intrigue Conflict Rank", "School", "School Name", "Family Name", "Clan Name", "Roles"]
 
@@ -646,6 +649,8 @@ def records_of(entities):
                 fields[p["name"]] = p.get("value", p.get("default"))
             elif p["name"] in RECORD_FIELDS and p.get("vk") == "list" and p.get("items"):
                 fields[p["name"]] = [a.get("s") for a in p["items"] if "s" in a]
+            elif p["name"] in REF_RECORD_FIELDS and p.get("vk") == "ref" and (p.get("ref") or {}).get("hash"):
+                fields[p["name"]] = p["ref"]["hash"]
         if fields:
             r["fields"] = fields
         out.append(r)
