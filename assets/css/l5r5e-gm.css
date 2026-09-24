@@ -258,8 +258,21 @@ body.play { display: block; }
   body.play .sheet.live .tn-pick .tn-btn { min-width: 0; padding: 0; }
   body.play .sheet.live .roll-what { text-align: left; }
   body.play .sheet.live .techniques-in-play .tech-row { border: 1px solid var(--edge); background: var(--paper); padding: 4px 12px 8px; margin: 8px 0; border-radius: 4px; }
-  body.play .sheet.live .techniques-in-play .tech-row button { border: 0; background: none; padding: 0; min-height: 36px; width: 100%; text-align: left; color: var(--crimson-deep); }
+  body.play .sheet.live .techniques-in-play .tech-row:not(.tech-card) button { border: 0; background: none; padding: 0; min-height: 36px; width: 100%; text-align: left; color: var(--crimson-deep); }
   body.play .sheet.live .techniques-in-play .tech-row .muted { display: block; }
+  body.play .sheet.live .techniques-in-play .tech-card { display: block; }
+  body.play .sheet.live .tech-card > summary { display: block; list-style: none; cursor: pointer; padding: 6px 0 2px; }
+  body.play .sheet.live .tech-card > summary .tech-name { width: 100%; }
+  body.play .sheet.live .tech-card > summary::-webkit-details-marker { display: none; }
+  body.play .sheet.live .tech-card > summary .tech-name { display: flex; justify-content: space-between; font-family: var(--caps); font-size: 15px; letter-spacing: .06em; text-transform: uppercase; color: var(--crimson-deep); }
+  body.play .sheet.live .tech-card > summary .tech-name::after { content: '+'; font-size: 20px; line-height: 1; color: var(--ink-soft); }
+  body.play .sheet.live .tech-card[open] > summary .tech-name::after { content: '−'; }
+  body.play .sheet.live .tech-card[open] { background: var(--paper-2); }
+  body.play .sheet.live .tech-body { font-size: 16px; line-height: 1.5; padding: 8px 0 4px; border-top: 1px dotted var(--edge); margin-top: 6px; }
+  body.play .sheet.live .tech-body .entity { margin: 0; padding: 0; border: 0; background: none; }
+  body.play .sheet.live .tech-card:not([open]) > .tech-roll { display: none; }
+  body.play .sheet.live .tech-roll { padding-top: 6px; }
+  body.play .sheet.live .tech-roll .btn { flex: 1; min-height: 48px; }
   body.play .sheet.live .roll-go { display: grid; grid-template-columns: auto 1fr; gap: 8px; }
   body.play .sheet.live .roll-go .btn { min-height: 52px; font-size: 18px; letter-spacing: .12em; }
   body.play .sheet.live .roller-more .chiprow { flex-direction: column; align-items: flex-start; }
