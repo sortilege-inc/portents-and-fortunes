@@ -43,6 +43,9 @@ def props(e):
     return out
 
 
+PLAY_RECORD = ("Campaign Status",)   # the fields play keeps current after the conversion
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only")
@@ -52,6 +55,7 @@ def main():
     if a.only:
         npcs = [n for n in npcs if n["id"] == a.only]
     bad = 0
+    ab_moved = []
     for n in npcs:
         h = "#PFnpc" + camel(n["id"])
         e = ents.get(h)
@@ -85,7 +89,11 @@ def main():
             "Biography": (P.get("Biography"), n.get("bio") or None),
             "Template": (P.get("Template"), True if n.get("template") else None),
         }
-        diffs = [k for k, (got, exp) in want.items() if got != exp]
+        # a person's Campaign Status is the chronicle's live record of them, and moves on in play after the
+        # conversion (Session Seven onward); reported, never a failure. Every other field must still match.
+        moved = [k for k in PLAY_RECORD if want[k][0] != want[k][1]]
+        diffs = [k for k, (got, exp) in want.items() if got != exp and k not in PLAY_RECORD]
+        if moved: ab_moved.append("%s: %s moved on in play" % (n["id"], ", ".join(moved)))
         # abilities: RULES lines (by name) and the Techniques references
         rules = {}
         for r in e.get("rules", []):
@@ -126,6 +134,8 @@ def main():
         else:
             print("ok      %-20s %d fields and %d abilities match%s" % (n["id"], len(want), len(s.get("abilities", [])),
                   ("  [" + "; ".join(ab_notes) + "]") if ab_notes else ""))
+    for x in ab_moved:
+        print("note    " + x)
     print("check_npcs: %s — %d of %d NPCs" % ("OK" if not bad else "FAILED", len(npcs) - bad, len(npcs)))
     return 1 if bad else 0
 

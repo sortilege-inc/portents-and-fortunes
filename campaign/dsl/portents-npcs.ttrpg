@@ -1,6 +1,6 @@
 EXTENSION "Portents_NPCs" EXTENDS "L5R5e_Core_NPCs" {
     NAME "Portents & Fortunes — the Dramatis Personae"
-    VERSION "0.1.1"
+    VERSION "0.1.2"
     SPEC_VERSION "0.5"
     RELEASE_DATE "2026-09-23"
 
@@ -737,7 +737,7 @@ EXTENSION "Portents_NPCs" EXTENDS "L5R5e_Core_NPCs" {
             ^"Gear (Other)" LIST OF STRING ["Inconspicuous garb", "Scroll satchel", "Traveling pack"]
             ^"Epithet" STRING "Sent from the Phoenix"
             ^"Affiliation" STRING "Phoenix · Kaito · Ishiken Initiate School, rank 1 · Sage"
-            ^"Campaign Status" STRING "On the road with Norikage · she cleansed the shrine after the killing · he calls her a prophet"
+            ^"Campaign Status" STRING "On the road with Norikage, bound next for the Three Sisters · she purified him at the waterfall · a killing blow on the road did him no harm"
             ^"Biography" LIST OF STRING [
                 "A Kaito of the Phoenix, sent into the Dragon mountains with an introduction to the abbot of Norikage’s temple. Her fingers move across manuscript pages with a precision that looks like hesitation, deliberate enough that someone watching would wonder whether she knows what she is looking for. She is twenty-odd and holds no office anyone at the temple would recognize.",
                 "Her lord is the Phoenix Champion, by way of Kaito Utamuro, and her charge is to mediate disputes inside the clan’s temples where both parties claim righteousness. She discharges it by declining to declare either party wrong, which satisfies nobody. She preserved the Asako library’s disputed manuscripts that way, copying each into the archive exactly as written while the two factions watched her work in silence. Her teachers have begun assigning her the hardest cases for the same reason.",
