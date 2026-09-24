@@ -1323,7 +1323,7 @@ window.L5RSheet = (function () {
     add(el('div', { class: 'player-notes' }, [el('div', { class: 'track-name' }, ['Notes']),
       el('textarea', { class: 'text', rows: 8, placeholder: 'Your notes — only you and the GM see them', oninput: debounceNotes(m) }, [memberNow(m.id, m).playerNotes || ''])]), 'gear');
     ensureTraits(v).then((loaded) => { if (loaded) window.VttBus.emit('state:remote', { loaded: true }, { local: true }); });
-    panes(m, box, roller);
+    panes(m, box, roller, !iniPending);
     return box;
   }
   const iniSetUp = {};   // member id → the conflict whose initiative the roller was set up for
@@ -1530,7 +1530,7 @@ window.L5RSheet = (function () {
   const paneOf = {};   // member id → the pane showing; kept across the page's redraws
   const shown = {};    // member id → the pane switcher of the sheet on the page now
   const inConflict = {};   // member id → whether the last draw had a conflict (to open its tab once)
-  function panes(m, box, roller) {
+  function panes(m, box, roller, rollHere) {
     const nav = el('nav', { class: 'pane-nav', 'aria-label': 'Sheet sections' });
     // the GM starts a conflict: its tab appears and opens; it ends: the tab goes, back to Play
     const c = !!conflictOf(m);
@@ -1538,13 +1538,24 @@ window.L5RSheet = (function () {
     if (!c && paneOf[m.id] === 'conflict') paneOf[m.id] = 'play';
     if (paneOf[m.id] === 'sheet') paneOf[m.id] = 'play';
     inConflict[m.id] = c;
+    // on the Roll tab its own name in the bar is the Roll button (red); elsewhere it opens the tab
     const show = (p, scroll) => {
       paneOf[m.id] = p;
       box.setAttribute('data-show', p);
-      nav.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.getAttribute('data-for') === p));
+      nav.querySelectorAll('button').forEach((b) => {
+        b.classList.toggle('on', b.getAttribute('data-for') === p);
+        b.classList.toggle('go', b.getAttribute('data-for') === 'roll' && p === 'roll' && !!rollHere);
+      });
       if (scroll) window.scrollTo(0, 0);
     };
-    PANES.filter(([p]) => p !== 'conflict' || c).forEach(([p, label]) => nav.appendChild(el('button', { type: 'button', 'data-for': p, onclick: () => show(p, true) }, [label])));
+    PANES.filter(([p]) => p !== 'conflict' || c).forEach(([p, label]) => nav.appendChild(el('button', { type: 'button', 'data-for': p,
+      onclick: () => {
+        if (p === 'roll' && paneOf[m.id] === 'roll' && rollHere && roller.roll) {
+          roller.roll();
+          // the dice come up below the skills: bring them into view, once the page has redrawn
+          setTimeout(() => { const tray = roller.querySelector('.tray'); if (tray && tray.isConnected) tray.scrollIntoView({ block: 'start' }); }, 60);
+        } else show(p, true);
+      } }, [label])));
     box.appendChild(nav);
     shown[m.id] = show;
     show(paneOf[m.id] || 'play', false);
