@@ -268,6 +268,7 @@ window.L5RSheet = (function () {
   // ── the character file ──
   function readFile(obj) {
     if (!obj || typeof obj !== 'object') throw new Error('Not a character file.');
+    if (State() && State().renameIds) State().renameIds(obj);   // a file saved before the corpus hashed its entities
     return complete(obj.kind === FILE_KIND && obj.character ? obj.character : obj);
   }
   // The file carries the character, its live values, its versions and its log (rolls and events):
