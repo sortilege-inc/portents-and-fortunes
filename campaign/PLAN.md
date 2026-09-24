@@ -237,6 +237,17 @@ joined by hash and the session rule all hold, 0 console messages.
 had broken 4 REFERENCES and dropped 3 — check_references' REFERENCES line read *44 refs, 4 errors*, which my
 reports had not quoted (they quoted only its §5d line). Now 44 refs, 0 errors (decision 42).
 
+**M6 landed 2026-09-23 — the GM's three panes** (upstream I9, `7e9c846`; pulled in `355d4d1`). The corpus
+first gained the *Gauging an Encounter* comparison its *building-encounters* entry had cut off at *"consult
+the following:"* (titterpig-dsl-l5r5e `ef396b2`, core p. 310, verified). Notes (an authored document the
+instance names, rendered, and free notes); Scenes (the arc — add, edit, reorder, mark played, remove);
+Threads · Encounters · NPCs (threads; the encounter builder summing conflict ranks against the Group Rank
+with the book's paragraphs and the band marked; saved encounters put in the scene; the scene's cast). GM-only
+pack state, never sent to players; the pack round-trips (proof in upstream I9). Here: **the GM's table opens
+on the three panes** (`engine/config.js defaultSlots`, O8) — in the browser at 1500 px, with no layout chosen
+yet, *Notes · Scenes · Threads · Encounters · NPCs*; 0 console messages. The state document as the Notes
+document, behind its spoiler gate, and the arc seeded from the Session Seven prep are M7.
+
 ## Decision log
 
 | # | Decision | Why |

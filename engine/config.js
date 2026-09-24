@@ -13,7 +13,7 @@ window.VttConfig = {
   // picked (the Adventure panel offers the sixteen), no book beyond what a view asks for
   defaultCampaign: { name: 'Portents & Fortunes', modules: [], books: [] },
   // the three panels the GM page opens on (engine/app.js)
-  defaultSlots: ['adventure', 'party', 'inspector'],
+  defaultSlots: ['notes', 'scenes', 'threads'],   // O8: the GM's table opens on the three panes
   // The Worker that holds player sessions. Served from localhost the app talks to
   // `wrangler dev`; deployed, to the URL below. Empty = sessions disabled until the owner
   // deploys (PLAN.md D3).
