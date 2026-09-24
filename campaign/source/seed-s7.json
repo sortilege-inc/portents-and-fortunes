@@ -1,4 +1,71 @@
-{
- "scene-s7-coming-down": "SET They are camped outside the torii the night after. He is unclean and has not purified himself; she has kept everything of hers apart from everything of his. The mule is below with them.\nSET The charge is not discharged. She has still not taken whatever it was she came to take, and the second half stands regardless: finding her somewhere she can actually stay. Only then is he released.\nOPEN What she takes away from the shrine, whether it is an object or something she now knows, and whether she says so.\n— White Flower does not know\n— Six deaths, and nobody left to read them\n— The Refuge of the Three Sisters\n— What he is carrying down\n— What is under the cairns\n(Behind the Veil › Next session — prep)",
- "scene-s7-ambush": "NOTE Runs once they are down and moving again, on the unmaintained eastern track — not an Imperial road but an agreement between villages that a path exists, a goat’s width within a mile of anywhere (§6).\n— Who they are\n— What they want\n— How it opens\n— The ways out that are not fighting\n— What Juri does, and what it costs\n(Behind the Veil › Next session — prep)"
-}
+[
+ {
+  "id": "scene-s7-coming-down",
+  "title": "Coming down",
+  "session": "Session Seven",
+  "summary": "A cold camp below the torii, six cairns above it, and a woman across the fire he has decided is a prophet.",
+  "text": "[SET] They are camped outside the torii the night after. He is unclean and has not purified himself; she has kept everything of hers apart from everything of his. The mule is below with them.\n\n[SET] **The charge is not discharged.** She has still not taken whatever it was she came to take, and the second half stands regardless: finding her somewhere she can actually stay. Only then is he released.\n\n[OPEN] What she takes away from the shrine, whether it is an object or something she now knows, and whether she says so.",
+  "sections": [
+   {
+    "id": "scene-s7-coming-down-white-flower-does-not-know",
+    "title": "White Flower does not know",
+    "text": "[NOTE] The village is down the other side of this mountain and it has lost an elder. Apart from Juri and whoever did it, Norikage is the only living person who knows.\n\n[NOTE] If he goes down, he arrives unclean, with a Phoenix, on a Togashi errand, with authority over no one, carrying a death. Last time he was there he left a promise behind him.\n\n[NOTE] **Sadao is a Kitsuki.** Investigation is his family’s whole art, his gempukku was made on this mountain, and one of his three remaining elders is the one who walked it. What he does with that is not a village matter.\n\n[OPEN] Whether he goes down at all, or whether the errand carries them away from it."
+   },
+   {
+    "id": "scene-s7-coming-down-six-deaths-and-nobody-left-to-read-them",
+    "title": "Six deaths, and nobody left to read them",
+    "text": "[NOTE] **The site is gone.** The bodies came off the stone, the arrangement was broken, and the plateau was spiritually cleansed. Both of them had sound reasons and neither was thinking about evidence. Whatever the circle would have told an investigator is no longer there to be told.\n\n[NOTE] What is left: six cairns below the torii, which can be reopened; one talisman he recognised; and two witnesses.\n\n[OPEN] Who the other five were. Pilgrims she was guiding is the obvious answer and has not been established.\n\n[OPEN] Why a cult that meets in secret left six bodies arranged on the most-visited shrine in the Togashi lands."
+   },
+   {
+    "id": "scene-s7-coming-down-the-refuge-of-the-three-sisters",
+    "title": "The Refuge of the Three Sisters",
+    "text": "[NOTE] She raised it herself, the evening of the killing, and it sits near the Wrath of the Kami (Threads). Whether that is where she needs to go next is hers to say, and saying it would make the second half of his charge into a journey to a moon-cult temple.\n\n[NOTE] What the place is said to do is answer any question put to it, in riddles, and to visit misfortune on whoever dares ask (Threads). He is a man with questions and no answers."
+   },
+   {
+    "id": "scene-s7-coming-down-what-he-is-carrying-down",
+    "title": "What he is carrying down",
+    "text": "[NOTE] **The ritual he needs is the severe one** (Rules › Uncleanliness and purification), and every part of it is within fifty feet of the camp: a torii he carried six bodies through, an enshrined spirit that Juri cleansed and called back that afternoon, and a shugenja across the fire — the rite being one *known by every shugenja*. The missing piece is water for the bath, on a plateau of bare rock; misogi takes cold still water as readily as a fall, and the country threads meltwater down every rock face (Places › The country).\n\n[NOTE] Until it is done he cannot be received anywhere as a monk in good standing, and if he dies in this state he is not admitted to Yomi (Rules › Uncleanliness and purification). He is also travelling with the one person qualified to fix it, who has no obligation to offer.\n\n[OPEN] Whether he asks her, or waits to be offered, or climbs back up alone and does what he can with what he has."
+   },
+   {
+    "id": "scene-s7-coming-down-what-is-under-the-cairns",
+    "title": "What is under the cairns",
+    "text": "[NOTE] **The six had no rites and were not burned.** They were laid under stone by an exhausted man with no shovel and no fuel. Rokugani funeral rites call for remains to be burned with prayers offered, and any shugenja, priest or monk can officiate (Rules › Uncleanliness and purification) — which means both of them are qualified and neither has done it.\n\n[NOTE] None of the six received the featureless mask, whose stated purpose is that *any lingering spirit will not recognize its former body or attempt to reclaim it* (Rules › Uncleanliness and purification).\n\n[NOTE] **The published precedent is that the spirit stays with the remains until the remains are handled properly**, and departs when they are (Rules › Uncleanliness and purification). Six sets of unburned remains now lie below the torii of a shrine that was spiritually cleansed the same day — the cleansing took the stain off the plateau, not out of the cairns.\n\n[NOTE] Wood is the obstacle, not will. Trees are scarce that high and there is no fuel on a rock plateau for six pyres. Bringing wood up means going down to a village, and the nearest village is White Flower, which does not yet know it has lost an elder.\n\n[OPEN] Whether anything is actually stirring, or whether the dread is his and correct anyway. Both play the same for a session.\n\n[OPEN] Whether the five unnamed dead have anyone to be worshipped by. An ancestor nobody remembers becomes muenbotoke (Rules › Uncleanliness and purification), and nobody yet knows who these people were.\n\n[NOTE] **The premonition is ageing into evidence.** He told Oharu that White Flower will not last the year and that he did not see the cause. The guide of its pilgrim road is now dead on the mountain above it. Reisui-ji is three days back the way they came.\n\n[NOTE] Two XP unspent.\n\n[OPEN] Whether Oharu carries the premonition further, and to whom."
+   }
+  ],
+  "played": true
+ },
+ {
+  "id": "scene-s7-ambush",
+  "title": "The ambush on the track",
+  "session": "Session Seven",
+  "text": "[NOTE] Runs once they are down and moving again, on the unmaintained eastern track — not an Imperial road but an agreement between villages that a path exists, a goat’s width within a mile of anywhere (Places › The country).",
+  "sections": [
+   {
+    "id": "scene-s7-ambush-who-they-are",
+    "title": "Who they are",
+    "text": "[SOURCE] **Three Desperate Bandits** (Minion, `core-npcs.ttrpg` p.315). Combat rank 1 each. Earth 2, Fire 2, Water 2, Air 2, Void 1; Endurance 5, Composure 6, Focus 4, Vigilance 2. Martial 1, Trade 1, everything else 0. Demeanor **Ambitious**, social TN mods **Fire +2, Water −2**. Yari and sling; thick clothes at Physical 2. *Ambush Tactics: When performing an Attack action against a target with the Dazed or Disoriented condition, increase any damage dealt by 2.*\n\n[SOURCE] **One Experienced Bandit** (Adversary, p.316). Combat rank 3. Earth 3, Fire 3, Water 3, Air 2, Void 1; Endurance 9, Composure 8, Focus 6, Vigilance 3. Martial 2, Social 1. Demeanor **Shrewd**, social TN mods **Air +2, Fire −2**. Rusted katana, kusari-gama, ashigaru armour at Physical 3. *Dirty Tricks: When performing an Attack action check, an experienced bandit may spend (op) in the following way: (op): One character at range 0–2 suffers the Disoriented condition. Then you may move 1 range band.* And *…Get Them, You Fools!: As an action, an experienced bandit may have up to two Desperate Bandits who have not yet acted this round immediately move 1 range band and perform a Strike action with skilled assistance (see page 26).*\n\n[SOURCE] Gauging an Encounter (core-systems.ttrpg p.310) — If the group rank is 0.5 times the encounter rank or lower, the PCs are significantly outmatched—cunning or luck will be needed to take the day, and this might even be a battle best avoided!\n\n[NOTE] Group Rank 1 against Encounter Rank 6 is a ratio of 1 : 6, well inside that band. **This is not survivable as a fight**. Melee 0, Unarmed 1, no armour, no party. It is built to be talked out of, walked out of, or paid.\n\n[SET] Ordinary road agents. *Bandits are outlaws who thrive in the more rural and remote regions of Rokugan… Bandits usually target travelers on the Imperial roads, their scouts identifying easy targets in advance.*"
+   },
+   {
+    "id": "scene-s7-ambush-what-they-want",
+    "title": "What they want",
+    "text": "[NOTE] **The mule.** Bags, food, and whatever is in them. Two travellers with a laden animal on a track nobody maintains is the easy target their scouts look for. They do not want a fight with a monk and a shugenja and they will take one if it looks cheap.\n\n[NOTE] **The real stake is not the mule.** Whatever Juri took away from the shrine is travelling in those bags unless she is carrying it on her, and losing it turns the errand into a recovery."
+   },
+   {
+    "id": "scene-s7-ambush-how-it-opens",
+    "title": "How it opens",
+    "text": "[NOTE] **Earth Needs No Eyes decides whether there is an ambush at all.** It raises his Vigilance from 1 to 4 and senses three range bands in every direction through the ground — but only when he stops, kneels and listens. Travelling head-down, he is Vigilance 1 and they get the jump. The scene is a test of whether he travels the way his sheet rewards, and it should be winnable before initiative is rolled.\n\n[NOTE] If they do get the jump, the Disoriented condition is what the whole gang is built around — Dirty Tricks applies it, Ambush Tactics cashes it for +2 damage a hit, three times over.\n\n[SOURCE] Terrain to have ready, all published (`core-systems.ttrpg`): **Obscuring** for rain or mist on the track — *Increase the TN of all Attack checks targeting characters within Obscuring terrain by 1*, and nobody sees beyond range 2 into it; **Entangling** for loose scree — *a character increases the TN of all their checks to move and for Movement actions by 2*; **Dangerous** for the drop — *Whenever a character performs a check while within Dangerous terrain, the character suffers physical damage equal to the (st) symbols on their kept dice.*"
+   },
+   {
+    "id": "scene-s7-ambush-the-ways-out-that-are-not-fighting",
+    "title": "The ways out that are not fighting",
+    "text": "[NOTE] **The two halves of the gang answer to opposite elements.** The hungry men are Ambitious: Fire +2, Water −2, so bullying them is expensive and speaking to their need is cheap. The leader is Shrewd: Air +2, Fire −2, so charm and courtesy cost more against him and blunt heat costs less. Norikage is Fire 2 and Water 2 and can do either, but not the same one to both.\n\n[NOTE] **Their disadvantages are the levers.** All four carry *Fool’s Avarice* (earth, Social; Mental) — greed is usable against them. The three minions also carry *Quarrelsome* (void, Social; Interpersonal), which is an invitation to set them against each other on his own best approach.\n\n[NOTE] **Affect of Harmlessness** rerolls two dice on a check to ingratiate himself with a stranger, and he has never met these men. He is also filthy, exhausted and travelling with a mule — he does not look like a prize.\n\n[NOTE] **Breaking Blow breaks objects, not people.** A yari shaft, a sling, the track itself. It is an Attack and Support action and it is the whole of his answer to a weapon without becoming a man who kills farmers.\n\n[NOTE] He is Honor 52 and already ritually unclean. Blood on this road is more kegare on a man who has not washed off the last of it (Rules › Uncleanliness and purification)."
+   },
+   {
+    "id": "scene-s7-ambush-what-juri-does-and-what-it-costs",
+    "title": "What Juri does, and what it costs",
+    "text": "[NOTE] Combat rank 1, Martial 1, a bō and a wakizashi she has no particular business using. Her card holds the rest.\n\n[NOTE] **One within the Void** is the intervention that costs nothing but secrecy: wordless coordination, and either of them assisting the other at any distance. Using it in front of four witnesses tells four bandits what she is.\n\n[NOTE] **Any inversion at magnitude 3 or more leaves Imbalanced (Void) terrain behind**, which raises the TN of Meditation and Theology checks there and draws inexplicable phenomena to the spot. She is commissioned to find imbalance. Saving his life this way makes a new one on a road she will have to report.\n\n[OPEN] Whether she lets it get that far before she acts, and what she does if he is the one who wants to fight."
+   }
+  ],
+  "played": true
+ }
+]

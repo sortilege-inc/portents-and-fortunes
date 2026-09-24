@@ -7,6 +7,8 @@ how the text was carried, and is run only against the state.html in git history:
 
     git show 540d3fa:campaign/docs/state.html > /tmp/state.html
     python3 campaign/source/absorb_state.py /tmp/state.html
+    git show 1865759^:campaign/docs/state.html > /tmp/state-s6.html     # Session Seven's own prep
+    python3 campaign/source/absorb_state.py --s7 /tmp/state-s6.html      # → campaign/source/seed-s7.json
 
 Deterministic: the HTML's own markup becomes the GM Markdown (system/l5r5e/gm-text.js) — a tag
 span → [SET 23 Sep], <strong> → **…**, <em> → *…*, <code> → `…`, <a> → [text](href), <li> → "- ",
@@ -244,16 +246,9 @@ def main(src):
     gm['questions'] = questions
 
     seed = json.loads(SEED.read_text())
-    old = {a['id']: a for a in seed.get('arc', [])}
-    # Session Seven's two scenes, as the earlier seed had them, now grouped and played
-    s7 = [
-        {'id': 'scene-s7-coming-down', 'title': 'Coming down', 'session': 'Session Seven', 'played': True},
-        {'id': 'scene-s7-ambush', 'title': 'The ambush on the track', 'session': 'Session Seven', 'played': True},
-    ]
-    prev = json.loads(Path(ROOT / 'campaign/source/seed-s7.json').read_text()) if (ROOT / 'campaign/source/seed-s7.json').exists() else {}
-    for x in s7:
-        if x['id'] in prev:
-            x['text'] = xref(prev[x['id']])
+    # Session Seven's two scenes, played: their prep as the document had it before the Session Seven
+    # roll-forward (campaign/source/seed-s7.json, written by `--s7`)
+    s7 = json.loads((ROOT / 'campaign/source/seed-s7.json').read_text())
     seed['arc'] = s7 + arc
     seed['threads'] = threads
     seed['gm'] = gm
@@ -263,5 +258,36 @@ def main(src):
           % (n(gm['overview']), n(gm['places']), n(gm['people']), n(gm['pc']), n(gm['rules']), len(threads), len(seed['arc']), len(questions['items'])))
 
 
+S7 = {'Session Seven — coming down': ('scene-s7-coming-down', 'Coming down'),
+      'Later in Session Seven — the ambush on the track': ('scene-s7-ambush', 'The ambush on the track')}
+
+
+def session_seven(src):
+    """Session Seven's two prep scenes, from the document as it stood before they were played
+    (git show 1865759^:campaign/docs/state.html) → campaign/source/seed-s7.json. The prep's lead
+    paragraph, after its first sentence, is the first scene's line, as for Session Eight."""
+    p = Blocks()
+    p.feed(Path(src).read_text())
+    secs, lead = tree(p.out)
+    out = []
+    for s in secs:
+        if s['title'] not in S7:
+            continue
+        sid, title = S7[s['title']]
+        x = {'id': sid, 'title': title, 'session': 'Session Seven'}
+        if not out and lead:
+            x['summary'] = re.sub(r'^\*|\*$', '', lead).split('. ', 1)[1]
+        x['text'] = join(s['body'])
+        x['sections'] = [{'id': sid + '-' + slug(y['title']), 'title': y['title'], 'text': join(y['body'])} for y in s['subs']]
+        x['played'] = True
+        out.append(x)
+    assert len(out) == 2, [s['title'] for s in secs]
+    (ROOT / 'campaign/source/seed-s7.json').write_text(json.dumps(out, ensure_ascii=False, indent=1) + '\n')
+    print('seed-s7: %s' % ', '.join('%s (%d beats)' % (x['title'], len(x['sections'])) for x in out))
+
+
 if __name__ == '__main__':
-    main(sys.argv[1] if len(sys.argv) > 1 else ROOT / 'campaign/docs/state.html')
+    if sys.argv[1:2] == ['--s7']:
+        session_seven(sys.argv[2])
+    else:
+        main(sys.argv[1] if len(sys.argv) > 1 else ROOT / 'campaign/docs/state.html')
