@@ -242,6 +242,10 @@ window.L5RDice = (function () {
   // `opts.strifeDefault(tally)` for the strife a kept (st) gives (a stance may change it), and
   // `opts.extra(roll, tally)` for bonus successes an ability adds to a successful check. A check
   // set up from a technique carries it as `source` (its name, id and category) into the log.
+  // `opts.notes(roll, tally)` → lines shown under the tally and logged with the check (a Strike's
+  // damage, an initiative value, a critical strike's severity); `opts.opportunities(roll)` → the
+  // spends the check's (op) may buy, [{ group, text }], shown once (op) is kept, ticked to log.
+  // A set-up may carry a `tag` ({ kind: 'strike' | 'initiative' | 'crit', … }) for those two.
   const OTHER = { id: 'other', label: 'Other reroll', kind: 'other', dice: null, text: 'A reroll a technique, an ability or the GM grants: mark the dice it names.' };
   function roller(opts) {
     const o = opts || {};
@@ -285,13 +289,20 @@ window.L5RDice = (function () {
     function values() {
       return { ring: p.ring, ringValue: int(ringValue, 1), skill: p.skill, skillRank: int(skillRank, 0), tn: tn.value === '' ? null : parseInt(tn.value, 10), void: voidBox.checked,
         assistSkilled: int(assistSkilled, 0), assistUnskilled: int(assistUnskilled, 0), concealed: concealBox.checked, label: o.label || null,
-        source: p.source || null, sourceId: p.sourceId || null, sourceType: p.sourceType || null };
+        source: p.source || null, sourceId: p.sourceId || null, sourceType: p.sourceType || null, tag: p.tag || null };
     }
     const modes = () => (o.rerolls ? o.rerolls(current ? current.opts.ring : p.ring) : []).concat([OTHER]);
     function drawRerolls() {
       rerollBar.innerHTML = '';
       const r = current;
       if (!r || r.resolved || anyKept(r)) return;
+      // a disadvantage whose ring is the check's: the table's call, prompted, never applied for it
+      if (!r.dismissed) r.dismissed = [];
+      modes().filter((m) => m.prompt && !applied(r, m) && r.dismissed.indexOf(m.id) === -1).forEach((m) => rerollBar.appendChild(el('div', { class: 'chiprow tight prompt' }, [
+        el('span', { class: 'small' }, ['⚠ ', symbolsSpan(m.label), ' — its ring is this check’s: does it apply? The GM’s call.']),
+        el('button', { class: 'btn tiny', type: 'button', onclick: () => { mode = m; marks = []; drawTray(); } }, ['Apply']),
+        el('button', { class: 'btn ghost tiny', type: 'button', onclick: () => { r.dismissed.push(m.id); r.events.push({ kind: 'dismissed', via: m.label }); drawTray(); } }, ['Dismiss']),
+      ])));
       rerollBar.appendChild(el('div', { class: 'chiprow tight' }, [el('span', { class: 'tray-k' }, ['Reroll']), modes().map((m) => {
         const used = m.kind !== 'other' && applied(r, m);
         return el('button', { class: 'btn ghost tiny rr ' + m.kind + (mode && mode.id === m.id ? ' on' : ''), type: 'button', disabled: used || null,
@@ -350,8 +361,21 @@ window.L5RDice = (function () {
         s.verdict ? el('span', { class: 'verdict ' + (t.success ? 'ok' : 'fail') }, [' — ' + s.verdict]) : null,
         t.unexploded ? el('span', { class: 'muted small' }, [' · ' + t.unexploded + ' kept (ex) not yet rolled']) : null,
       ]));
+      const notes = r.resolved ? (r.notes || []) : (o.notes ? o.notes(r, t) : []);
+      notes.forEach((n) => result.appendChild(el('div', { class: 'small roll-note' }, [symbolsSpan(n)])));
+      if (!r.resolved && t.opportunity && o.opportunities) {
+        if (!r.spends) r.spends = [];
+        const list = o.opportunities(r);
+        if (list.length) result.appendChild(el('details', { class: 'opps' }, [
+          el('summary', { class: 'small' }, ['Spend ' + t.opportunity + ' (op) — ' + list.length + ' options for this check' + (r.spends.length ? ' · ' + r.spends.length + ' chosen' : '')]),
+          list.map((x) => el('label', { class: 'opp small' }, [
+            el('input', { type: 'checkbox', checked: r.spends.indexOf(x.text) !== -1 || null, onchange: (ev) => { const i = r.spends.indexOf(x.text); if (ev.target.checked && i === -1) r.spends.push(x.text); if (!ev.target.checked && i !== -1) r.spends.splice(i, 1); } }),
+            el('span', { class: 'muted' }, [' ' + x.group + ' · ']), symbolsSpan(x.text),
+          ])),
+        ]));
+      }
       if (!r.resolved) {
-        const dflt = o.strifeDefault ? o.strifeDefault(t) : t.strife;
+        const dflt = o.strifeDefault ? o.strifeDefault(t, r) : t.strife;
         const shown = r.strifeChosen != null ? Math.min(r.strifeChosen, t.strife) : Math.min(dflt, t.strife);
         const strife = el('input', { class: 'text num small', type: 'number', min: 0, max: t.strife, value: shown, title: 'The strife the character receives: the kept (st), unless the player and GM settle on less',
           oninput: (ev) => { r.strifeChosen = Math.max(0, parseInt(ev.target.value || '0', 10) || 0); } });
@@ -360,7 +384,8 @@ window.L5RDice = (function () {
           el('button', { class: 'btn tiny', type: 'button', disabled: anyKept(r) ? null : true, onclick: () => {
             r.note = note.value.trim() || null;
             resolve(r, r.strifeChosen != null ? r.strifeChosen : dflt, extra);
-            p.source = p.sourceId = p.sourceType = null;   // the next check is the player's own again
+            r.notes = o.notes ? o.notes(r, r.resolved) : [];
+            p.source = p.sourceId = p.sourceType = p.tag = null;   // the next check is the player's own again
             // what was set up for this check does not carry to the next
             concealGranted = false;
             concealBox.checked = false;
@@ -399,7 +424,7 @@ window.L5RDice = (function () {
     box.appendChild(result);
     box.set = (patch) => {
       // a set-up that names no technique is not one
-      if (!patch || !('source' in patch)) p.source = p.sourceId = p.sourceType = null;
+      if (!patch || !('source' in patch)) p.source = p.sourceId = p.sourceType = p.tag = null;
       Object.assign(p, patch || {});
       if (patch && patch.ringValue != null) ringValue.value = patch.ringValue;
       if (patch && patch.skillRank != null) skillRank.value = patch.skillRank;
@@ -432,8 +457,10 @@ window.L5RDice = (function () {
     if (entry.strifeRolled != null && entry.strifeApplied !== entry.strifeRolled) chips.push(el('span', { class: 'logchip warn' }, ['strife received ' + entry.strifeApplied + ' of ' + entry.strifeRolled]));
     (entry.applied || []).forEach((a) => chips.push(el('span', { class: 'logchip' }, [symbolsSpan(a.label)])));
     (entry.extra || []).forEach((x) => chips.push(el('span', { class: 'logchip' }, ['+' + x.successes + ' ' + x.label])));
+    (entry.notes || []).forEach((n) => chips.push(el('span', { class: 'logchip note' }, [symbolsSpan(n)])));
+    (entry.spends || []).forEach((n) => chips.push(el('span', { class: 'logchip' }, ['spent ', symbolsSpan(n)])));
     const events = (entry.events || []).map((ev) => el('div', { class: 'log-ev' }, [
-      el('span', { class: 'muted small' }, [ev.kind === 'reroll' ? '↻ ' + (ev.via || 'reroll') : '❉ explodes']), logDie(ev.type, ev.from), el('span', { class: 'muted' }, ['→']), logDie(ev.type, ev.to),
+      ev.kind === 'dismissed' ? el('span', { class: 'muted small' }, ['⚠ dismissed: ' + ev.via]) : [el('span', { class: 'muted small' }, [ev.kind === 'reroll' ? '↻ ' + (ev.via || 'reroll') : '❉ explodes']), logDie(ev.type, ev.from), el('span', { class: 'muted' }, ['→']), logDie(ev.type, ev.to)],
     ]));
     const first = (entry.initial || []).length ? el('div', { class: 'log-ev' }, [el('span', { class: 'muted small' }, ['rolled']), entry.initial.map((k) => logDie(k.split('_')[0], k))]) : null;
     return el('div', { class: 'roll-line' + (t.success === true ? ' ok' : t.success === false ? ' fail' : '') }, [
@@ -461,6 +488,7 @@ window.L5RDice = (function () {
       limit: r.limit, keptBase: kb, keptFewer: kb < r.limit,
       assistSkilled: o.assistSkilled || 0, assistUnskilled: o.assistUnskilled || 0, concealed: !!o.concealed,
       sourceId: o.sourceId || null, sourceType: o.sourceType || null, extra: (r.extra || []).map((x) => ({ successes: x.successes, label: x.label })),
+      notes: (r.notes || []).slice(), spends: (r.spends || []).slice(), tag: o.tag || null,
       strifeRolled: t.strife, strifeApplied: r.strife == null ? t.strife : r.strife,
     };
   }
