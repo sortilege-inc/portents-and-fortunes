@@ -386,7 +386,7 @@ window.L5RSheet = (function () {
         dice = off;
         text += ' — on a check of another ring than ' + t.ring + ', ' + off + (off === 1 ? ' die' : ' dice') + ' (a house rule).';
       }
-      out.push({ id: t.name, label: t.name + ringMark(t), kind, dice, text });
+      out.push({ id: t.name, label: t.name + ringMark(t), kind, dice, text, prompt: kind === 'adversity' && !!t.ring && t.ring === ring });
     });
     return out;
   }
@@ -458,6 +458,11 @@ window.L5RSheet = (function () {
       onConceal: () => gainVoid(m, 'The GM concealed the TN'),
       onAdversityFailed: (roll, a) => gainVoid(m, a.label + ' (adversity): the check failed'),
       extra: (roll, t) => checkExtras(m, roll, t),
+      notes: (roll, t) => checkNotes(m, roll, t),
+      opportunities: (roll) => opportunityList(m, roll),
+      // "Void: You do not receive strife from (st) symbols on your kept dice." — Stance, RULES
+      // void_stance_no_strife_from_strife_results
+      strifeDefault: (t, roll) => (stanceOfCheck(m, roll) === 'Void' ? 0 : t.strife),
       onResolve: (roll) => {
         const mm = memberNow(m.id, m);
         const t = roll.resolved;
@@ -470,6 +475,13 @@ window.L5RSheet = (function () {
         const entry = Object.assign(Dice.logEntry(roll, mm.name), { memberId: mm.id });
         State().commit('appendLog', [entry]);
         change(mm, p, 'the check: ' + entry.what);
+        // an Initiative check sets the character's initiative for the conflict (initiative_values)
+        const tag = roll.opts.tag || {};
+        if (tag.kind === 'initiative' && t.success != null && conflictOf(memberNow(m.id, m))) {
+          const vv = complete(memberNow(m.id, m).character || {});
+          const base = tag.surprised ? value(vv, 'Vigilance') : value(vv, 'Focus');
+          setConflict(m, { initiative: base + (t.success ? 1 + t.bonus : 0) }, 'Initiative ' + (base + (t.success ? 1 + t.bonus : 0)));
+        }
         // "After failing a check on which one of their adversities was resolved" — Void Points, RECOVERY
         if (t.success === false) roll.applied.filter((a) => a.kind === 'adversity').forEach((a) => { a.claimed = true; gainVoid(mm, a.label + ' (adversity): the check failed'); });
       },
@@ -577,15 +589,294 @@ window.L5RSheet = (function () {
     return rows.length ? el('div', { class: 'techniques-in-play' }, [el('span', { class: 'track-name' }, ['Techniques']), rows]) : null;
   }
 
+  // ── conflict: types, stances, initiative, actions, engagement (Portents M4d) ──
+  // Everything here is the corpus's: the Conflict Type entities (Intrigue, Duel, Skirmish, Mass
+  // Battle) and the actions in each one's ACTIONS; the Stance rules (Table 6–1), each "Ring: …";
+  // Initiative's "Skirmish: TN 1 Tactics check." (initiative_checks) and its values
+  // (initiative_values: focus if ready, vigilance if unprepared, then on a success +1 and the bonus
+  // successes). A character's conflict is live.conflict = { type, surprised, initiative, engaged }.
+  const conflictTypes = () => D.all(['core']).filter((e) => e.type === 'Conflict Type');
+  const conflictOf = (m) => (m.live || {}).conflict || null;
+  function stanceRules() {
+    const s = D.named('Stance', 'core');
+    const out = {};
+    ((s && s.rules) || []).forEach((r) => { const x = E.ruleText(r.text); const mm = x && /^(Air|Earth|Fire|Water|Void): /.exec(x); if (mm) out[mm[1]] = x; });
+    return out;
+  }
+  function initiativeCheck(type) {
+    const r = Dice.rule('initiative_checks');
+    const mm = r && r.text && new RegExp('(?:^|\\n)' + type + ': TN (\\d+) ([A-Z][A-Za-z ]+?) check').exec(r.text);
+    return mm ? { tn: parseInt(mm[1], 10), skill: mm[2] } : null;
+  }
+  function conflictActions(type) {
+    const e = D.named(type, 'core');
+    const b = e && D.block(e, 'ACTIONS');
+    return b ? (b.body || []).filter((x) => x.ent).map((x) => D.entity(x.ent)).filter(Boolean) : [];
+  }
+  const logEvent = (mm, text, why) => State().commit('appendLog', [{ at: new Date().toISOString(), kind: 'event', who: mm.name, memberId: mm.id, text, why: why || null }]);
+  function setConflict(m, patch, text) {
+    const mm = memberNow(m.id, m);
+    const cur = conflictOf(mm);
+    State().commit('setPartyLive', [mm.id, { conflict: patch === null ? null : Object.assign({}, cur || {}, patch) }]);
+    if (text) logEvent(mm, text, 'conflict');
+  }
+  function setStance(m, ring, roller) {
+    const mm = memberNow(m.id, m);
+    if ((mm.live || {}).stance === ring) return;
+    State().commit('setPartyLive', [mm.id, { stance: ring }]);
+    logEvent(mm, 'Stance: ' + ring, 'conflict');
+    // "determining which ring a character uses for the action they perform … and for any other
+    //  checks they make while in that stance" — Stance, RULES set_stance
+    roller.set({ ring, ringValue: complete(mm.character || {}).Rings[ring] });
+  }
+
+  // ── gear: the readied weapon, its grip, the armor worn ──
+  // The corpus's weapons (the children of ^"Weapon", and its UNARMED profiles) and armor, matched
+  // by name to the sheet's Equipment; the readied weapon's Skill is Strike's ("using the appropriate
+  // skill for the weapon"); a grip's "Damage +2" adds to its base damage.
+  const kids = (name) => { const e = D.named(name, 'core'); return e ? D.children(e.id) : []; };
+  const unarmed = () => { const w = D.named('Weapon', 'core'); const b = w && D.block(w, 'UNARMED'); return b ? (b.body || []).filter((x) => x.ent).map((x) => D.entity(x.ent)).filter(Boolean) : []; };
+  const norm = (s) => String(s || '').toLowerCase();
+  const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // a corpus item the sheet's Equipment names, as a word ("daishō (katana and wakizashi)")
+  function carried(v, list) {
+    const eq = (v.Equipment || []).map(String);
+    return list.filter((e) => { const re = new RegExp('(^|[^\\p{L}])' + esc(e.name) + '($|[^\\p{L}])', 'iu'); return eq.some((x) => re.test(x)); });
+  }
+  // a weapon the sheet prints with its own profile ("Talwar: Damage 4/6, Range 1, Cumbersome, …"),
+  // damage / deadliness as printed; its skill is not printed, so the player chooses it
+  const PRINTED_WEAPON = /^([^:]+):\s*Damage (\d+)\/(\d+),\s*Range ([^,]+)(?:,\s*(.*))?$/;
+  function printedWeapons(v) {
+    return (v.Equipment || []).map((x) => PRINTED_WEAPON.exec(String(x).trim())).filter(Boolean).map((mm) => ({ name: mm[1].trim(), base: parseInt(mm[2], 10), deadliness: parseInt(mm[3], 10), range: mm[4].trim(), qualities: mm[5] || '', printed: true }));
+  }
+  const fromEntityW = (e) => ({ name: e.name, e, skill: D.text(e, 'Skill'), base: D.num(e, 'Base Damage'), deadliness: D.num(e, 'Deadliness'), range: D.text(e, 'Range') });
+  function weaponsFor(v) {
+    const all = carried(v, kids('Weapon').filter((e) => D.text(e, 'Skill'))).map(fromEntityW).concat(printedWeapons(v), unarmed().map(fromEntityW));
+    return all.filter((w, i) => all.findIndex((x) => norm(x.name) === norm(w.name)) === i);   // the sheet's own profile before the book's unarmed one
+  }
+  const armorFor = (v) => carried(v, kids('Armor'));
+  function grips(e) {
+    const g = e && D.text(e, 'Grips');
+    return g ? g.split(/;\s*/).map((x) => { const mm = /^([^:]+):\s*(.*)$/.exec(x.trim()); return mm ? { name: mm[1].trim(), text: mm[2].trim(), damage: parseInt((/Damage \+(\d+)/.exec(mm[2]) || [0, 0])[1], 10), deadliness: parseInt((/Deadliness \+(\d+)/.exec(mm[2]) || [0, 0])[1], 10) } : null; }).filter(Boolean) : [];
+  }
+  const MARTIAL = () => skills().filter((k) => /^Martial Arts \[/.test(k.name)).map((k) => k.name);
+  function readied(m) {
+    const eq = (m.live || {}).equip || {};
+    if (!eq.weapon) return null;
+    const w = weaponsFor(complete(m.character || {})).find((x) => x.name === eq.weapon);
+    if (!w) return null;
+    const gs = grips(w.e);
+    return Object.assign({}, w, { skill: w.skill || eq.skill || null, grip: gs.find((x) => x.name === eq.grip) || gs[0] || null });
+  }
+  function setEquip(m, patch, text) {
+    const mm = memberNow(m.id, m);
+    State().commit('setPartyLive', [mm.id, { equip: Object.assign({}, (mm.live || {}).equip || {}, patch) }]);
+    logEvent(mm, text, 'gear');
+  }
+  function gearBlock(m, v) {
+    const eq = (m.live || {}).equip || {};
+    const ws = weaponsFor(v);
+    const as = armorFor(v);
+    const r = readied(m);
+    const wsel = el('select', { class: 'scope tiny', title: 'The readied weapon' }, [el('option', { value: '' }, ['— no weapon readied —'])].concat(ws.map((e) => el('option', { value: e.name, selected: eq.weapon === e.name || null }, [e.name]))));
+    wsel.addEventListener('change', () => setEquip(m, { weapon: wsel.value || null, grip: null, skill: null }, wsel.value ? 'Readies ' + wsel.value : 'Readies no weapon'));
+    const gs = r && r.e ? grips(r.e) : [];
+    const ssel = r && r.printed ? el('select', { class: 'scope tiny', title: 'The skill this weapon uses (the sheet does not print it)' }, [el('option', { value: '' }, ['— its skill —'])].concat(MARTIAL().map((k) => el('option', { value: k, selected: eq.skill === k || null }, [k])))) : null;
+    if (ssel) ssel.addEventListener('change', () => setEquip(m, { skill: ssel.value || null }, r.name + ': ' + (ssel.value || 'no skill')));
+    const gsel = gs.length > 1 ? el('select', { class: 'scope tiny', title: 'Grip' }, gs.map((g) => el('option', { value: g.name, selected: (r.grip && r.grip.name === g.name) || null }, [g.name + ': ' + g.text]))) : null;
+    if (gsel) gsel.addEventListener('change', () => setEquip(m, { grip: gsel.value }, 'Grip: ' + gsel.value));
+    const asel = el('select', { class: 'scope tiny', title: 'The armor worn' }, [el('option', { value: '' }, ['— no armor —'])].concat(as.map((e) => el('option', { value: e.name, selected: eq.armor === e.name || null }, [e.name]))));
+    asel.addEventListener('change', () => setEquip(m, { armor: asel.value || null }, asel.value ? 'Wears ' + asel.value : 'Wears no armor'));
+    const ae = eq.armor ? D.named(eq.armor, 'core') : null;
+    return el('div', { class: 'gear' }, [
+      el('span', { class: 'track-name' }, ['Gear']), wsel, gsel, ssel,
+      r ? el('span', { class: 'muted small' }, [[r.skill || (r.printed ? 'as printed' : null), 'range ' + r.range, 'damage ' + (r.base + (r.grip ? r.grip.damage : 0)), 'deadliness ' + (r.deadliness + (r.grip ? r.grip.deadliness : 0))].join(' · ')]) : null,
+      asel,
+      ae ? el('span', { class: 'muted small' }, ['resistance: physical ' + (D.num(ae, 'Physical Resistance') || 0) + (D.num(ae, 'Supernatural Resistance') != null ? ' · supernatural ' + D.num(ae, 'Supernatural Resistance') : '')]) : null,
+    ]);
+  }
+
+  // ── critical strikes ──
+  // "they must make a TN 1 Fitness check to mitigate its effects (using a ring of their choice in a
+  //  narrative scene, or the ring their stance dictates in a conflict scene). If the character
+  //  succeeds, they reduce the severity by 1 plus their bonus successes … Then, consult Table 6–6"
+  //  — Critical Strike, RULES check_to_resist_critical_strike; the table is its SEVERITY_TABLE.
+  function severityRow(n) {
+    const cs = D.named('Critical Strike', 'core');
+    const b = cs && D.block(cs, 'SEVERITY_TABLE');
+    const rows = b ? (b.body || []) : [];
+    const row = rows.find((r) => { const mm = /^(\d+)\s*[-–]\s*(\d+)$/.exec(String(r.s || '')); const pl = /^(\d+)\+$/.exec(String(r.s || '')); return mm ? n >= +mm[1] && n <= +mm[2] : pl ? n >= +pl[1] : false; });
+    if (!row) return null;
+    const kw = (k) => { const x = (row.body || []).find((y) => y.kw === k); return x && x.args[0] ? plain(x.args[0].s) : ''; };
+    return { range: row.s, description: kw('DESCRIPTION'), effect: kw('EFFECT') };
+  }
+  function resistCheck() {
+    const r = Dice.rule('check_to_resist_critical_strike');
+    const mm = r && r.text && /TN (\d+) ([A-Z][A-Za-z]+) check/.exec(r.text);
+    return mm ? { tn: parseInt(mm[1], 10), skill: mm[2] } : null;
+  }
+
+  // ── what a check's (op) may buy ──
+  // Opportunity (core-base): GENERAL (any ring, then the check's ring), the skill group's by ring,
+  // CONFLICT in a conflict or on a Martial check, INITIATIVE on an Initiative check, DOWNTIME on a
+  // downtime activity; then the (op) of the technique or action the check came from, and of the
+  // character's techniques that ride on a check of this skill and ring ("When you make a Martial
+  // Arts [Melee, Ranged, or Unarmed] (Earth) check, you may spend (op) …").
+  // a block's strings, whether it prints them as its arguments (`NEW_OPPORTUNITIES "…"`) or in its body
+  const blockLines = (b) => (b ? (b.args || []).map((a) => a.s).concat((b.body || []).map((x) => (x.s != null ? x.s : x.args && x.args[0] && x.args[0].s))).filter(Boolean).map(plain) : []);
+  function opportunityList(m, roll) {
+    const o = roll.opts || {};
+    const RING = String(o.ring || '').toUpperCase();
+    const cap = (s) => s.charAt(0) + s.slice(1).toLowerCase();
+    const out = [];
+    const opE = D.named('Opportunity', 'core');
+    const ringGroup = (kw) => { const b = opE && D.block(opE, kw); return b ? (b.body || []).find((g) => g.kw === RING) : null; };
+    const add = (label, lines) => lines.forEach((text) => out.push({ group: label, text }));
+    if (opE) {
+      const g = D.block(opE, 'GENERAL_OPPORTUNITIES');
+      add('General', blockLines(g && (g.body || []).find((x) => x.kw === 'ANY')));
+      add('General · ' + cap(RING), blockLines(ringGroup('GENERAL_OPPORTUNITIES')));
+      const sk = skills().find((k) => k.name === o.skill);
+      const grp = sk ? String(sk.group).replace(/\s*Skills?$/, '') : null;
+      const sg = ringGroup('SKILL_OPPORTUNITIES');
+      if (grp && sg) add(grp + ' · ' + cap(RING), (sg.body || []).filter((x) => x.kw === grp.toUpperCase()).map((x) => plain(x.args[0].s)));
+      const tag = o.tag || {};
+      if (conflictOf(memberNow(m.id, m)) || grp === 'Martial') add('Conflict · ' + cap(RING), blockLines(ringGroup('CONFLICT_OPPORTUNITIES')));
+      if (tag.kind === 'initiative') add('Initiative · ' + cap(RING), blockLines(ringGroup('INITIATIVE_OPPORTUNITIES')));
+      if (tag.kind === 'downtime') add('Downtime · ' + cap(RING), blockLines(ringGroup('DOWNTIME_OPPORTUNITIES')));
+    }
+    const src = o.sourceId && D.entity(o.sourceId);
+    if (src) ['OPPORTUNITIES', 'NEW_OPPORTUNITIES'].forEach((kw) => add(src.name, blockLines(D.block(src, kw))));
+    const v = complete(memberNow(m.id, m).character || {});
+    (v.Techniques || []).forEach((n) => {
+      const e = D.named(String(n)) || D.named(bare(n));
+      if (!e || (src && e.id === src.id)) return;
+      const act = plain(D.kwArg(e, 'ACTIVATION'));
+      const mm = /^When (?:you make|making|you perform) an? (.+?) check/i.exec(act || '');
+      if (!mm) return;
+      const phrase = mm[1].replace(/\s+(?:Attack|Scheme|Support|Movement)(?: action)?$/, '');
+      const sks = checkSkills(phrase);
+      const rings = [];
+      (phrase.match(RINGS_IN) || []).forEach((g) => g.slice(1, -1).split(/,? or |, /).forEach((r) => rings.push(r)));
+      if (!sks || sks.indexOf(o.skill) === -1 || (rings.length && rings.indexOf(o.ring) === -1)) return;
+      add(e.name, blockLines(D.block(e, 'OPPORTUNITIES')));
+    });
+    return out;
+  }
+
+  // the stance's own effect on a check in a conflict: Fire and Void (the others act on other
+  // characters' checks, and are shown with the stance)
+  function stanceOfCheck(m, roll) {
+    const c = conflictOf(memberNow(m.id, m));
+    return c && !(roll.opts.tag && roll.opts.tag.kind === 'initiative') ? roll.opts.ring : null;
+  }
+  // notes a check leaves: Strike's damage, the initiative value, a critical strike's severity
+  function checkNotes(m, roll, t) {
+    const o = roll.opts || {};
+    const tag = o.tag || {};
+    const mm = memberNow(m.id, m);
+    const v = complete(mm.character || {});
+    const out = [];
+    if (stanceOfCheck(m, roll) === 'Void' && t.strife) out.push('Void stance: no strife from the (st) kept (' + t.strife + ')');
+    if (tag.kind === 'strike') {
+      const w = readied(mm);
+      if (!w) out.push('Strike: no weapon readied — ready one under Gear');
+      else if (t.success === true) {
+        const g = w.grip ? w.grip.damage : 0;
+        out.push('Strike with the ' + w.name + ': ' + (w.base + g + t.bonus) + ' physical damage (base ' + w.base + (g ? ' + ' + g + ' ' + w.grip.name : '') + ' + ' + t.bonus + ' bonus success' + (t.bonus === 1 ? '' : 'es') + '); (op) (op): a critical strike, severity ' + (w.deadliness + (w.grip ? w.grip.deadliness : 0)) + ' (deadliness)');
+      } else if (t.success === false) out.push('Strike with the ' + w.name + ': no damage');
+    }
+    if (tag.kind === 'initiative') {
+      const base = tag.surprised ? value(v, 'Vigilance') : value(v, 'Focus');
+      if (t.success != null) out.push('Initiative ' + (base + (t.success ? 1 + t.bonus : 0)) + ' (' + (tag.surprised ? 'vigilance' : 'focus') + ' ' + base + (t.success ? ' + 1 + ' + t.bonus + ' bonus' : '') + ')');
+    }
+    if (tag.kind === 'crit' && t.success != null) {
+      const n = Math.max(0, tag.severity - (t.success ? 1 + t.bonus : 0));
+      const row = severityRow(n);
+      out.push('Critical strike: severity ' + tag.severity + (n !== tag.severity ? ' → ' + n : '') + (row ? ' — ' + row.description + ' ' + row.effect : ''));
+    }
+    return out;
+  }
+
+  function conflictBlock(m, v, roller) {
+    const c = conflictOf(m);
+    const lv = m.live || {};
+    if (!c) return el('div', { class: 'conflict chiprow tight' }, [el('span', { class: 'track-name' }, ['Conflict']), conflictTypes().map((e) => button(e.name, () => setConflict(m, { type: e.name, initiative: null, engaged: [] }, 'Enters a conflict: ' + e.name), 'ghost tiny')),
+      button('Resist a critical strike…', () => resistCrit(m, v, roller), 'ghost tiny')]);
+    const rules = stanceRules();
+    const ini = initiativeCheck(c.type);
+    const surprised = el('input', { type: 'checkbox', checked: c.surprised || null, onchange: (ev) => setConflict(m, { surprised: ev.target.checked }, null) });
+    const w = readied(m);
+    const Sys = window.VttSystem;
+    const sid = Sys && Sys.currentSceneId ? Sys.currentSceneId() : null;
+    const castHere = sid && Sys.cast ? Sys.cast(sid) : [];
+    const engaged = (c.engaged || []).map((id) => D.entity(id) || castHere.find((e) => e.id === id)).filter(Boolean);
+    const npcConds = ((State().state || {}).npcConditions) || {};
+    const defs = conditionDefs();
+    const pick = el('select', { class: 'scope tiny', title: 'An NPC in this scene the character is engaged with' }, [el('option', { value: '' }, [castHere.length ? 'engage an NPC in this scene…' : 'no NPC in this scene'])].concat(castHere.filter((e) => (c.engaged || []).indexOf(e.id) === -1).map((e) => el('option', { value: e.id }, [e.name]))));
+    pick.addEventListener('change', () => { if (pick.value) setConflict(m, { engaged: (c.engaged || []).concat([pick.value]) }, 'Engages ' + (castHere.find((e) => e.id === pick.value) || {}).name); });
+    return el('div', { class: 'conflict' }, [
+      el('div', { class: 'chiprow tight' }, [el('span', { class: 'track-name' }, ['Conflict']), el('b', {}, [c.type]), c.initiative != null ? el('span', { class: 'muted small' }, ['initiative ' + c.initiative]) : null,
+        button('End conflict', () => setConflict(m, null, 'The ' + c.type.toLowerCase() + ' ends'), 'ghost tiny'), button('Resist a critical strike…', () => resistCrit(m, v, roller), 'ghost tiny')]),
+      el('div', { class: 'chiprow tight' }, [el('span', { class: 'track-name' }, ['Stance']), RINGS.map((r) => el('button', { class: 'ring-btn' + (lv.stance === r ? ' on' : ''), type: 'button', title: rules[r] || r, onclick: () => setStance(m, r, roller) }, [Dice.ringIcon(r), el('span', {}, [r])]))]),
+      lv.stance && rules[lv.stance] ? el('div', { class: 'muted small stance-rule' }, [E.span(rules[lv.stance], 'core')]) : null,
+      ini ? el('div', { class: 'chiprow tight' }, [button('Initiative: TN ' + ini.tn + ' ' + ini.skill, () => roller.set({ skill: ini.skill, skillRank: (v.Skills || {})[ini.skill] || 0, tn: ini.tn, source: 'Initiative (' + c.type + ')', tag: { kind: 'initiative', surprised: !!c.surprised } }), 'ghost tiny'), el('label', { class: 'small' }, [surprised, ' unprepared (surprised)'])]) : null,
+      el('div', { class: 'chiprow tight actions' }, [el('span', { class: 'track-name' }, ['Actions']), conflictActions(c.type).map((e) => {
+        const act = plain(D.kwArg(e, 'ACTIVATION'));
+        const eff = blockLines(D.block(e, 'EFFECTS'));
+        const b = button(e.name, () => {
+          const mm = memberNow(m.id, m);
+          logEvent(mm, 'Declares ' + e.name + (act ? ' — ' + act.split('. ')[0] : ''), 'action');
+          const a = activation(e);
+          if (!a) return;
+          const skill = e.name === 'Strike' && w && w.skill ? w.skill : a.skill || a.skills[0];
+          const patch = { skill, skillRank: (v.Skills || {})[skill] || 0, tn: a.tn, source: e.name, sourceId: e.id, sourceType: c.type + ' action', tag: e.name === 'Strike' ? { kind: 'strike' } : null };
+          if (lv.stance) Object.assign(patch, { ring: lv.stance, ringValue: v.Rings[lv.stance] });
+          roller.set(patch);
+        }, 'ghost tiny');
+        b.title = [act].concat(eff).filter(Boolean).join('\n\n');   // the action's rules, as the book prints them
+        return b;
+      })]),
+      el('div', { class: 'engaged' }, [el('div', { class: 'chiprow tight' }, [el('span', { class: 'track-name' }, ['Engaged']), pick]),
+        engaged.map((e) => el('div', { class: 'engaged-npc' }, [el('b', {}, [e.name]), ' ', button('×', () => setConflict(m, { engaged: (c.engaged || []).filter((x) => x !== e.id) }, 'No longer engaged with ' + e.name), 'ghost tiny'),
+          // O7 (Portents): an NPC's conditions and their rules text are visible to a player engaged with it
+          (npcConds[e.id] || []).length ? (npcConds[e.id] || []).map((cn) => { const d = defs.find((x) => x.name === cn); return el('div', { class: 'small' }, [el('span', { class: 'cond' }, [cn]), ' ', d ? d.effects : '']); }) : el('span', { class: 'muted small' }, [' no conditions'])]))]),
+    ]);
+  }
+  function resistCrit(m, v, roller) {
+    const n = parseInt(window.prompt('Severity of the critical strike (the deadliness of its source):', '') || '', 10);
+    if (!(n >= 0)) return;
+    const rc = resistCheck();
+    if (!rc) return;
+    const lv = memberNow(m.id, m).live || {};
+    const patch = { skill: rc.skill, skillRank: (v.Skills || {})[rc.skill] || 0, tn: rc.tn, source: 'Critical strike (severity ' + n + ')', tag: { kind: 'crit', severity: n } };
+    if (lv.conflict && lv.stance) Object.assign(patch, { ring: lv.stance, ringValue: v.Rings[lv.stance] });
+    roller.set(patch);
+  }
+
+  // The GM's view of an NPC's conditions (the Inspector): toggled, shared, and shown to a player
+  // engaged with it
+  function npcConditionsBlock(e) {
+    const on = (((State().state || {}).npcConditions) || {})[e.id] || [];
+    return el('div', { class: 'chiprow tight conditions' }, [el('span', { class: 'track-name' }, ['Conditions']), conditionDefs().map((c) => el('button', { class: 'cond-toggle' + (on.indexOf(c.name) !== -1 ? ' on' : ''), type: 'button', title: c.effects, onclick: () => {
+      const list = on.indexOf(c.name) === -1 ? on.concat([c.name]) : on.filter((x) => x !== c.name);
+      State().commit('setNpcConditions', [e.id, list]);
+      State().commit('appendLog', [{ at: new Date().toISOString(), kind: 'event', who: 'GM · ' + e.name, text: c.name + (on.indexOf(c.name) === -1 ? ' — gained' : ' — removed'), why: 'condition' }]);
+    } }, [c.name]))]);
+  }
+
   // ── what an instance adds to a check ──
   // window.L5RCheckHooks: functions ({ member, character, roll, tally }) → { successes, label } | null,
   // each an ability that adds bonus successes to a check — the extension point a campaign layer
   // uses for its own characters' customizations, so upstream carries none of them.
   function checkExtras(m, roll, t) {
     const mm = memberNow(m.id, m);
-    return (window.L5RCheckHooks || []).map((h) => {
+    // "Fire: When you succeed on a check, you count as having one additional bonus success for each
+    //  (st) symbol on your kept dice." — Stance, RULES fire_stance_strife_results_become_bonus_successes
+    const fire = stanceOfCheck(m, roll) === 'Fire' && t.success === true && t.strife ? [{ successes: t.strife, label: 'Fire stance: a bonus success per (st) kept' }] : [];
+    return fire.concat((window.L5RCheckHooks || []).map((h) => {
       try { return h({ member: mm, character: complete(mm.character || {}), roll, tally: t, D }); } catch (err) { return null; }
-    }).filter((x) => x && x.successes > 0);
+    }).filter((x) => x && x.successes > 0));
   }
 
   // ── the end of a scene, the end of a session (the GM's) ──
@@ -617,6 +908,8 @@ window.L5RSheet = (function () {
       const conds = liveConditions(mm);
       const gone = conds.filter((c) => lapsing.indexOf(c) !== -1);
       if (gone.length) State().commit('setPartyLive', [mm.id, { conditions: conds.filter((c) => gone.indexOf(c) === -1) }]);
+      const was = conflictOf(mm);   // read before the commit: the member is updated in place
+      if (was) { State().commit('setPartyLive', [mm.id, { conflict: null }]); lines.push('the ' + String(was.type).toLowerCase() + ' ends'); }
       State().commit('setPartyLive', [mm.id, { scene: ((mm.live || {}).scene || 0) + 1 }]);
       change(mm, patch, 'end of the scene' + (gone.length ? ' — ' + gone.join(', ') + ' removed' : '') + (lines.length ? ' — ' + lines.join('; ') : ''), true);
     });
@@ -809,6 +1102,8 @@ window.L5RSheet = (function () {
     if (inPlay) box.appendChild(inPlay);
     const techs = techniquesBlock(m, v, roller);
     if (techs) box.appendChild(techs);
+    box.appendChild(gearBlock(m, v));
+    box.appendChild(conflictBlock(m, v, roller));
     box.appendChild(el('div', { class: 'muted small' }, ['Focus ' + value(v, 'Focus') + ' · Vigilance ' + value(v, 'Vigilance')]));
     box.appendChild(socialBlock(m, false));
     box.appendChild(xpBlock(m, false));
@@ -835,5 +1130,6 @@ window.L5RSheet = (function () {
     fromEntity, fromEntityView, sentence, render, readFile, fileOf, download, memberFrom, readMember, downloadMember,
     memberFromEntity, current, conditions, tokenText, live, rollerFor, traits, rerollModes, gainVoid, change,
     conditionDefs, xp, logOf, isViewingArchive, deficientRings, activation, endScene, endSession, sessionClearsStrife,
+    npcConditionsBlock, opportunityList, severityRow, initiativeCheck, stanceRules, weaponsFor, readied,
   };
 })();

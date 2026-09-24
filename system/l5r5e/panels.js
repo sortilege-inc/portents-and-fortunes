@@ -205,6 +205,7 @@
             r,
           ]));
         }
+        if (e.type === 'NPC' || D.applies(e, 'NPC') || rings) container.appendChild(Sheet.npcConditionsBlock(e));
         container.appendChild(el('div', { class: 'paper' }, [E.render(e)]));
       } else if (sel.kind === 'party') {
         const m = (S().party || []).find((x) => x.id === sel.id);
