@@ -42,6 +42,7 @@
     if (!st) return;
     var me = window.VttSession && window.VttSession.current && window.VttSession.current();
     var myId = me && me.info && me.info.memberId;
+    if (me && me.info && me.info.role === 'player' && !myId) return;   // a player imports only once they have claimed
     S.party.forEach(function (m) {
       var src = (m.source && m.source.id) || ((m.character || {})._source || {}).id;
       if (src !== SOURCE || (m.live || {}).importedFrom) return;
