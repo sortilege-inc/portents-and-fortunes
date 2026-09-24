@@ -115,6 +115,8 @@
     ]);
   }
 
+  const PHONE = window.matchMedia('(max-width: 640px)');
+  let menuOpen = null;   // the player's own choice, kept across redraws
   function sheetScreen(s) {
     const m = (State.state.party || []).find((x) => x.id === s.info.memberId);
     if (!m) return el('div', { class: 'play-card' }, [el('p', { class: 'muted' }, ['Your character isn’t in the party any more.'])]);
@@ -125,7 +127,10 @@
     ]);
     const clocks = (State.state.clocks || []).filter((c) => c.visible !== false);
     const strip = clocks.length ? el('div', { class: 'clock-strip' }, clocks.map((c) => el('div', { class: 'clock-row' }, [el('div', { class: 'track-head' }, [el('span', { class: 'track-name' }, [c.name]), el('span', { class: 'muted' }, [`${c.filled} / ${c.segments}`])]), el('div', { class: 'boxes clock' }, Array.from({ length: c.segments }, (_, i) => el('span', { class: 'box' + (i < c.filled ? ' on' : '') })))]))) : null;
-    return el('div', { class: 'play-card wide' }, [bar, strip, Sys.liveSheet(m, { player: true })]);
+    // on a phone the three fold into one line (assets/css/l5r5e-gm.css); wider, they stand open as before
+    const menu = el('details', { class: 'play-menu', open: (menuOpen != null ? menuOpen : !PHONE.matches) || null }, [el('summary', {}, [m.name + ' · table, file, release']), bar]);
+    menu.addEventListener('toggle', () => { menuOpen = menu.open; });
+    return el('div', { class: 'play-card wide' }, [menu, strip, Sys.liveSheet(m, { player: true })]);
   }
 
   function render() {
