@@ -75,7 +75,7 @@ code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monosp
   .site-menu-cur { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .site-menu-icon { font-size: 16px; }
   .site-head.menu-open .site-menu-btn { border-color: var(--crimson); }
-  .site-tabs { display: none; flex-basis: 100%; flex-direction: column; gap: 0; max-height: calc(100vh - 64px); overflow-y: auto; }
+  .site-tabs { display: none; flex-basis: 100%; flex-direction: column; flex-wrap: nowrap; gap: 0; max-height: calc(100vh - 64px); overflow-y: auto; }
   .site-head.menu-open .site-tabs { display: flex; }
   .site-tab { padding: 12px 6px; font-size: 15px; border-bottom: 1px solid var(--lacquer-3); }
   .site-tab.active { border-bottom-color: var(--lacquer-3); box-shadow: inset 3px 0 0 var(--crimson); padding-left: 12px; }
