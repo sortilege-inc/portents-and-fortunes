@@ -1,0 +1,19 @@
+/* chronicle.css — the Chronicle page's own rules, moved out of its <style> (M7). */
+.sess-head{ display:flex; align-items:baseline; gap:0.9rem; flex-wrap:wrap; border-bottom:2px solid var(--crimson); padding-bottom:0.5rem; margin:2.4rem 0 0.2rem; }
+.sess-n{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.18em; font-size:0.78rem; color:#fff; background:var(--crimson); border-radius:3px; padding:0.15rem 0.6rem; }
+.sess-t{ font-family:var(--disp); font-weight:700; font-size:clamp(1.6rem,3.4vw,2.2rem); color:var(--sumi); margin:0; }
+.sess-d{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.1em; font-size:0.72rem; color:var(--ink-soft); margin-left:auto; }
+.sec-h{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.14em; font-size:0.8rem; color:var(--crimson); margin:1.8rem 0 0.6rem; padding-bottom:0.3rem; border-bottom:1px solid var(--gold-soft); }
+.bel-h{ font-family:var(--disp); font-weight:700; font-size:1.24rem; color:var(--sumi); margin:1.4rem 0 0.4rem; }
+.said{ font-family:var(--disp); font-size:1.22rem; font-style:italic; color:var(--sumi); line-height:1.5; border-left:3px solid var(--crimson); padding:0.2rem 0 0.2rem 0.9rem; margin:1.3rem 0; }
+.said cite{ display:block; font-family:var(--caps); font-style:normal; text-transform:uppercase; letter-spacing:0.1em; font-size:0.64rem; color:var(--ink-soft); margin-top:0.35rem; }
+.roll-rec{ background:var(--paper-2); border:1px solid var(--gold-soft); border-left:3px solid var(--gold); border-radius:5px; padding:0.8rem 1rem; margin:1.1rem 0; }
+.rr-h{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.12em; font-size:0.7rem; color:var(--gold); margin-bottom:0.5rem; }
+.rr-line{ display:flex; gap:0.7rem; padding:0.22rem 0; border-bottom:1px dotted var(--edge-soft); font-size:0.92rem; }
+.rr-line:last-child{ border-bottom:0; }
+.rr-k{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.66rem; color:var(--ink-soft); min-width:7.5rem; flex-shrink:0; padding-top:0.15rem; }
+.rr-v{ color:var(--ink); }
+.rr-v b{ color:var(--sumi); }
+.verb{ font-size:0.9rem; color:var(--ink-2); font-style:italic; background:var(--paper); border:1px dashed var(--gold-soft); border-radius:4px; padding:0.5rem 0.7rem; margin:0.5rem 0 0; }
+.tablenote{ font-size:0.9rem; color:var(--ink-soft); background:rgba(154,123,63,0.08); border-radius:5px; padding:0.7rem 0.9rem; margin-top:1.6rem; }
+.sym.su{ color:#3f8f5a; font-weight:700; } .sym.op{ color:#c08a1e; font-weight:700; } .sym.st{ color:#b0642a; font-weight:700; }

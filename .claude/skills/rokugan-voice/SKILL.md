@@ -93,11 +93,11 @@ the usual failure mode, so check which one you're in before writing.
 
 | Surface | Register |
 |---|---|
-| `lore/`, `atlas/` | Full gazetteer voice. The default described above. |
-| `dramatis-personae/` bios (`npcs.js`) | Gazetteer voice, one step closer. Describe the person as the world sees them; note what is *not yet known* to Norikage rather than asserting it. |
-| `chronicle/` | Narrative register. Same discipline — concrete, unhedged, no purple — but it follows one man through time, may render his reasoning and his doubt, and uses past tense for events. Still no second person. |
-| `gm/` (Behind the Veil) | **Reference, not essay** — governed by the `gm-prep-notes` skill, which outranks this file for that surface. Everything is tagged (`SET` / `AGREED` / `SOURCE` / `YOURS` / `OPEN` / `MINE` / `NOTE`) and structure beats prose where structure is clearer. No second person, no first person, no commentary about the document. |
-| `play/`, `character/` | Mechanical. Rules text is **verbatim** — see hard constraints. |
+| `campaign/docs/lore.html`, `atlas.html` | Full gazetteer voice. The default described above. |
+| NPC bios (`^"Biography"` in `campaign/dsl/portents-npcs.ttrpg`) | Gazetteer voice, one step closer. Describe the person as the world sees them; note what is *not yet known* to Norikage rather than asserting it. |
+| `campaign/docs/chronicle.html` | Narrative register. Same discipline — concrete, unhedged, no purple — but it follows one man through time, may render his reasoning and his doubt, and uses past tense for events. Still no second person. |
+| `campaign/docs/state.html` (Behind the Veil) | **Reference, not essay** — governed by the `gm-prep-notes` skill, which outranks this file for that surface. Everything is tagged (`SET` / `AGREED` / `SOURCE` / `YOURS` / `OPEN` / `MINE` / `NOTE`) and structure beats prose where structure is clearer. No second person, no first person, no commentary about the document. |
+| Norikage's actor (`campaign/dsl/portents-norikage.actor`), `campaign/docs/norikage.html` | Mechanical. Rules text is **verbatim** — see hard constraints. |
 
 ## Hard constraints inherited from the project
 

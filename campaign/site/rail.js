@@ -12,6 +12,8 @@
      title:   "Sections",      // rail heading
      toggle:  "Sections",      // label on the narrow-window toggle
      label:   fn(heading) -> string   // optional: rail text for a heading
+     href:    fn(id) -> string        // optional: a link to a heading (default "#" + id)
+     mount:   element                 // optional: where the rail goes (default document.body)
    });
 
    Styling lives in rokugan.css (.rail, .rail-title, .rail-strat, .r-grp,
@@ -53,7 +55,7 @@
 
     function link(h, kind) {
       var a = document.createElement("a");
-      a.href = "#" + h.id; a.dataset.for = h.id; a.dataset.kind = kind;
+      a.href = opt.href ? opt.href(h.id) : "#" + h.id; a.dataset.for = h.id; a.dataset.kind = kind;
       a.textContent = text(h).replace(/\s+/g, " ").trim();
       a.addEventListener("click", function () { rail.classList.remove("open"); });
       return a;
@@ -83,8 +85,8 @@
     btn.innerHTML = '<span aria-hidden="true">&#9776;</span> ' + (opt.toggle || "Sections");
     btn.addEventListener("click", function () { rail.classList.toggle("open"); });
 
-    document.body.appendChild(rail);
-    document.body.appendChild(btn);
+    (opt.mount || document.body).appendChild(rail);
+    (opt.mount || document.body).appendChild(btn);
     /* Strata are labels, not links, so the spy tracks only what it can mark. */
     spy(rail, heads.filter(function (h) { return !matches(h, opt.strata); }));
     return rail;
@@ -113,9 +115,11 @@
       var r = a.getBoundingClientRect(), rr = rail.getBoundingClientRect();
       if (r.top < rr.top + 8 || r.bottom > rr.bottom - 8) a.scrollIntoView({ block: "nearest" });
     }
-    addEventListener("scroll", function () {
+    function onScroll() {
+      if (!rail.isConnected) { removeEventListener("scroll", onScroll); return; }   // its tab was left
       if (!ticking) { ticking = true; requestAnimationFrame(update); }
-    }, { passive: true });
+    }
+    addEventListener("scroll", onScroll, { passive: true });
     update();
   }
 })();

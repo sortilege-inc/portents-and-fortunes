@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """
 convert_house_rules.py — one-way conversion of the house rules established in play (the state
-document's §10, campaign/gm/index.html) into campaign/dsl/portents-house-rules.ttrpg: one MODIFY
+document's §10, campaign/docs/state.html) into campaign/dsl/portents-house-rules.ttrpg: one MODIFY
 per rule and target, carrying the rule as a GUIDANCE entry, so the VTT shows it beside the rule it
 changes, the way it shows errata. Kept for provenance; once run, the DSL is the source.
+**Do not re-run it:** the DSL has been edited since (H1's hashes, M4's `Off-Approach Reroll Dice`), and
+this script would write the first version back over them.
 
     python3 campaign/source/convert_house_rules.py
 
@@ -32,7 +34,7 @@ def q(s):
 
 
 def section10():
-    src = open(os.path.join(HERE, "campaign/gm/index.html"), encoding="utf-8").read()
+    src = open(os.path.join(HERE, "campaign/docs/state.html"), encoding="utf-8").read()
     body = src.split("10 &middot; House rules established in play", 1)[1].split("<h3>11 &middot;", 1)[0]
     out = []
     for p in re.findall(r"<p>(.*?)</p>", body, re.S):

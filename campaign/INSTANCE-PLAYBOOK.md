@@ -1,6 +1,6 @@
 # Instance playbook — a campaign site as an instance of a Sortilege VTT
 
-**Status: DRAFT.** Written before the first migration (Portents & Fortunes into
+**Status: DRAFT — steps 1–5 proven (Portents M1–M7).** Written before the first migration (Portents & Fortunes into
 `sortilege-vtt-l5r5e`, `PLAN.md` beside this file). Each section is confirmed or corrected as
 its milestone lands; once the instance works, the general parts move upstream into the VTT's
 own `PLAYBOOK.md` (M9).
@@ -110,8 +110,26 @@ The order the first migration is taking; each step is proven before the next.
    - Report a corpus defect to the corpus's TODO; never correct it in the layer.
 4. **Characters onto the VTT sheet.** Keep each original record verbatim in `campaign/source/`
    and check every version against it field by field.
-5. **Integrate.** Register the campaign's tabs and panes from `campaign/site/`; render
-   `campaign/docs/`; seed the pack.
+5. **Integrate** (proven, Portents M7). What the first migration settled:
+   - **Move the old pages, don't rewrite them.** A script takes each page's content region into
+     `campaign/docs/<name>.html` — nav, breadcrumb, footer and scripts dropped, links rewritten to
+     tab routes (`#atlas/reisui-ji`), assets to `campaign/assets/` — and proves it: the text identical
+     to the old region, every link resolving. Make the proof fail once (a planted letter, a planted
+     link) before trusting it. Run it **before** deleting the old pages; it is the record.
+   - **Scope the old stylesheets** to the element each document is drawn into (`.pf-doc`), by a
+     script, never by hand: the VTT's own stylesheet shares custom-property names, and an unscoped
+     `body` or `:root` rule restyles the whole VTT. A small hand-written file fits the paper into the
+     frame (the old `body` rule's `min-height: 100vh` is the first thing to undo).
+   - **Tabs** are pushed onto `window.VttSiteTabs` at the `site` stage, campaign first. A tab's path
+     is an anchor in its document; a page's own script becomes a function the tab calls after
+     drawing it (the map, the rail), and any listener it puts on `window`/`document` removes itself
+     once its element is gone — the site re-renders the tab, the page does not reload.
+   - **A page drawn from records** (the cast) is rebuilt on the DSL layer, keeping the old page's
+     storage keys so what a player had stored still applies.
+   - **The GM's document** is `VttConfig.notes` (`src` a `.html` fragment, `class`, `gate`).
+   - **Seed, don't store**: `defaultCampaign.seed` names a pack generated from the prep; it fills
+     only what the campaign has never had.
+   - Re-point every script that read an old page, and re-run the checks after deleting.
 
 ## The hook (built upstream, Portents M2)
 

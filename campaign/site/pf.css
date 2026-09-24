@@ -1,0 +1,14 @@
+/* campaign/site/pf.css — hand-written: how the campaign's documents sit inside the VTT's pages.
+   campaign.css (generated) carries the old site's rules scoped to .pf-doc; this file only fits that
+   paper into the VTT's frame. */
+
+/* the old page's body rule made each document a full viewport tall */
+.pf-doc { min-height: 0; }
+
+/* a site tab: the paper, edge to edge of the site's main column */
+.pf-tab { border-radius: 6px; padding: 0.4rem 0 2.4rem; }
+
+/* the GM's Notes pane: the state document in a narrow column */
+.notes-doc.pf-doc { font-size: 16px; padding: 0.4rem 0.9rem 1rem; background-attachment: scroll; }
+.notes-doc.pf-doc .masthead { padding-top: 0.6rem; }
+.notes-doc.pf-doc .masthead h1 { font-size: 1.9rem; }

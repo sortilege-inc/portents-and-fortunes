@@ -1,8 +1,11 @@
 /* ============================================================
    map.js — Rokugan overview → clan region maps
    Coordinates are percentages of the map frame (x 0–100, y 0–100).
+   M7: the Map tab (campaign/site/site.js) draws campaign/docs/map.html and calls PF.map(region);
+   a region deep-link is the tab's path (#map/dragon), the pins open the Atlas tab.
    ============================================================ */
-(function () {
+window.PF = window.PF || {};
+PF.map = function (start) {
   "use strict";
 
   // clan colours (mirror rokugan.css --clan-*)
@@ -14,28 +17,28 @@
   // Region definitions. `shapes` are polygons on the overview map.
   // `map` is the detailed region image (null = not yet charted).
   var REGIONS = [
-    { key:"dragon", name:"Dragon Lands", color:C.dragon, map:"../assets/regions/dragon.webp",
+    { key:"dragon", name:"Dragon Lands", color:C.dragon, map:"campaign/assets/regions/dragon.webp",
       shapes:[[[16,7],[30,3],[52,3],[60,9],[60,18],[46,22],[34,21],[24,19],[16,13]]],
       label:[38,12],
       pins:[
-        { x:21.5,y:26.8, name:"Kyūden Togashi", href:"../atlas/index.html#kyuden-togashi" },
-        { x:35,y:27.3, name:"Reisui-ji", href:"../atlas/index.html#reisui-ji" },
-        { x:41,y:23.1, name:"White Flower Village", href:"../atlas/index.html#white-flower-village" },
-        { x:41,y:20.5, name:"Seidō Fukurokujin", href:"../atlas/index.html#seido-fukurokujin" },
-        { x:38,y:43, name:"Wrath of the Kami", href:"../atlas/index.html#wrath-of-the-kami" }
+        { x:21.5,y:26.8, name:"Kyūden Togashi", href:"#atlas/kyuden-togashi" },
+        { x:35,y:27.3, name:"Reisui-ji", href:"#atlas/reisui-ji" },
+        { x:41,y:23.1, name:"White Flower Village", href:"#atlas/white-flower-village" },
+        { x:41,y:20.5, name:"Seidō Fukurokujin", href:"#atlas/seido-fukurokujin" },
+        { x:38,y:43, name:"Wrath of the Kami", href:"#atlas/wrath-of-the-kami" }
       ] },
-    { key:"unicorn", name:"Unicorn Lands", color:C.unicorn, map:"../assets/regions/unicorn.webp",
+    { key:"unicorn", name:"Unicorn Lands", color:C.unicorn, map:"campaign/assets/regions/unicorn.webp",
       shapes:[[[2,9],[16,9],[24,20],[22,34],[18,46],[10,50],[3,40],[1,22]]], label:[12,22] },
-    { key:"phoenix", name:"Phoenix Lands", color:C.phoenix, map:"../assets/regions/phoenix.webp",
+    { key:"phoenix", name:"Phoenix Lands", color:C.phoenix, map:"campaign/assets/regions/phoenix.webp",
       shapes:[[[62,3],[90,2],[92,22],[84,33],[72,32],[62,18],[60,9]]], label:[80,15] },
-    { key:"lion", name:"Lion Lands", color:C.lion, map:"../assets/regions/lion.webp",
+    { key:"lion", name:"Lion Lands", color:C.lion, map:"campaign/assets/regions/lion.webp",
       shapes:[[[36,22],[58,20],[66,32],[60,44],[46,45],[35,36],[34,27]]], label:[50,32] },
-    { key:"crane", name:"Crane Lands", color:C.crane, map:"../assets/regions/crane.webp",
+    { key:"crane", name:"Crane Lands", color:C.crane, map:"campaign/assets/regions/crane.webp",
       shapes:[
         [[58,33],[80,33],[82,52],[66,55],[58,46],[56,40]],
         [[44,63],[64,58],[67,74],[52,85],[42,74],[42,66]]
       ], label:[71,45], label2:[54,73] },
-    { key:"crab", name:"Crab Lands", color:C.crab, map:"../assets/regions/crab.webp",
+    { key:"crab", name:"Crab Lands", color:C.crab, map:"campaign/assets/regions/crab.webp",
       shapes:[[[8,58],[30,56],[39,66],[35,80],[20,85],[7,73]]], label:[22,69] },
     { key:"scorpion", name:"Scorpion Lands", color:C.scorpion, map:null,
       shapes:[[[28,44],[46,45],[50,55],[44,63],[32,61],[25,52]]], label:[38,53] },
@@ -98,7 +101,7 @@
     b.className = "clanbtn" + (r.map ? "" : " uncharted");
     b.style.setProperty("--c", r.color);
     var hasMon = r.key !== "shadow";
-    b.innerHTML = (hasMon ? "<img class='cmon' src='../assets/mon/" + r.key + ".svg' alt=''>" : "") +
+    b.innerHTML = (hasMon ? "<img class='cmon' src='campaign/assets/mon/" + r.key + ".svg' alt=''>" : "") +
       "<span>" + r.name.replace(/ Lands$/, "") + "</span>";
     b.setAttribute("data-key", r.key);
     if (r.map) b.addEventListener("click", function () { enterRegion(r.key, centroid(r.shapes[0]).join(",")); });
@@ -237,14 +240,17 @@
   vp.addEventListener("pointercancel", endDrag);
 
   backBtn.addEventListener("click", goOverview);
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && view !== "overview") goOverview(); });
-  window.addEventListener("resize", applyTransform);
+  // the page outlives the tab: each listener on it goes once its map is gone
+  function onKey(e) { if (!vp.isConnected) { document.removeEventListener("keydown", onKey); return; } if (e.key === "Escape" && view !== "overview") goOverview(); }
+  function onResize() { if (!vp.isConnected) { window.removeEventListener("resize", onResize); return; } applyTransform(); }
+  document.addEventListener("keydown", onKey);
+  window.addEventListener("resize", onResize);
 
-  // deep-link: #dragon etc.
-  var hash = (location.hash || "").replace("#", "");
+  // deep-link: the tab's path (#map/dragon)
+  var hash = start || "";
   if (hash && byKey[hash] && byKey[hash].map) {
     enterRegion(hash, centroid(byKey[hash].shapes[0]).join(","));
   } else {
     updateChrome();
   }
-})();
+};

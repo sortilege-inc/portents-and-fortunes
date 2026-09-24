@@ -52,7 +52,7 @@ def slug(s):
 
 
 def load_npcs():
-    js = os.path.join(HERE, "campaign/dramatis-personae/npcs.js")
+    js = os.path.join(HERE, "campaign/source/npcs.js")
     out = subprocess.run(["node", "-e", "global.window={};require(%s);process.stdout.write(JSON.stringify(window.NPCS))" % json.dumps(js)],
                          capture_output=True, text=True, check=True).stdout
     return json.loads(out)

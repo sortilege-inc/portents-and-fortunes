@@ -1,0 +1,35 @@
+{
+ "kind": "sortilege-vtt-campaign",
+ "version": 1,
+ "arc": [
+  {
+   "id": "scene-s7-coming-down",
+   "title": "Session Seven — coming down",
+   "played": false,
+   "text": "SET They are camped outside the torii the night after. He is unclean and has not purified himself; she has kept everything of hers apart from everything of his. The mule is below with them.\nSET The charge is not discharged. She has still not taken whatever it was she came to take, and the second half stands regardless: finding her somewhere she can actually stay. Only then is he released.\nOPEN What she takes away from the shrine, whether it is an object or something she now knows, and whether she says so.\n— White Flower does not know\n— Six deaths, and nobody left to read them\n— The Refuge of the Three Sisters\n— What he is carrying down\n— What is under the cairns\n(Behind the Veil › Next session — prep)"
+  },
+  {
+   "id": "scene-s7-ambush",
+   "title": "Later in Session Seven — the ambush on the track",
+   "played": false,
+   "text": "NOTE Runs once they are down and moving again, on the unmaintained eastern track — not an Imperial road but an agreement between villages that a path exists, a goat’s width within a mile of anywhere (§6).\n— Who they are\n— What they want\n— How it opens\n— The ways out that are not fighting\n— What Juri does, and what it costs\n(Behind the Veil › Next session — prep)"
+  }
+ ],
+ "encounters": [
+  {
+   "id": "enc-s7-ambush",
+   "name": "The ambush on the track",
+   "kind": "combat",
+   "npcs": [
+    {
+     "id": "#L5RNeBf6FulQvXet32tLKy",
+     "count": 3
+    },
+    {
+     "id": "#L5RN1GQqE5DWdCgWDuBB2C",
+     "count": 1
+    }
+   ]
+  }
+ ]
+}
