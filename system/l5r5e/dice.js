@@ -426,7 +426,7 @@ window.L5RDice = (function () {
               box.querySelectorAll('.roller-controls.compact .step-v').forEach((x) => { x.textContent = '0'; });
               voidBox.checked = false;
               box.querySelectorAll('.roller-controls.compact .toggle').forEach((x) => x.sync && x.sync());
-              tnChosen = false;
+              startTn();
               box.refresh();
             }
             drawTray();
@@ -448,6 +448,9 @@ window.L5RDice = (function () {
     // compact, top to bottom: what it is for, the TN, the dice it comes to, the ring, the skill,
     // Void, assistance, Roll across the bottom. The TN is chosen for each check (a technique or an
     // initiative sets its own); Roll waits for it.
+    // o.defaultTn: the TN a check starts at on this page (the player's page: 2), and returns to after
+    // each resolve; without one, each check waits for its TN to be chosen
+    const startTn = () => { if (compact && o.defaultTn != null) { tn.value = String(o.defaultTn); tnChosen = true; } else tnChosen = false; };
     let tnChosen = false;
     const tnPick = el('div', { class: 'tn-pick' });
     const drawTn = () => {
@@ -502,7 +505,7 @@ window.L5RDice = (function () {
       voidRow.querySelectorAll('.toggle').forEach((b) => b.sync && b.sync());
       drawSkills(); drawTn(); drawDice();
     };
-    if (compact) { drawRings(); box.refresh(); }
+    if (compact) { startTn(); drawRings(); box.refresh(); }
     drawRings();
     if (!compact) box.appendChild(el('div', { class: 'roller-controls' }, [
       ringPick,

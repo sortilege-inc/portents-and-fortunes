@@ -476,6 +476,7 @@ window.L5RSheet = (function () {
       // compact: the skill is picked in the roller, and Void offered only while there is one to spend
       skills: compact ? () => ({ groups: skillGroups().map((g) => ({ name: g.name, skills: g.skills.map((k) => k.name) })), have: charOf().Skills || {} }) : null,
       voidAvailable: compact ? () => current(memberNow(m.id, m), 'Void Points') : null,
+      defaultTn: compact ? 2 : null,   // the player's page starts each check at TN 2 (owner, Portents)
       preset: { ring: (m.live || {}).stance || 'Air', ringValue: v.Rings[(m.live || {}).stance || 'Air'], skill: null, skillRank: 0 },
       ringsOf: (ring) => charOf().Rings[ring],
       rerolls: (ring) => rerollModes(charOf(), ring),
