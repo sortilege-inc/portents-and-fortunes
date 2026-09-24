@@ -68,6 +68,7 @@ BUILD_KEYS = {
     "module": "the file's container name — module identifier, header metadata",
     "moduleExtends": "the container's EXTENDS name — header metadata",
     "system": "the system id from engine/config.js",
+    "versionOf": "the id of the character an archived sheet is a version of",
 }
 BLOB = re.compile(r"var d=(\{.*?\});var T=window\.L5R5E", re.S)
 INDEX_BLOB = re.compile(r"T\.index=(\{.*\});\}\)\(\);", re.S)
