@@ -320,6 +320,11 @@ class Parser:
         kw = self.next().val
         args = []
         first = True
+        # `CHOOSE DISTINCT 2 [ … ]`: DISTINCT qualifies the CHOOSE. Read as a statement starter
+        # it split the line into an empty CHOOSE and a DISTINCT block of its own.
+        if kw == "CHOOSE" and self.peek() and self.peek().kind == "ID" and self.peek().val == "DISTINCT":
+            args.append(self.arg())
+            first = False
         while True:
             t = self.peek()
             if t is None or t.kind in ("RBRACE", "LBRACE"):
