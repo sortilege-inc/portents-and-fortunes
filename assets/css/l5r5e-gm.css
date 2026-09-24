@@ -173,6 +173,7 @@ body.play { display: block; }
   body.play .sheet.live .ring-btn { min-width: 52px; min-height: 52px; font-size: 13px; }
   body.play .sheet.live .ring-btn .ring-ico { width: 30px; height: 30px; }
   body.play .sheet.live .die img.face { width: 52px; height: 52px; }
+  body.play .sheet.live .tray-k { flex: 0 0 100%; }   /* "Ring dice" above its dice */
   body.play .sheet.live .skill-row button { min-height: 40px; text-align: left; }
   body.play .skill-pick { width: 100%; }
   body.play .skill-pick-row { margin: 4px 0 8px; }
