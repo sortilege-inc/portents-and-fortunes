@@ -147,7 +147,15 @@
       const party = S().party || [];
       container.appendChild(el('div', { class: 'chiprow' }, [characterLoader('Load character file(s)…', ''), pregenPicker()]));
       if (!party.length) container.appendChild(el('div', { class: 'empty' }, ['No one in the party yet.']));
-      else container.appendChild(boundaries(party));
+      else {
+        container.appendChild(boundaries(party));
+        // a conflict is the GM's to start and end, for the whole party: each player's sheet opens its Conflict tab
+        const inIt = party.filter((m) => Sheet.conflictOf(m));
+        const start = el('select', { class: 'scope tiny', 'aria-label': 'Start a conflict for the party' }, [el('option', { value: '' }, [inIt.length ? 'Change the conflict…' : 'Start a conflict…'])].concat(Sheet.conflictTypes().map((e) => el('option', { value: e.name }, [e.name]))));
+        start.addEventListener('change', () => { if (start.value) party.forEach((m) => Sheet.setConflict(m, { type: start.value, initiative: null, engaged: [] }, 'Enters a conflict: ' + start.value)); });
+        container.appendChild(el('div', { class: 'chiprow tight party-conflict' }, [el('span', { class: 'prop-k' }, ['Conflict']), inIt.length ? el('b', {}, [Sheet.conflictOf(inIt[0]).type]) : null, start,
+          inIt.length ? button('End the conflict', () => inIt.forEach((m) => Sheet.setConflict(m, null, 'The ' + Sheet.conflictOf(m).type.toLowerCase() + ' ends')), 'ghost tiny') : null]));
+      }
       party.forEach((m) => container.appendChild(el('div', { class: 'member' }, [
         el('button', { class: 'card', type: 'button', onclick: () => Panels.select({ kind: 'party', id: m.id }) }, [
           el('div', { class: 'card-name' }, [m.name]),

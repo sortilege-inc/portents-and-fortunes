@@ -1255,6 +1255,7 @@ window.L5RSheet = (function () {
     // Each block belongs to a pane. On a phone the player's page shows one pane at a time behind a
     // bar at the bottom (assets/css/l5r5e-gm.css, ≤ 640px); everywhere else every block shows, as always.
     const add = (node, pane) => { if (node) { if (node.setAttribute) node.setAttribute('data-pane', pane); box.appendChild(node); } return node; };
+    if (cp) return playerSheet(m, v, d, lv, box, roller, add, redraw);
     add(header(m, v, versionPicker(m, redraw, cp), cp), 'play');
     const conds = conditions(m);
     add(el('div', { class: 'chiprow tight' }, [ringTiles(v, null, { stance: lv.stance, deficient: deficientRings(v) }), conds.map((c) => el('span', { class: 'cond', title: 'the Samurai type’s own rule' }, [c]))]), 'play');
@@ -1284,19 +1285,266 @@ window.L5RSheet = (function () {
     return box;
   }
 
+  // ── the player's copy of the sheet (liveSheet { player: true }) ──
+  // Play: who, rings, trackers, conditions, Honor/Glory/Status, passions and anxieties, techniques,
+  // Advancement (its own page, not a tab). Conflict: while the GM has the character in one. Roll:
+  // the roller and the player's rolls. Gear: weapons, armor, the player's own notes.
+  function playerSheet(m, v, d, lv, box, roller, add, redraw) {
+    add(header(m, v, versionPicker(m, redraw, true), true), 'play');
+    const conds = conditions(m);
+    add(el('div', { class: 'chiprow tight' }, [ringTiles(v, null, { stance: lv.stance, deficient: deficientRings(v) }), conds.map((c) => el('span', { class: 'cond', title: 'the Samurai type’s own rule' }, [c]))]), 'play');
+    add(track('Fatigue', current(m, 'Fatigue'), value(v, 'Endurance'), (n) => patch(m, { Fatigue: n })), 'play');
+    add(track('Strife', current(m, 'Strife'), value(v, 'Composure'), (n) => patch(m, { Strife: n })), 'play');
+    add(track('Void points', current(m, 'Void Points'), d.voidMax, (n) => patch(m, { voidPoints: Math.min(n, d.voidMax || n) })), 'play');
+    add(conditionsBlock(m, false, true), 'play');
+    add(socialBlock(m, false, true), 'play');
+    add(traitButtons(m, v), 'play');
+    add(techniquesBlock(m, v, roller, true), 'play');
+    add(el('div', { class: 'muted small' }, ['Focus ' + value(v, 'Focus') + ' · Vigilance ' + value(v, 'Vigilance')]), 'play');
+    const x = xp(m);
+    add(el('div', { class: 'advance-open' }, [button('Advancement', () => openAdvancement(m), 'btn'), el('span', { class: 'muted small' }, [x.available + ' XP to spend'])]), 'play');
+    // the conflict the GM has started: initiative first, rolled here
+    const c = conflictOf(m);
+    const ini = c ? initiativeCheck(c.type) : null;
+    const iniPending = !!(c && ini && c.initiative == null);
+    if (c) add(conflictPane(m, v, roller, iniPending ? roller : null), 'conflict');
+    if (iniPending && iniSetUp[m.id] !== c.type) {
+      iniSetUp[m.id] = c.type;
+      (roller.rawSet || roller.set)({ skill: ini.skill, skillRank: (v.Skills || {})[ini.skill] || 0, tn: ini.tn, source: 'Initiative (' + c.type + ')', tag: { kind: 'initiative', surprised: !!c.surprised } });
+    }
+    if (!c) delete iniSetUp[m.id];
+    if (roller.refresh) roller.refresh();
+    if (!iniPending) add(roller, 'roll');
+    else add(el('p', { class: 'muted' }, ['Initiative first, on the Conflict tab.']), 'roll');
+    const rollLog = el('div', { class: 'roll-log' });
+    logOf(m).filter((e) => e.kind === 'roll').slice(-5).reverse().forEach((e) => rollLog.appendChild(Dice.logLine(e, { compact: true })));
+    add(rollLog, 'roll');
+    add(gearBlock(m, v, true), 'gear');
+    add(el('div', { class: 'player-notes' }, [el('div', { class: 'track-name' }, ['Notes']),
+      el('textarea', { class: 'text', rows: 8, placeholder: 'Your notes — only you and the GM see them', oninput: debounceNotes(m) }, [memberNow(m.id, m).playerNotes || ''])]), 'gear');
+    ensureTraits(v).then((loaded) => { if (loaded) window.VttBus.emit('state:remote', { loaded: true }, { local: true }); });
+    panes(m, box, roller);
+    return box;
+  }
+  const iniSetUp = {};   // member id → the conflict whose initiative the roller was set up for
+  const notesTimers = {};
+  const debounceNotes = (m) => (ev) => {
+    clearTimeout(notesTimers[m.id]);
+    const text = ev.target.value;
+    notesTimers[m.id] = setTimeout(() => State().commit('setPartyPlayerNotes', [m.id, text]), 400);
+  };
+
+  // a conflict action declared: logged, and its check set up — a Strike with the weapon struck with
+  function declareAction(m, v, roller, c, e) {
+    const mm = memberNow(m.id, m);
+    const lv = mm.live || {};
+    const w = readied(mm);
+    const act = plain(D.kwArg(e, 'ACTIVATION'));
+    logEvent(mm, 'Declares ' + e.name + (act ? ' — ' + act.split('. ')[0] : ''), 'action');
+    const a = activation(e);
+    if (!a) return;
+    const skill = e.name === 'Strike' && w && w.skill ? w.skill : a.skill || a.skills[0];
+    const patch = { skill, skillRank: (v.Skills || {})[skill] || 0, tn: a.tn, source: e.name, sourceId: e.id, sourceType: c.type + ' action', tag: e.name === 'Strike' ? { kind: 'strike' } : null };
+    if (lv.stance) Object.assign(patch, { ring: lv.stance, ringValue: v.Rings[lv.stance] });
+    roller.set(patch);
+  }
+  // a weapon readied with the first grip the free hands allow
+  function readyWeapon(m, w) {
+    const mm = memberNow(m.id, m);
+    const used = handsUsed(mm);
+    const first = gripsOf(w).find((x) => used + handsOf(x.name) <= HANDS);
+    if (!first) return 'No hand is free to ready the ' + w.name + ' — sheathe something first.';
+    setWeapon(mm, w.name, { state: 'readied', grip: first.name }, 'Readies the ' + w.name + ' (' + first.name + ')');
+    return null;
+  }
+  // the Conflict tab: the type and initiative (its check, until rolled), the stance, the weapons —
+  // strike with one readied, ready one sheathed — the other actions, the NPCs engaged
+  function conflictPane(m, v, roller, iniRoller) {
+    const c = conflictOf(m);
+    const lv = m.live || {};
+    const rules = stanceRules();
+    const eq = equipOf(m);
+    const note = el('div', { class: 'muted small gear-note' });
+    const actions = conflictActions(c.type);
+    const strikeE = actions.find((e) => e.name === 'Strike');
+    const strike = (name, text) => { setEquip(m, { strikeWith: name }, text); if (strikeE) declareAction(m, v, roller, c, strikeE); };
+    const carried = weaponsFor(v).filter((w) => !w.unarmed);
+    const surprised = el('input', { type: 'checkbox', checked: c.surprised || null, onchange: (ev) => setConflict(m, { surprised: ev.target.checked }, null) });
+    const Sys = window.VttSystem;
+    const sid = Sys && Sys.currentSceneId ? Sys.currentSceneId() : null;
+    const castHere = sid && Sys.cast ? Sys.cast(sid) : [];
+    const engaged = (c.engaged || []).map((id) => D.entity(id) || castHere.find((e) => e.id === id)).filter(Boolean);
+    const npcConds = ((State().state || {}).npcConditions) || {};
+    const defs = conditionDefs();
+    const pick = el('select', { class: 'scope', 'aria-label': 'Engage an NPC' }, [el('option', { value: '' }, [castHere.length ? 'Engage an NPC…' : 'No NPC in this scene'])].concat(castHere.filter((e) => (c.engaged || []).indexOf(e.id) === -1).map((e) => el('option', { value: e.id }, [e.name]))));
+    pick.addEventListener('change', () => { if (pick.value) setConflict(m, { engaged: (c.engaged || []).concat([pick.value]) }, 'Engages ' + (castHere.find((e) => e.id === pick.value) || {}).name); });
+    return el('div', { class: 'conflict-pane' }, [
+      el('div', { class: 'conflict-head' }, [el('h3', {}, [c.type]), c.initiative != null ? el('div', { class: 'ini' }, [el('span', { class: 'track-name' }, ['Initiative']), el('b', {}, [String(c.initiative)])]) : null]),
+      iniRoller ? el('div', { class: 'ini-roll' }, [el('div', { class: 'track-name' }, ['Initiative']), el('label', { class: 'small' }, [surprised, ' Unprepared (surprised)']), iniRoller]) : null,
+      el('div', { class: 'track-name' }, ['Stance']),
+      el('div', { class: 'ring-pick stance-pick' }, RINGS.map((r) => el('button', { class: 'ring-btn' + (lv.stance === r ? ' on' : ''), type: 'button', onclick: () => setStance(m, r, roller) }, [Dice.ringIcon(r), el('span', {}, [r])]))),
+      lv.stance && rules[lv.stance] ? el('div', { class: 'small stance-rule' }, [E.span(rules[lv.stance], 'core')]) : null,
+      el('div', { class: 'track-name' }, ['Weapons']),
+      el('div', { class: 'conflict-weapons' }, [
+        carried.map((w) => {
+          const st = eq.weapons[w.name] || { state: 'sheathed' };
+          if (st.state === 'readied') return el('div', { class: 'cw-row' }, [button('Strike with ' + w.name, () => strike(w.name, 'Strikes with the ' + w.name), 'btn'),
+            button('Sheathe', () => setWeapon(m, w.name, { state: 'sheathed' }, 'Sheathes the ' + w.name), 'ghost tiny')]);
+          return el('div', { class: 'cw-row' }, [button('Ready ' + w.name, () => { note.textContent = readyWeapon(m, w) || ''; }, 'ghost')]);
+        }),
+        unarmed().length ? el('div', { class: 'cw-row unarmed' }, unarmed().map((e) => button(e.name, () => strike(e.name, 'Strikes with a ' + e.name.toLowerCase()), 'ghost'))) : null,
+        note,
+      ]),
+      el('div', { class: 'track-name' }, ['Actions']),
+      el('div', { class: 'conflict-actions' }, actions.filter((e) => e.name !== 'Strike').map((e) => {
+        const b = button(e.name, () => declareAction(m, v, roller, c, e), 'ghost');
+        b.title = [plain(D.kwArg(e, 'ACTIVATION'))].concat(blockLines(D.block(e, 'EFFECTS'))).filter(Boolean).join('\n\n');
+        return b;
+      })),
+      el('div', { class: 'track-name' }, ['Engaged']),
+      el('div', { class: 'engaged' }, [pick, engaged.map((e) => el('div', { class: 'engaged-npc' }, [el('b', {}, [e.name]), ' ',
+        button('×', () => setConflict(m, { engaged: (c.engaged || []).filter((x) => x !== e.id) }, 'No longer engaged with ' + e.name), 'ghost tiny'),
+        (npcConds[e.id] || []).map((cn) => { const dd = defs.find((q) => q.name === cn); return el('div', { class: 'small' }, [el('span', { class: 'cond' }, [cn]), ' ', dd ? dd.effects : '']); })]))]),
+      button('Resist a critical strike…', () => resistCrit(m, v, roller), 'ghost'),
+    ]);
+  }
+
+  // ── Advancement: its own page over the player's sheet. Exit leaves the character as it was;
+  // Save archives it as a version and makes the advanced character the current one (the op
+  // advancePartyMember). Costs are the corpus's Table 2–2 (core p. 97): a skill or a ring by the
+  // rank or value bought, a technique at 3 XP or its listed value. ──
+  function advancementCosts() {
+    const e = D.entity('#qLicpynLdNu07y2a636A0M') || D.named('Advancement', 'core');
+    const b = e && (e.blocks || []).find((x) => x.kw === 'ADVANCEMENT_COSTS');
+    const out = { skill: {}, ring: {}, technique: 3 };
+    let kind = null;
+    ((b && b.body) || []).forEach((x) => {
+      if (x.vk === 'name') { kind = /Skill/.test(x.name) ? 'skill' : /Ring/.test(x.name) ? 'ring' : /Technique/.test(x.name) ? 'technique' : null; return; }
+      if (x.kw !== 'COST' || !kind) return;
+      if (kind === 'technique') { const n = parseInt(((x.args || [])[0] || {}).s, 10); if (n) out.technique = n; return; }
+      const cells = (x.body || []).map((q) => q.s);
+      for (let i = 0; i + 1 < cells.length; i += 2) {
+        const to = /→\s*(\d+)/.exec(cells[i]);
+        const cost = parseInt(cells[i + 1], 10);
+        if (to && cost) out[kind][+to[1]] = cost;
+      }
+    });
+    return out;
+  }
+  function openAdvancement(m) {
+    if (document.querySelector('.advance-page')) return;   // one at a time
+    const mm = memberNow(m.id, m);
+    const was = complete(mm.character || {});
+    const next = JSON.parse(JSON.stringify(mm.character || {}));
+    next.Rings = Object.assign({}, was.Rings);
+    next.Skills = Object.assign({}, was.Skills);
+    next.Techniques = (was.Techniques || []).slice();
+    const x0 = xp(mm);
+    let earned = x0.earned;
+    const buys = [];   // { kind, name, to, cost } — undone last-first
+    const costs = advancementCosts();
+    const techNames = Array.from(new Set(D.techniques().map((r) => r.name))).sort();
+    const page = el('div', { class: 'advance-page', role: 'dialog', 'aria-label': 'Advancement' });
+    const close = () => { page.remove(); document.body.classList.remove('advancing'); };
+    const spent = () => x0.spent + buys.reduce((a, b) => a + b.cost, 0);
+    const buy = (kind, name, to, cost) => { buys.push({ kind, name, to, cost }); draw(); };
+    const undo = (kind, name) => {
+      const i = buys.map((b) => b.kind + '|' + b.name).lastIndexOf(kind + '|' + name);
+      if (i === -1) return;
+      const b = buys.splice(i, 1)[0];
+      if (kind === 'ring') next.Rings[name] = b.to - 1;
+      if (kind === 'skill') next.Skills[name] = b.to - 1;
+      if (kind === 'technique') next.Techniques = next.Techniques.filter((t) => t !== name);
+      draw();
+    };
+    const save = () => {
+      if (earned - spent() < 0) return;   // never more than the XP there is
+      if (!buys.length) { if (earned !== x0.earned) change(mm, { xpEarned: earned }); close(); return; }
+      const when = new Date().toISOString().slice(0, 10);
+      const lines = buys.map((b) => ({ cost: b.cost, what: b.kind === 'technique' ? b.name : b.name + ' ' + (b.to - 1) + ' → ' + b.to, note: null, when }));
+      const now = memberNow(m.id, m);
+      const version = { id: State().genId('v'), label: 'Before advancement', date: when, character: JSON.parse(JSON.stringify(now.character || {})), live: JSON.parse(JSON.stringify(now.live || {})) };
+      State().commit('advancePartyMember', [m.id, { version, character: next, live: { xpEarned: earned, xpSpent: spent(), xpLedger: x0.ledger.concat(lines) } }]);
+      logEvent(memberNow(m.id, m), 'Advances: ' + lines.map((l) => l.what + ' (' + l.cost + ' XP)').join(', '), 'advancement');
+      close();
+    };
+    const stepRow = (label, n, onMinus, onPlus, plusLabel) => el('div', { class: 'adv-row' }, [
+      el('span', { class: 'adv-k' }, [label]),
+      el('span', { class: 'stepper' }, [
+        el('button', { class: 'step', type: 'button', disabled: onMinus ? null : true, onclick: onMinus || null }, ['−']),
+        el('b', { class: 'step-v' }, [String(n)]),
+        el('button', { class: 'step', type: 'button', disabled: onPlus ? null : true, onclick: onPlus || null }, ['+']),
+      ]),
+      el('span', { class: 'adv-cost muted small' }, [plusLabel || '']),
+    ]);
+    function draw() {
+      const avail = earned - spent();
+      page.innerHTML = '';
+      page.appendChild(el('div', { class: 'adv-bar' }, [
+        button('Exit', close, 'ghost'),
+        el('h2', {}, ['Advancement']),
+        button('Save', save, 'btn adv-save'),
+      ]));
+      const body = el('div', { class: 'adv-body' });
+      page.appendChild(body);
+      body.appendChild(el('div', { class: 'adv-sec' }, [el('h3', {}, ['Experience']),
+        stepRow('Earned', earned, earned > 0 ? () => { earned -= 1; draw(); } : null, () => { earned += 1; draw(); }),
+        el('div', { class: 'adv-row' }, [el('span', { class: 'adv-k' }, ['Spent']), el('b', { class: 'adv-n' }, [String(spent())])]),
+        el('div', { class: 'adv-row' + (avail < 0 ? ' over' : '') }, [el('span', { class: 'adv-k' }, ['Available']), el('b', { class: 'adv-n' }, [String(avail)])]),
+      ]));
+      body.appendChild(el('div', { class: 'adv-sec' }, [el('h3', {}, ['Rings']), RINGS.map((r) => {
+        const n = next.Rings[r] || 1;
+        const cost = costs.ring[n + 1];
+        const mine = buys.some((b) => b.kind === 'ring' && b.name === r);
+        return stepRow(r, n, mine ? () => undo('ring', r) : null, n < 5 && cost ? () => { next.Rings[r] = n + 1; buy('ring', r, n + 1, cost); } : null, n < 5 && cost ? '+1 · ' + cost + ' XP' : '');
+      })]));
+      body.appendChild(el('div', { class: 'adv-sec' }, [el('h3', {}, ['Skills']), skillGroups().map((g) => el('div', { class: 'adv-group' }, [el('div', { class: 'track-name' }, [g.name]),
+        g.skills.map((k) => {
+          const n = next.Skills[k.name] || 0;
+          const cost = costs.skill[n + 1];
+          const mine = buys.some((b) => b.kind === 'skill' && b.name === k.name);
+          return stepRow(k.name, n, mine ? () => undo('skill', k.name) : null, n < 5 && cost ? () => { next.Skills[k.name] = n + 1; buy('skill', k.name, n + 1, cost); } : null, n < 5 && cost ? '+1 · ' + cost + ' XP' : '');
+        })]))]));
+      const tIn = el('input', { class: 'text', type: 'text', list: 'adv-techs', placeholder: 'A technique…' });
+      const tCost = el('input', { class: 'text num small', type: 'number', min: 1, value: costs.technique });
+      body.appendChild(el('div', { class: 'adv-sec' }, [el('h3', {}, ['Techniques']),
+        el('ul', { class: 'items adv-techs' }, next.Techniques.map((t) => el('li', {}, [t, buys.some((b) => b.kind === 'technique' && b.name === t) ? button('×', () => undo('technique', t), 'ghost tiny') : null]))),
+        el('datalist', { id: 'adv-techs' }, techNames.filter((n) => next.Techniques.indexOf(n) === -1).map((n) => el('option', { value: n }))),
+        el('div', { class: 'adv-add' }, [tIn, Dice.stepper(tCost, 1, 30, 'XP'), button('Add', () => {
+          const name = tIn.value.trim();
+          if (!name || next.Techniques.indexOf(name) !== -1) return;
+          next.Techniques.push(name);
+          buy('technique', name, 1, parseInt(tCost.value, 10) || costs.technique);
+        }, 'btn')]),
+      ]));
+      page.querySelector('.adv-save').disabled = avail < 0 || (!buys.length && earned === x0.earned) ? true : null;
+    }
+    document.body.appendChild(page);
+    document.body.classList.add('advancing');
+    draw();
+    window.scrollTo(0, 0);
+  }
+
   // ── the player's page on a phone: the panes and the bar that switches them ──
-  const PANES = [['play', 'Play'], ['roll', 'Roll'], ['gear', 'Gear · XP'], ['sheet', 'Sheet']];
+  const PANES = [['play', 'Play'], ['conflict', 'Conflict'], ['roll', 'Roll'], ['gear', 'Gear']];
   const paneOf = {};   // member id → the pane showing; kept across the page's redraws
   const shown = {};    // member id → the pane switcher of the sheet on the page now
+  const inConflict = {};   // member id → whether the last draw had a conflict (to open its tab once)
   function panes(m, box, roller) {
     const nav = el('nav', { class: 'pane-nav', 'aria-label': 'Sheet sections' });
+    // the GM starts a conflict: its tab appears and opens; it ends: the tab goes, back to Play
+    const c = !!conflictOf(m);
+    if (c && !inConflict[m.id]) paneOf[m.id] = 'conflict';
+    if (!c && paneOf[m.id] === 'conflict') paneOf[m.id] = 'play';
+    if (paneOf[m.id] === 'sheet') paneOf[m.id] = 'play';
+    inConflict[m.id] = c;
     const show = (p, scroll) => {
       paneOf[m.id] = p;
       box.setAttribute('data-show', p);
       nav.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.getAttribute('data-for') === p));
       if (scroll) window.scrollTo(0, 0);
     };
-    PANES.forEach(([p, label]) => nav.appendChild(el('button', { type: 'button', 'data-for': p, onclick: () => show(p, true) }, [label])));
+    PANES.filter(([p]) => p !== 'conflict' || c).forEach(([p, label]) => nav.appendChild(el('button', { type: 'button', 'data-for': p, onclick: () => show(p, true) }, [label])));
     box.appendChild(nav);
     shown[m.id] = show;
     show(paneOf[m.id] || 'play', false);
@@ -1305,6 +1553,7 @@ window.L5RSheet = (function () {
     // whichever sheet is on the page when it is used
     if (!roller.panesWrapped) {
       const set = roller.set;
+      roller.rawSet = set;   // a set-up that stays where it is (the Conflict tab's initiative)
       roller.set = (x) => {
         set(x);
         if (paneOf[m.id] !== 'roll' && shown[m.id]) shown[m.id]('roll', true);
@@ -1321,6 +1570,7 @@ window.L5RSheet = (function () {
   }
 
   return {
+    conflictTypes, conflictOf, setConflict, openAdvancement,
     ACTOR, FILE_KIND, spec, skills, skillGroups, formula, evaluate, derived, conditionRules, blank, complete, value,
     fromEntity, fromEntityView, sentence, render, readFile, fileOf, download, memberFrom, readMember, downloadMember,
     memberFromEntity, current, conditions, tokenText, live, rollerFor, traits, rerollModes, gainVoid, change,
