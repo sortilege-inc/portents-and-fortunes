@@ -7,8 +7,8 @@
   "vars": {
     // The app's own origins, comma-separated — the only non-localhost origins the Worker
     // answers to. INSTANCE-OWNED: Portents & Fortunes' origin. localhost / 127.0.0.1 are
-    // always admitted for `wrangler dev`. Not deployed until M8 (campaign/PLAN.md).
-    "ALLOWED_ORIGIN": "https://portents.sortilege.online"
+    // always admitted for `wrangler dev`. Deployed at M8 (campaign/PLAN.md).
+    "ALLOWED_ORIGIN": "https://portents.sortilege.online,https://sortilege-inc.github.io"
   },
   "durable_objects": {
     "bindings": [{ "name": "SESSION_ROOM", "class_name": "SessionRoom" }]

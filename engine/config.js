@@ -46,7 +46,7 @@ window.VttConfig = {
     },
   },
   worker: {
-    deployed: '',
+    deployed: 'https://portents-vtt.sortilege.workers.dev',
     local: 'http://localhost:8794',
   },
 };
