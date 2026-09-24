@@ -4,6 +4,10 @@
 // wiki text is CC BY-SA and is never copied into this repo or served by the campaign's site. The
 // GM runs `python -m lore serve` there and puts its address in Settings (blank by default); this
 // pane calls it from the GM's own browser. With no address, or the server down, the pane says so.
+// To use it away from that machine, l5r-lore publishes the server through Tailscale Funnel and
+// requires a token (the campaign's LORE-PROXY runbook): the GM types the token into Settings, it is
+// kept in this browser's localStorage beside the address, and it is sent as a Bearer header — never
+// in the pack or a session.
 //
 // Neither continuity is canon at this table — both are sources of inspiration. So by default a
 // search runs twice and shows the two side by side: the Fantasy Flight reboot (the continuity
@@ -27,7 +31,7 @@ window.L5RLore = (function () {
   function settings() {
     let s = null;
     try { s = JSON.parse(localStorage.getItem(LS) || 'null'); } catch (e) { s = null; }
-    return Object.assign({ url: '' }, s || {});
+    return Object.assign({ url: '', token: '' }, s || {});
   }
   function save(patch) { try { localStorage.setItem(LS, JSON.stringify(Object.assign(settings(), patch))); } catch (e) { /* private mode */ } }
   const base = () => (settings().url || '').trim().replace(/\/+$/, '');
@@ -35,7 +39,11 @@ window.L5RLore = (function () {
   function api(path, params) {
     const u = new URL(base() + path);
     Object.keys(params || {}).forEach((k) => [].concat(params[k]).forEach((v) => v != null && v !== '' && u.searchParams.append(k, v)));
-    return fetch(u.toString()).then((r) => r.json().then((d) => { if (!r.ok && !d.error) throw new Error('HTTP ' + r.status); return d; }));
+    const token = (settings().token || '').trim();
+    return fetch(u.toString(), token ? { headers: { Authorization: 'Bearer ' + token } } : undefined).then((r) => {
+      if (r.status === 401) throw new Error(token ? 'the server refused the token in Settings' : 'the server needs a token; put it in Settings');
+      return r.json().then((d) => { if (!r.ok && !d.error) throw new Error('HTTP ' + r.status); return d; });
+    });
   }
 
   // the pane's own state survives redraws within a page load
@@ -176,10 +184,13 @@ window.L5RLore = (function () {
   function renderSettings(box, redrawSettings) {
     const s = settings();
     box.appendChild(el('div', { class: 'guidance-k' }, ['The Lore pane’s server']));
-    box.appendChild(el('p', { class: 'muted small' }, ['The address of the l5r-lore index running on this machine (`python -m lore serve` in ~/Sortilege/Experiments/l5r-lore; ' + DEFAULT_URL + ' by default). Blank turns the pane off. The wiki text never leaves this machine: this browser asks the server directly.']));
+    box.appendChild(el('p', { class: 'muted small' }, ['The address of the l5r-lore index (`python -m lore serve` in ~/Sortilege/Experiments/l5r-lore): ' + DEFAULT_URL + ' on that machine, or its published https address from anywhere else. Blank turns the pane off. The index stays on that machine: this browser asks the server directly.']));
     box.appendChild(el('div', { class: 'set-row' }, [
       el('input', { type: 'text', class: 'text wide', placeholder: DEFAULT_URL, value: s.url || '', onchange: (ev) => { save({ url: ev.target.value.trim() }); view.health = null; redrawSettings(); } }),
       !s.url ? button('Use ' + DEFAULT_URL, () => { save({ url: DEFAULT_URL }); view.health = null; redrawSettings(); }, 'ghost tiny') : null,
+    ]));
+    box.appendChild(el('div', { class: 'set-row' }, [
+      el('input', { type: 'password', class: 'text wide', autocomplete: 'off', placeholder: 'Token (only if the server asks for one)', value: s.token || '', onchange: (ev) => { save({ token: ev.target.value.trim() }); view.health = null; redrawSettings(); } }),
     ]));
     if (s.url) {
       const st = el('span', { class: 'cond' }, ['checking…']);
