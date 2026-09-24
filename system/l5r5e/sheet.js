@@ -578,7 +578,9 @@ window.L5RSheet = (function () {
     State().commit('setPartyLive', [mm.id, { uses }]);
     State().commit('appendLog', [{ at: new Date().toISOString(), kind: 'event', who: mm.name, memberId: mm.id, text: name + ' — used (' + cur[name] + ' of 1 this ' + (key === 'scene' ? 'scene' : 'session') + ')', why: 'technique' }]);
   }
-  function techniquesBlock(m, v, roller) {
+  // the player's page: which technique cards are open, kept across the page's redraws
+  const techOpen = {};
+  function techniquesBlock(m, v, roller, compact) {
     const rows = (v.Techniques || []).map((n) => {
       const e = D.named(String(n)) || D.named(bare(n));
       const a = e && activation(e);
@@ -592,6 +594,24 @@ window.L5RSheet = (function () {
         if (ring) Object.assign(patch, { ring, ringValue: (v.Rings || {})[ring] });
         roller.set(patch);
       };
+      const meta = [a.action, (a.tn != null ? 'TN ' + a.tn : 'TN as its text says') + (a.skill ? ' ' + a.skill : '') + (a.rings.length ? ' (' + a.rings.join(' or ') + ')' : ''), a.limit ? 'once per ' + a.limit + (used ? ' — used' : '') : null, cat].filter(Boolean).join(' · ');
+      // compact: a card — tapped, it opens to the technique as the book prints it, with the check to roll
+      if (compact) {
+        const key = m.id + '|' + e.name;
+        const body = el('div', { class: 'tech-body' });
+        const fill = () => { if (!body.firstChild) body.appendChild(E.render(e, { bare: true })); };
+        const go = (skill) => { setUp(skill); if (a.limit && skill) countUse(m, e.name, a.limit); };
+        const card = el('details', { class: 'tech-row tech-card', open: techOpen[key] || null }, [
+          el('summary', {}, [el('span', { class: 'tech-name' }, [e.name]), el('span', { class: 'muted small' }, [meta])]),
+          body,
+          el('div', { class: 'chiprow tight tech-roll' }, spent ? [el('span', { class: 'muted small' }, ['Used this ' + (a.limit === 'scene' ? 'scene' : 'session') + '.'])]
+            : a.skills.length > 1 ? a.skills.map((k) => button('Roll with ' + k, () => go(k), 'btn'))
+            : [button('Roll', () => go(a.skill), 'btn')]),
+        ]);
+        if (techOpen[key]) fill();
+        card.addEventListener('toggle', () => { techOpen[key] = card.open; if (card.open) fill(); });
+        return card;
+      }
       return el('div', { class: 'tech-row' }, [
         // the use is counted when the check is set up with its skill: at once for one skill, or when
         // the player picks one of several
@@ -604,7 +624,7 @@ window.L5RSheet = (function () {
           setUp(k);
           if (a.limit) countUse(m, e.name, a.limit);
         } }, [k]))]) : null,
-        el('span', { class: 'muted small' }, [[a.action, (a.tn != null ? 'TN ' + a.tn : 'TN as its text says') + (a.skill ? ' ' + a.skill : '') + (a.rings.length ? ' (' + a.rings.join(' or ') + ')' : ''), a.limit ? 'once per ' + a.limit + (used ? ' — used' : '') : null, cat].filter(Boolean).join(' · ')]),
+        el('span', { class: 'muted small' }, [meta]),
       ]);
     }).filter(Boolean);
     return rows.length ? el('div', { class: 'techniques-in-play' }, [el('span', { class: 'track-name' }, ['Techniques']), rows]) : null;
@@ -1239,7 +1259,7 @@ window.L5RSheet = (function () {
     add(track('Void points', current(m, 'Void Points'), d.voidMax, (n) => patch(m, { voidPoints: Math.min(n, d.voidMax || n) })), 'play');
     add(conditionsBlock(m, false, cp), 'play');
     add(traitButtons(m, v), 'play');   // none for a character with no passion or anxiety
-    add(techniquesBlock(m, v, roller), 'play');
+    add(techniquesBlock(m, v, roller, cp), 'play');
     add(gearBlock(m, v, cp), 'gear');
     add(conflictBlock(m, v, roller, cp), 'play');
     add(el('div', { class: 'muted small' }, ['Focus ' + value(v, 'Focus') + ' · Vigilance ' + value(v, 'Vigilance')]), 'play');
