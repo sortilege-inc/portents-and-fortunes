@@ -273,15 +273,20 @@ body.play { display: block; }
   body.play .sheet.live .tech-card:not([open]) > .tech-roll { display: none; }
   body.play .sheet.live .tech-roll { padding-top: 6px; }
   body.play .sheet.live .tech-roll .btn { flex: 1; min-height: 48px; }
-  body.play .sheet.live .roll-go { display: grid; grid-template-columns: auto 1fr; gap: 8px; }
-  body.play .sheet.live .roll-go .btn { min-height: 52px; font-size: 18px; letter-spacing: .12em; }
-  body.play .sheet.live .roller-more .chiprow { flex-direction: column; align-items: flex-start; }
-  body.play .sheet.live .roller-more .note { width: 100%; margin-top: 8px; }
+  body.play .sheet.live .roller-controls.compact > .note { flex: none; height: 44px; min-height: 44px; }
+  body.play .sheet.live .tn-pick { grid-template-columns: auto 1.8fr repeat(8, minmax(0, 1fr)); }
+  body.play .sheet.live .tn-btn.hidden-tn { font-family: var(--caps); font-size: 13px; letter-spacing: .04em; text-transform: uppercase; }
+  body.play .sheet.live .roll-dice-count { font-family: var(--disp); font-size: 20px; padding: 2px 0; }
+  body.play .sheet.live .roll-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; }
+  body.play .sheet.live .roll-row[hidden] { display: none; }
+  body.play .sheet.live .roll-row-k { font-family: var(--caps); font-size: 14px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); }
+  body.play .sheet.live .roll-row .toggle { min-width: 88px; }
+  body.play .sheet.live .roller-controls.compact > .btn { width: 100%; min-height: 56px; font-size: 18px; letter-spacing: .12em; margin-top: 4px; }
+  body.play .sheet.live .roller-controls.compact > .btn[disabled] { background: var(--paper-3); border-color: var(--edge); color: var(--ink-soft); }
   body.play .sheet.live .roll-result .chiprow .btn { flex: 1; }
   body.play .sheet.live .tray-k { flex: 0 0 100%; }
   body.play .sheet.live .die img.face { width: 52px; height: 52px; }
   body.play .sheet.live .roll-result .tally { font-size: 17px; margin: 8px 0; }
-  body.play .sheet.live .skill-pick { width: 100%; }
   body.play .sheet.live .skill-row button { min-height: 40px; text-align: left; }
 
   /* the log */

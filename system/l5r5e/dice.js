@@ -309,7 +309,7 @@ window.L5RDice = (function () {
           p.ring = r;
           if (o.ringsOf) ringValue.value = o.ringsOf(r);
           drawRings();
-          if (compact) drawWhat();
+          if (compact) drawDice();
         } }, [ringIcon(r), el('span', {}, [r])]));
       });
     }
@@ -422,8 +422,13 @@ window.L5RDice = (function () {
             assistSkilled.value = 0;
             assistUnskilled.value = 0;
             note.value = '';
-            if (compact) box.querySelectorAll('.roller-more .step-v').forEach((x) => { x.textContent = '0'; });
-            if (compact) box.querySelectorAll('.roller-more .toggle').forEach((x) => { x.classList.remove('on'); });
+            if (compact) {
+              box.querySelectorAll('.roller-controls.compact .step-v').forEach((x) => { x.textContent = '0'; });
+              voidBox.checked = false;
+              box.querySelectorAll('.roller-controls.compact .toggle').forEach((x) => x.sync && x.sync());
+              tnChosen = false;
+              box.refresh();
+            }
             drawTray();
             if (o.onResolve) o.onResolve(r);
           } }, ['Resolve']),
@@ -435,28 +440,69 @@ window.L5RDice = (function () {
         if (open.length) result.appendChild(el('div', { class: 'chiprow tight' }, open.map((a) => el('button', { class: 'btn ghost tiny', type: 'button', onclick: () => { a.claimed = true; o.onAdversityFailed(r, a); drawTray(); } }, ['It failed: +1 Void point (' + a.label + ')']))));
       }
     }
-    const rollBtn = el('button', { class: 'btn', type: 'button', onclick: () => { current = roll(values()); mode = null; marks = []; drawTray(); } }, ['Roll']);
-    // compact: what is being rolled, in words; the TN as buttons; Void as a switch; the rest under More
-    const what = el('div', { class: 'roll-what' });
-    const drawWhat = () => { what.textContent = p.ring + ' ' + int(ringValue, 1) + ' · ' + (p.skill ? p.skill + ' ' + int(skillRank, 0) : 'no skill'); };
+    const rollBtn = el('button', { class: 'btn', type: 'button', onclick: () => {
+      // compact: a hidden TN is the GM's concealing it, and the Void point it gives comes with the roll
+      if (compact && tn.value === '' && o.onConceal && !concealGranted) { concealBox.checked = true; concealBox.dispatchEvent(new Event('change')); }
+      current = roll(values()); mode = null; marks = []; drawTray();
+    } }, ['Roll']);
+    // compact, top to bottom: what it is for, the TN, the dice it comes to, the ring, the skill,
+    // Void, assistance, Roll across the bottom. The TN is chosen for each check (a technique or an
+    // initiative sets its own); Roll waits for it.
+    let tnChosen = false;
     const tnPick = el('div', { class: 'tn-pick' });
     const drawTn = () => {
       tnPick.innerHTML = '';
       tnPick.appendChild(el('span', { class: 'step-k' }, ['TN']));
-      [''].concat(difficulty().map((d) => String(d.tn))).forEach((x) => tnPick.appendChild(el('button', { class: 'tn-btn' + (tn.value === x ? ' on' : ''), type: 'button', title: x ? (difficulty().find((d) => String(d.tn) === x) || {}).text || null : 'not set', onclick: () => { tn.value = x; drawTn(); } }, [x || '?'])));
+      const on = (x) => tnChosen && tn.value === x;
+      tnPick.appendChild(el('button', { class: 'tn-btn hidden-tn' + (on('') ? ' on' : ''), type: 'button', onclick: () => { tn.value = ''; tnChosen = true; drawTn(); drawDice(); } }, ['Hidden']));
+      difficulty().map((d) => String(d.tn)).forEach((x) => tnPick.appendChild(el('button', { class: 'tn-btn' + (on(x) ? ' on' : ''), type: 'button', onclick: () => { tn.value = x; tnChosen = true; drawTn(); drawDice(); } }, [x])));
     };
+    const diceLine = el('div', { class: 'roll-dice-count' });
+    const drawDice = () => {
+      const v = values();
+      const ringN = v.ringValue + (v.void ? SEIZE_THE_MOMENT.extraRingDice : 0) + (ASSISTANCE.unskilled === 'ring' ? v.assistUnskilled : 0);
+      const skillN = v.skillRank + (ASSISTANCE.skilled === 'skill' ? v.assistSkilled : 0);
+      diceLine.innerHTML = '';
+      diceLine.appendChild(el('b', {}, [ringN + ' ring + ' + skillN + ' skill ' + (ringN + skillN === 1 ? 'die' : 'dice')]));
+      diceLine.appendChild(el('span', { class: 'muted' }, [' · keep ' + keepLimit(v)]));
+      rollBtn.disabled = compact && !tnChosen ? true : null;
+      rollBtn.textContent = compact && !tnChosen ? 'Choose the TN' : 'Roll';
+    };
+    // the skill, chosen here (o.skills: { groups: [{ name, skills: [name] }], have: { name: rank } })
+    const skillSel = el('select', { class: 'scope skill-pick', 'aria-label': 'Skill' });
+    const drawSkills = () => {
+      if (!o.skills) return;
+      const sk = o.skills();
+      skillSel.innerHTML = '';
+      skillSel.appendChild(el('option', { value: '' }, ['No skill (ring only)']));
+      sk.groups.forEach((g) => skillSel.appendChild(el('optgroup', { label: g.name }, g.skills.map((k) => el('option', { value: k, selected: p.skill === k || null }, [k + ' ' + (sk.have[k] || 0)])))));
+      skillSel.value = p.skill || '';
+    };
+    skillSel.addEventListener('change', () => { const sk = o.skills(); box.set({ skill: skillSel.value || null, skillRank: skillSel.value ? sk.have[skillSel.value] || 0 : 0 }); });
+    const voidRow = el('div', { class: 'roll-row' });
+    const assistRow = (inp, label) => el('div', { class: 'roll-row' }, [el('span', { class: 'roll-row-k' }, [label]), stepper(inp, 0, 9)]);
     if (compact) {
-      const voidT = toggle(voidBox, 'Void point');
-      const concealT = o.onConceal ? toggle(concealBox, 'TN concealed · +1 Void') : null;
-      box.appendChild(el('div', { class: 'roller-controls compact' }, [ringPick, what, tnPick,
-        el('div', { class: 'chiprow tight roll-go' }, [voidT, rollBtn]),
-        ringValue, skillRank, tn]));
-      ringValue.hidden = true; skillRank.hidden = true; tn.hidden = true;
-      box.appendChild(el('details', { class: 'roller-more' }, [el('summary', {}, ['More']),
-        el('div', { class: 'chiprow tight' }, [stepper(assistSkilled, 0, 9, 'Assisting, skilled'), stepper(assistUnskilled, 0, 9, 'unskilled')]),
-        concealT, note]));
-      drawRings(); drawWhat(); drawTn();
+      note.placeholder = 'What is this roll for?';
+      voidRow.appendChild(el('span', { class: 'roll-row-k' }, ['Void point · +1 ring die, +1 kept']));
+      voidRow.appendChild(toggle(voidBox, 'Spend'));
+      box.appendChild(el('div', { class: 'roller-controls compact' }, [
+        note, tnPick, diceLine, ringPick, o.skills ? skillSel : null, voidRow,
+        assistRow(assistSkilled, 'Skilled assistance'), assistRow(assistUnskilled, 'Unskilled assistance'),
+        rollBtn, ringValue, skillRank, tn, concealBox]));
+      ringValue.hidden = true; skillRank.hidden = true; tn.hidden = true; concealBox.hidden = true;
+      [assistSkilled, assistUnskilled].forEach((x) => x.addEventListener('input', drawDice));
+      voidBox.addEventListener('change', drawDice);
     }
+    // what may change between draws of the page: the Void points to spend, the skills' ranks
+    box.refresh = () => {
+      if (!compact) return;
+      const can = !o.voidAvailable || o.voidAvailable() > 0;
+      voidRow.hidden = !can;
+      if (!can && voidBox.checked) { voidBox.checked = false; }
+      voidRow.querySelectorAll('.toggle').forEach((b) => b.sync && b.sync());
+      drawSkills(); drawTn(); drawDice();
+    };
+    if (compact) { drawRings(); box.refresh(); }
     drawRings();
     if (!compact) box.appendChild(el('div', { class: 'roller-controls' }, [
       ringPick,
@@ -485,10 +531,10 @@ window.L5RDice = (function () {
       drawRings();
       const lab = skillRank.parentNode;
       if (!compact && lab && lab.firstChild) lab.firstChild.textContent = (p.skill ? p.skill + ' ' : 'Skill ');
-      if (compact) { drawWhat(); drawTn(); }
+      if (compact) { if (patch && patch.tn !== undefined) tnChosen = true; if (o.skills) skillSel.value = p.skill || ''; drawTn(); drawDice(); }
     };
     box.current = () => current;
-    box.skill = () => p.skill || null;   // the check's skill, for a picker that shows it (sheet.js skillPicker)
+    box.skill = () => p.skill || null;   // the check's skill
     return box;
   }
   const symbolsSpan = (text) => el('span', { html: symbolsHtml(esc(text)) });
