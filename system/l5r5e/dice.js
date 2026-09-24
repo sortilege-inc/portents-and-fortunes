@@ -434,6 +434,7 @@ window.L5RDice = (function () {
       if (lab && lab.firstChild) lab.firstChild.textContent = (p.skill ? p.skill + ' ' : 'Skill ');
     };
     box.current = () => current;
+    box.skill = () => p.skill || null;   // the check's skill, for a picker that shows it (sheet.js skillPicker)
     return box;
   }
   const symbolsSpan = (text) => el('span', { html: symbolsHtml(esc(text)) });

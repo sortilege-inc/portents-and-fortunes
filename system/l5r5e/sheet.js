@@ -1165,32 +1165,76 @@ window.L5RSheet = (function () {
     const lv = m.live || {};
     const box = el('div', { class: 'sheet live' });
     const roller = rollerFor(m, v);
-    box.appendChild(header(m, v, versionPicker(m, redraw)));
+    // Each block belongs to a pane. On a phone the player's page shows one pane at a time behind a
+    // bar at the bottom (assets/css/l5r5e-gm.css, ≤ 640px); everywhere else every block shows, as always.
+    const add = (node, pane) => { if (node) { if (node.setAttribute) node.setAttribute('data-pane', pane); box.appendChild(node); } return node; };
+    add(header(m, v, versionPicker(m, redraw)), 'play');
     const conds = conditions(m);
-    box.appendChild(el('div', { class: 'chiprow tight' }, [ringTiles(v, null, { stance: lv.stance, deficient: deficientRings(v) }), conds.map((c) => el('span', { class: 'cond', title: 'the Samurai type’s own rule' }, [c]))]));
-    box.appendChild(track('Fatigue', current(m, 'Fatigue'), value(v, 'Endurance'), (n) => patch(m, { Fatigue: n })));
-    box.appendChild(track('Strife', current(m, 'Strife'), value(v, 'Composure'), (n) => patch(m, { Strife: n })));
-    box.appendChild(track('Void points', current(m, 'Void Points'), d.voidMax, (n) => patch(m, { voidPoints: Math.min(n, d.voidMax || n) })));
-    box.appendChild(conditionsBlock(m, false));
-    const inPlay = traitButtons(m, v);   // none for a character with no passion or anxiety
-    if (inPlay) box.appendChild(inPlay);
-    const techs = techniquesBlock(m, v, roller);
-    if (techs) box.appendChild(techs);
-    box.appendChild(gearBlock(m, v));
-    box.appendChild(conflictBlock(m, v, roller));
-    box.appendChild(el('div', { class: 'muted small' }, ['Focus ' + value(v, 'Focus') + ' · Vigilance ' + value(v, 'Vigilance')]));
-    box.appendChild(socialBlock(m, false));
-    box.appendChild(xpBlock(m, false));
-    box.appendChild(el('h4', {}, ['A check', el('span', { class: 'muted small' }, [' · pick a skill below, a ring, the TN'])]));
-    box.appendChild(roller);
+    add(el('div', { class: 'chiprow tight' }, [ringTiles(v, null, { stance: lv.stance, deficient: deficientRings(v) }), conds.map((c) => el('span', { class: 'cond', title: 'the Samurai type’s own rule' }, [c]))]), 'play');
+    add(track('Fatigue', current(m, 'Fatigue'), value(v, 'Endurance'), (n) => patch(m, { Fatigue: n })), 'play');
+    add(track('Strife', current(m, 'Strife'), value(v, 'Composure'), (n) => patch(m, { Strife: n })), 'play');
+    add(track('Void points', current(m, 'Void Points'), d.voidMax, (n) => patch(m, { voidPoints: Math.min(n, d.voidMax || n) })), 'play');
+    add(conditionsBlock(m, false), 'play');
+    add(traitButtons(m, v), 'play');   // none for a character with no passion or anxiety
+    add(techniquesBlock(m, v, roller), 'play');
+    add(gearBlock(m, v), 'gear');
+    add(conflictBlock(m, v, roller), 'play');
+    add(el('div', { class: 'muted small' }, ['Focus ' + value(v, 'Focus') + ' · Vigilance ' + value(v, 'Vigilance')]), 'play');
+    add(socialBlock(m, false), 'gear');
+    add(xpBlock(m, false), 'gear');
+    add(el('h4', {}, ['A check', el('span', { class: 'muted small' }, [' · pick a skill below, a ring, the TN'])]), 'roll');
+    if (o.player) add(skillPicker(v, roller), 'roll');
+    add(roller, 'roll');
     const onRoll = (skill, rank) => roller.set({ skill, skillRank: rank });
-    box.appendChild(render(Object.assign({}, v, { Honor: current(m, 'Honor'), Glory: current(m, 'Glory'), Status: current(m, 'Status') }), null, { onRoll, stance: lv.stance }));
+    add(render(Object.assign({}, v, { Honor: current(m, 'Honor'), Glory: current(m, 'Glory'), Status: current(m, 'Status') }), null, { onRoll, stance: lv.stance }), 'sheet');
     const rollLog = el('div', { class: 'roll-log' });
     logOf(m).slice(-8).reverse().forEach((x) => rollLog.appendChild(Dice.logLine(x)));
     // an advantage from a book not yet loaded: load it, then draw again with its type and ring
     ensureTraits(v).then((loaded) => { if (loaded) window.VttBus.emit('state:remote', { loaded: true }, { local: true }); });
-    box.appendChild(rollLog);
+    add(rollLog, 'roll');
+    if (o.player) panes(m, box, roller);
     return box;
+  }
+
+  // ── the player's page on a phone: the panes and the bar that switches them ──
+  const PANES = [['play', 'Play'], ['roll', 'Roll'], ['gear', 'Gear · XP'], ['sheet', 'Sheet']];
+  const paneOf = {};   // member id → the pane showing; kept across the page's redraws
+  const shown = {};    // member id → the pane switcher of the sheet on the page now
+  function panes(m, box, roller) {
+    const nav = el('nav', { class: 'pane-nav', 'aria-label': 'Sheet sections' });
+    const show = (p, scroll) => {
+      paneOf[m.id] = p;
+      box.setAttribute('data-show', p);
+      nav.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.getAttribute('data-for') === p));
+      if (scroll) window.scrollTo(0, 0);
+    };
+    PANES.forEach(([p, label]) => nav.appendChild(el('button', { type: 'button', 'data-for': p, onclick: () => show(p, true) }, [label])));
+    box.appendChild(nav);
+    shown[m.id] = show;
+    show(paneOf[m.id] || 'play', false);
+    // a technique, a skill or an initiative set up a check: take the player to it. The roller outlives
+    // the page's redraws (rollerFor keeps one per member), so it is wrapped once, and switches
+    // whichever sheet is on the page when it is used
+    if (!roller.panesWrapped) {
+      const set = roller.set;
+      roller.set = (x) => {
+        set(x);
+        document.querySelectorAll('.skill-pick').forEach((sp) => { sp.value = roller.skill() || ''; });
+        if (paneOf[m.id] !== 'roll' && shown[m.id]) shown[m.id]('roll', true);
+      };
+      roller.panesWrapped = true;
+    }
+  }
+  // a check's skill, chosen where the check is made (the full sheet's skill rows are a pane away)
+  function skillPicker(v, roller) {
+    const have = v.Skills || {};
+    const sel = el('select', { class: 'scope skill-pick', 'aria-label': 'Skill' }, [
+      el('option', { value: '' }, ['Skill…']),
+      skillGroups().map((g) => el('optgroup', { label: g.name }, g.skills.map((k) => el('option', { value: k.name }, [k.name + ' ' + (have[k.name] || 0)])))),
+    ]);
+    sel.value = (roller.skill && roller.skill()) || '';
+    sel.addEventListener('change', () => { if (sel.value) roller.set({ skill: sel.value, skillRank: have[sel.value] || 0 }); });
+    return el('div', { class: 'skill-pick-row mobile-only' }, [sel]);
   }
   // a character's log: what its file brought (earlier sessions), then this table's entries
   function logOf(m) {
