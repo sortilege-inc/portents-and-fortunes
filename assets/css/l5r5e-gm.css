@@ -364,3 +364,8 @@ body.advancing .pane-nav { display: none !important; }
 .adv-add input.text:not(.num) { flex: 1 1 100%; min-height: 44px; font-size: 16px; }
 .adv-add .btn { flex: 1; min-height: 44px; }
 .adv-techs li { display: flex; justify-content: space-between; align-items: center; min-height: 36px; }
+
+/* ── Settings (system/l5r5e/ai.js) ── */
+.set-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.set-row .text.wide { flex: 1; min-width: 14em; }
+.cond.ok { background: var(--jade); }
