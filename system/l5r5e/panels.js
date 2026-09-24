@@ -312,7 +312,30 @@
       const items = G ? G.list('rules') : [];
       if (!items.length && !houseBooks.length && !(window.VttConfig || {}).ownAdventure) return;
       mine.appendChild(el('h4', { 'data-gm-id': 'rules' }, ['This campaign', el('span', { class: 'muted small' }, [' · rulings and practice at this table'])]));
-      houseBooks.forEach((b) => mine.appendChild(el('div', { class: 'chiprow tight' }, [el('a', { class: 'btn ghost tiny', href: './#book/' + encodeURIComponent(b.id), target: '_blank' }, [b.label + ' — in the reader'])])));
+      // the layer's rules chapters (its house rules: MODIFY blocks and their GUIDANCE), drawn here as
+      // the reader draws a chapter — the site's book tabs may be off
+      // each MODIFY's GUIDANCE entries, verbatim, under the rule it changes
+      // (one ruling attached to several rules is listed once, under all their names)
+      const rulings = (bid, blocks) => {
+        const byText = new Map();
+        blocks.filter((x) => x.kw === 'MODIFY').forEach((m) => {
+          const target = ((m.args || []).find((a) => a.c) || {}).c || '';
+          const walk = (list) => (list || []).forEach((x) => {
+            if (x.kw === 'TEXT') (x.args || []).forEach((a) => { if (a.s) byText.set(a.s, (byText.get(a.s) || []).concat([target])); });
+            walk(x.body);
+          });
+          walk((m.body || []).filter((x) => x.kw === 'GUIDANCE'));
+        });
+        return Array.from(byText).map(([t, targets]) => el('div', { class: 'house-rule' }, [el('b', {}, [targets.join(' · ')]), ' — ', E.span(t, bid)]));
+      };
+      houseBooks.forEach((b) => D.chapters(b.id).filter((c) => c.kind !== 'lore' && (c.blocks || []).some((x) => x.kw === 'MODIFY')).forEach((c) => {
+        const items = rulings(b.id, c.blocks);
+        if (!items.length) return;
+        mine.appendChild(el('details', { class: 'gm-sub house-rules', 'data-gm-id': 'house-' + c.file }, [
+          el('summary', {}, [D.chapterTitle(c).replace(/^.*? — /, '').replace(/^./, (x) => x.toUpperCase())]),
+          el('div', { class: 'gm-text' }, items),
+        ]));
+      }));
       if (G) G.sections(mine, items, { redraw: drawMine, save: (l) => G.setList('rules', l), addLabel: 'Add a ruling…' });
       if (G) G.reveal(mine);
     };
