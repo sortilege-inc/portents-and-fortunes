@@ -65,6 +65,7 @@
     { id: 'atlas', label: 'Atlas', render: docTab('atlas') },
     { id: 'rokugan', label: 'Lore of Rokugan', render: docTab('lore') },
   ];
-  // the campaign's tabs first: the site opens on the campaign
+  // the campaign's tabs first: the site opens on the campaign; on a phone its menu draws a line after them
+  tabs.forEach(function (t) { t.group = 'campaign'; });
   window.VttSiteTabs = tabs.concat(window.VttSiteTabs || []);
 })();
