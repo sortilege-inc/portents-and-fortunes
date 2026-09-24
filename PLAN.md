@@ -2,7 +2,7 @@
 
 A virtual tabletop for **Legend of the Five Rings, 5th Edition** (Fantasy Flight Games / Edge
 Studio), built on the Titterpig corpus `titterpig-dsl-l5r5e/0.5`. Its shape follows
-`sortilege-vtt-teeth`'s `PLAYBOOK.md` and the Troika! and VtM5e builds that applied it most
+`PLAYBOOK.md` (in `~/Sortilege/VTT/`, beside the VTT repos) and the Troika! and VtM5e builds that applied it most
 recently; all three are read-only reference — nothing in them is modified here. Ninth in the
 line — Wyldwolf Axis, NOVA Open, City of Winter, TEETH, Invisible Sun, Troika!, VtM5e, Aegean.
 
@@ -142,6 +142,9 @@ real controls (PLAYBOOK §5) before the next begins.
 | 7 | Four shape assertions were scoped wrong at first and were corrected to what the corpus writes: CURRICULUM and STARTING_TECHNIQUES also sit on titles, a pregen and 13 errata MODIFYs of schools; a `Ring Increase` writes its CHOOSE after a fixed field or on the next line; GUIDANCE sits at a file's top level (449 ENTRYs, 386 with CONCERNS), never inside the DEF it concerns | The data was right each time; the independent scan was too narrow. |
 
 ## Instances (2026-09-23)
+
+> The general guide is `INSTANCES.md` in `~/Sortilege/VTT/`, beside the family `PLAYBOOK.md` (§4);
+> this section records the generic work the first instance drove here.
 
 An **instance** is a campaign repo that is a fork of this VTT: it merges this repo at its root
 as `upstream`, owns a folder of its own (`campaign/`) and a short list of per-deployment root
