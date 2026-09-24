@@ -16,18 +16,28 @@
   const editing = (c) => document.activeElement && /TEXTAREA|INPUT|SELECT/.test(document.activeElement.tagName) && c.contains(document.activeElement);
   const newId = (p) => State.genId(p);
 
-  // ── Notes: an authored document (the instance names it: VttConfig.notes = { src, title }) rendered,
-  // and the GM's free notes below it ──────────────────────────────────
+  // ── Notes: an authored document (the instance names it: VttConfig.notes = { src, title, class, gate })
+  // rendered, and the GM's free notes below it. A gate (the document's spoiler warning) stands in
+  // front of it until the GM passes it, once per page load. A .html document is the instance's own
+  // fragment and goes in as it is, under its class; anything else is Markdown ─────────────────────
   let docCache = null;
+  let gatePassed = false;
   function renderNotes(container, ctx) {
     const draw = () => {
       container.innerHTML = '';
       const n = CFG.notes || null;
-      if (n && n.src) {
-        const box = el('div', { class: 'paper notes-doc' }, [el('div', { class: 'muted loading' }, ['Reading ' + (n.title || n.src) + '…'])]);
+      if (n && n.src && n.gate && !gatePassed) {
+        container.appendChild(el('h4', {}, [n.title || 'Notes']));
+        container.appendChild(el('div', { class: 'paper notes-gate' }, [
+          n.gate.title ? el('div', { class: 'notes-gate-title' }, [n.gate.title]) : null,
+          n.gate.text ? el('p', {}, [n.gate.text]) : null,
+          button(n.gate.enter || 'Show', () => { gatePassed = true; draw(); }, 'tiny'),
+        ]));
+      } else if (n && n.src) {
+        const box = el('div', { class: 'paper notes-doc' + (n.class ? ' ' + n.class : '') }, [el('div', { class: 'muted loading' }, ['Reading ' + (n.title || n.src) + '…'])]);
         container.appendChild(el('h4', {}, [n.title || 'Notes']));
         container.appendChild(box);
-        const show = (text) => { box.innerHTML = ''; box.appendChild(E.markdown(text, 'core')); };
+        const show = (text) => { box.innerHTML = ''; if (/\.html?$/.test(n.src)) box.innerHTML = text; else box.appendChild(E.markdown(text, 'core')); };
         if (docCache != null) show(docCache);
         else fetch(n.src).then((r) => (r.ok ? r.text() : Promise.reject(new Error(r.status)))).then((t) => { docCache = t; show(t); })
           .catch((e) => { box.innerHTML = ''; box.appendChild(el('div', { class: 'empty' }, ['Could not read ' + n.src + ' (' + e.message + ').'])); });

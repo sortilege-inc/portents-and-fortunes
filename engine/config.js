@@ -9,7 +9,13 @@ window.VttConfig = {
   // path stays root-relative.
   pages: { site: './', gm: 'gm/', table: 'gm/vtt.html', play: 'gm/play.html' },
   // what a fresh browser opens on until a campaign is created or restored: no adventure is
-  // picked (the Adventure panel offers the sixteen), no book beyond what a view asks for
+  // picked (the Adventure panel offers the sixteen), no book beyond what a view asks for.
+  // An instance may add `seed: 'campaign/pack/seed.json'` — a pack whose keys fill what its
+  // campaign has never had (its arc, its encounters), once (engine/state.js seed).
+  // An instance may also name the Notes pane's document (system/l5r5e/gm-panes.js):
+  //   notes: { src: 'campaign/docs/state.html', title: '…', class: 'pf-doc',
+  //            gate: { title: '…', text: '…', enter: 'Bow & Enter' } }
+  // a .html src is the instance's own fragment, inserted as it is; anything else reads as Markdown.
   defaultCampaign: { name: 'A new campaign', modules: [], books: [] },
   // the three panels the GM page opens on (engine/app.js)
   defaultSlots: ['adventure', 'party', 'inspector'],
