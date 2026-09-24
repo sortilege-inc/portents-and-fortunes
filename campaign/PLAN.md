@@ -181,8 +181,16 @@ No Eyes* succeeding read *+1 bonus success — Blood of the Kami (the spider tat
 with it; failing, and *Breaking Blow* succeeding, no bonus; *Lord Togashi's Insight* used → disabled,
 *used (1 of 1 this session)*; **End session** offered the carry for each character — the one ticked
 kept Strife 9 (*strife carried in full*), the other *Strife 9 → 5 (house rule)*; the insight available
-again; 0 console messages. Not yet: conflict (M4d) — its actions, stances and the engaged NPC's
-conditions.
+again; 0 console messages.
+
+**M4d landed 2026-09-23 — M4 is complete.** Upstream `b973d64` / `0959919`, proof in upstream PLAN I5;
+pulled here in `364d18f`. Items 18–21, and O7's two remaining defaults: an engaged NPC's conditions
+visible to the player, and *Elemental Deficiency (Fire)* prompted, never automatic. In the browser on
+8733, Norikage: his **Bō** readied from his Equipment (*Martial Arts [Melee] · range 1-2 · damage 6 ·
+deadliness 2*), Common Clothes offered; Skirmish → Fire → **Strike** set up Martial Arts [Melee] TN 2
+in Fire; the Fire check **prompted** *Elemental Deficiency (Fire) — does it apply? The GM's call*, and
+*Apply* entered its reroll; 0 console messages. O7's prompt fires on any check in the adversity's ring
+(the house rule's *"limited to checks made in Fire stance"* is the GM's Dismiss outside a conflict).
 
 ## Decision log
 
@@ -225,3 +233,4 @@ conditions.
 | 35 | The conditions on the sheet are the corpus's 16 (less the two the ACTOR derives), not Portents' 13 | Upstream I-18: the sheet reads what the corpus defines; *Dying* and *Wounded* were missing from Portents' hand list. |
 | 36 | **Owner (2026-09-23): in "a TN 2 Skulduggery or Medicine (Fire 1) check" the Fire 1 applies to both skills.** Dark Tides' *Deduce When Suzaku Died* is now one check, both skills at TN 2, Fire 1 (titterpig-dsl-l5r5e `4670783`; upstream rebuilt `96765c7`, 31,572 strings 0/0/0) | Replaces decision 34's reading. No other check in either adventure has that shape (scanned). |
 | 37 | Blood of the Kami keys on Norikage's recorded tattoo (motif → kihō) and the technique's category *Kihō*; the bonus is his school rank, automatic on a success, nothing on a failure | The school ability's text; the linked kihō and motif from his Portents sheet (`sheet-data.json`: spider, *Earth Needs No Eyes*). |
+| 38 | M4 is complete: all 23 ported audit items (1–23) are upstream and pulled; 24–26 were decided not ported | M4a–M4d, each proven through the real controls (upstream PLAN I2–I5; this plan's M4a–M4d paragraphs). Next is H1 (hash the unhashed), then M5. |
