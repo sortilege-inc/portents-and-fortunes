@@ -26,6 +26,12 @@ TECH, ADV, DIS = '#L5R350fG9hI1jK3lM5nO7p ^"Technique"', '#L5R263hI5jK7lM9nO1pQ3
 TECHNIQUES = {"Earth Needs No Eyes": "#wipC0ms8dqRk9zuBoXaerX", "Breaking Blow": "#lAQIjKFkZekzmFES1nowZn",
               "Lord Togashi’s Insight": ("#HPyhRH2w9P002W4dTymcYl", "Lord Togashi's Insight")}
 SKILL_NAME = {"unarmed": "Martial Arts [Unarmed]"}
+# his advantages and disadvantages by the corpus's hash (H1 hashed every entity). Brushwork names two
+# corpus entities; his sheet tags it a Passion, and the core's is the Passion (the other is a local DEF
+# on a Children of the Five Winds pregen).
+PECULIARITIES = {"Portentous Birth": "#VtGG4mA3gym8wzlhbPWde8", "Affect of Harmlessness": "#d4joKnGux2q36R0L7nv0dE",
+                 "Brushwork": "#wG9SV1FU94iO9j2HugJf3x", "Elemental Deficiency (Fire)": "#ocx9KUG0GPag26Fk6SduZL",
+                 "Tip of the Tongue": "#ap1yY0Fuo1k4JYA1bEG1hA"}
 ADVANTAGE_TAGS = {"Distinction", "Passion"}
 DISADVANTAGE_TAGS = {"Adversity", "Anxiety"}
 
@@ -59,8 +65,8 @@ def fields(s, state=None):
         ref = TECHNIQUES[t["name"]]
         h, nm = (ref if isinstance(ref, tuple) else (ref, t["name"]))
         techs.append('%s ^"%s"' % (h, nm))
-    adv = ['^"%s"' % p["name"] for p in s["peculiarities"] if p["tag"] in ADVANTAGE_TAGS]
-    dis = ['^"%s"' % p["name"] for p in s["peculiarities"] if p["tag"] in DISADVANTAGE_TAGS]
+    adv = ['%s ^"%s"' % (PECULIARITIES[p["name"]], p["name"]) for p in s["peculiarities"] if p["tag"] in ADVANTAGE_TAGS]
+    dis = ['%s ^"%s"' % (PECULIARITIES[p["name"]], p["name"]) for p in s["peculiarities"] if p["tag"] in DISADVANTAGE_TAGS]
     left = [p["name"] for p in s["peculiarities"] if p["tag"] not in ADVANTAGE_TAGS | DISADVANTAGE_TAGS]
     if left:
         raise SystemExit("a peculiarity of no known kind: %s" % left)
@@ -122,7 +128,7 @@ def main():
                             "Archived: sheet-%s.json, with the label, date and between-sessions state SHEET_HISTORY gave it." % hv["id"]))
     text = """EXTENSION "Portents_Characters" {
     NAME "Portents & Fortunes — the player character"
-    VERSION "0.2.0"
+    VERSION "0.2.1"
     SPEC_VERSION "0.5"
     RELEASE_DATE "2026-09-23"
     DEPENDS_ON "L5R5e_Core_Core"

@@ -1,34 +1,34 @@
 EXTENSION "Portents_House_Rules" EXTENDS "L5R5e_Core_Systems" {
     NAME "Portents & Fortunes — house rules established in play"
-    VERSION "0.1.2"
+    VERSION "0.1.3"
     SPEC_VERSION "0.5"
     RELEASE_DATE "2026-09-23"
 
     # The rules the table has settled that the books do not say, each shown beside the rule it
     # changes (a MODIFY carrying a GUIDANCE entry, as the errata are). Converted once from the
     # state document's §10 by campaign/source/convert_house_rules.py; this file is now the source.
-    # A target the corpus hashes is given by hash; one it leaves unhashed, by name.
+    # Every target is given by hash (the corpus hashes every entity since H1).
 
-    MODIFY ^"Portentous Birth" {
+    MODIFY #VtGG4mA3gym8wzlhbPWde8 ^"Portentous Birth" {
         PROPERTIES {
             ^"Off-Approach Reroll Dice" INTEGER 1
         }
         GUIDANCE {
             ENTRY ^"house-rule-off-approach-distinctions" #PFhouseRule01 {
-                CONCERNS [ ^"Portentous Birth" ]
+                CONCERNS [ #VtGG4mA3gym8wzlhbPWde8 ^"Portentous Birth" ]
                 TOPICS [ "house rule" ]
                 TEXT "Off-approach distinctions. Portentous Birth is incentivised toward Fire, Affect of Harmlessness toward Air. Either may be used on an off-approach check, but grants one reroll die instead of two."
             }
         }
     }
 
-    MODIFY ^"Affect of Harmlessness" {
+    MODIFY #d4joKnGux2q36R0L7nv0dE ^"Affect of Harmlessness" {
         PROPERTIES {
             ^"Off-Approach Reroll Dice" INTEGER 1
         }
         GUIDANCE {
             ENTRY ^"house-rule-off-approach-distinctions" #PFhouseRule02 {
-                CONCERNS [ ^"Affect of Harmlessness" ]
+                CONCERNS [ #d4joKnGux2q36R0L7nv0dE ^"Affect of Harmlessness" ]
                 TOPICS [ "house rule" ]
                 TEXT "Off-approach distinctions. Portentous Birth is incentivised toward Fire, Affect of Harmlessness toward Air. Either may be used on an off-approach check, but grants one reroll die instead of two."
             }
@@ -58,10 +58,10 @@ EXTENSION "Portents_House_Rules" EXTENDS "L5R5e_Core_Systems" {
         }
     }
 
-    MODIFY ^"Elemental Deficiency (Fire)" {
+    MODIFY #ocx9KUG0GPag26Fk6SduZL ^"Elemental Deficiency (Fire)" {
         GUIDANCE {
             ENTRY ^"house-rule-elemental-deficiency-at-the-gms-call" #PFhouseRule05 {
-                CONCERNS [ ^"Elemental Deficiency (Fire)" ]
+                CONCERNS [ #ocx9KUG0GPag26Fk6SduZL ^"Elemental Deficiency (Fire)" ]
                 TOPICS [ "house rule" ]
                 TEXT "Elemental Deficiency (Fire) fires at the GM's call, in Fire stance. It does not trigger on every Fire-adjacent check. The GM decides when it applies, and absent a deliberate exception it is limited to checks made in Fire stance."
             }

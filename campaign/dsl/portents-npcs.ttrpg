@@ -1,6 +1,6 @@
 EXTENSION "Portents_NPCs" EXTENDS "L5R5e_Core_NPCs" {
     NAME "Portents & Fortunes — the Dramatis Personae"
-    VERSION "0.1.0"
+    VERSION "0.1.1"
     SPEC_VERSION "0.5"
     RELEASE_DATE "2026-09-23"
 
@@ -745,7 +745,7 @@ EXTENSION "Portents_NPCs" EXTENDS "L5R5e_Core_NPCs" {
                 "An unfamiliar medical or theological text takes her five readings where another scholar needs one, and she knows her teachers watch her struggle. She is going to a shrine of the Fortune of Wisdom.",
                 "What she wants is to stop being asked to mediate at all — one temple’s garden and its records, with no dispute crossing the threshold. She holds Righteousness paramount and Sincerity least, and she is aware those two sit badly together in her."
             ]
-            ^"Techniques" LIST OF #L5R350fG9hI1jK3lM5nO7p ^"Technique" [^"One within the Void", #bNxt2ZFUbgSKhc6XxSTMUh ^"Divination", #CUVTW0xoeEbzJYrll6mbV7 ^"Truth Burns through Lies"]
+            ^"Techniques" LIST OF #L5R350fG9hI1jK3lM5nO7p ^"Technique" [#Avqr2DDV67BerlxHaFv4Pd ^"One within the Void", #bNxt2ZFUbgSKhc6XxSTMUh ^"Divination", #CUVTW0xoeEbzJYrll6mbV7 ^"Truth Burns through Lies"]
         }
         RULES {
             #PFnpcKaitoJurir1: kaito_juri_way_of_the_void "Way of the Void: When you make a check using your Void Ring, after rolling dice, you may receive a number of fatigue up to your school rank. If you do, you may pull or push:\n\nIf you pull, choose a number of dice with non-blank results equal to the fatigue you received, and alter each to a blank result.\n\nIf you push, choose a number of dice with blank results equal to the fatigue you received, and alter each to a non-blank result of your choice."

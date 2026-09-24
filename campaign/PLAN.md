@@ -216,6 +216,27 @@ retired**: removed; the character pages and the GM notes link to `/gm/play.html`
 Personae no longer loads `play/l5rdata.js` (it already fell back without it; M7 rebuilds it). 0 console
 messages on the GM's page and the player's.
 
+**H1 landed 2026-09-23 — the corpus hashes every entity.** titterpig-dsl-l5r5e `c7abe91`, `20e07df`,
+`014ef18`; tool `titterpig-audit/l5r5e/hash_unhashed/` (`hash.py` survey · assign · apply;
+`assignments.json` maps each old build id to its hash). **2,035 entities hashed** (1,668 `.ttrpg`, 132
+`.actor`, 77 `.arc`, 31 codex DEFs, 127 codex ENTITYs) in 122 files; the pilot (*core-distinctions*) first,
+34 of 34 lines changed only by the added hash, then all 2,035. Kitsune Ryōsei takes back the hash of the
+duplicate retired in `2792b99`. **§5d backfill**: 183 references by a unique name now carry the hash (list
+items, keyword subjects); 73 that begin a statement (curriculum rows) stay names — a leading hash there reads
+as a definition, which the VTT's parser caught. Gates: validator 164 files 0/0; REFERENCES 44, 0 errors;
+§5d 2,291 sites 0/0; mend and lift PASS. **Proof that nothing changed but ids:** the VTT's build of the
+corpus before and after, entity by entity with the old ids renamed — 4,610 = 4,610, the same ids, 4,574
+identical, 36 differing only by a reference that gained its hash, **0 otherwise**. Upstream (I8, `c611ccb`):
+**0 `u:` ids**; stored state renamed on read (`renamed-ids.js` + `engine/state.js renameIds`) — the 8740
+campaign's 16 old ids and this browser's all carried over, 0 left. Here (`3937cc0` + this commit): the
+layer's references by name rewritten as hashes — **names gate: 0 references by name**; check_norikage 124 / 0,
+check_npcs 18 / 18; in the browser the off-approach rerolls (2 on Fire, 1 on Water), the house-rule notes
+joined by hash and the session rule all hold, 0 console messages.
+
+**Found on the way and repaired first (titterpig-dsl-l5r5e `3417932`):** my data-strings mend (`2792b99`)
+had broken 4 REFERENCES and dropped 3 — check_references' REFERENCES line read *44 refs, 4 errors*, which my
+reports had not quoted (they quoted only its §5d line). Now 44 refs, 0 errors (decision 42).
+
 ## Decision log
 
 | # | Decision | Why |
@@ -261,3 +282,6 @@ messages on the GM's page and the player's.
 | 39 | **M5 ran before H1 (owner: "Then m5")**, reversing the plan's order | The plan put H1 first so the version history would be built on hashed references. M5's versions hold names and the layer's own hashes, not `u:` ids, so H1 remains a corpus-and-rebuild step with nothing of M5's to migrate but the layer's name references (still 22, now across the three sheets). |
 | 40 | Norikage's archived sheets are DSL (two DEFs `^"Version Of"` the live one), not pack state | O6: homebrew is DSL; the archives are records to check field by field, and the layer's gates cover them. Archives the table makes in play (*Archive this version…*) stay pack state. |
 | 41 | The one-time import takes the old sheet's trackers, standing, XP, conditions, gear and log; not its per-scene technique uses or Void claims | Those reset at the next scene anyway, and the old keys do not map onto the VTT's. |
+| 42 | **2792b99's REFERENCES repaired**: Hiniku → Mazoku Bureaucrat removed (Deathly Turns p. 11 gives that profile to the Gatekeeper, and her verbatim text names neither); Masashige → Mountain Song Temple removed (his verbatim profile does not name it); Teru and Sugai take the word their prose uses as the surface; Kichiru → Dragon Clan and Sadao → Dragonfly Clan restored on the kept copies; Koma → Furthest Fortress could not be (its only anchor was the misfiled sidebar the retirement removed; the text lives in the temples `.lore`/`.codex`) | A reference's surface must be in its DEF's prose, and it may point only at a declared anchor. From now on a corpus report quotes every line of check_references, not only §5d. |
+| 43 | **H1's reference backfill stops at the unique**: 284 references in 41 ambiguous names are left by name (`hash_unhashed/ambiguous.json`) for the owner | §5d: *"Ambiguous sites cannot be backfilled mechanically: they need the intended target chosen."* Most are a core technique or skill that a supplement or adventure reprints under its own entity (*Martial Arts [Melee]* core and Path of Waves; *Commune with the Spirits* core and Wedding at Kyōtei); the rest an arc's cast line beside the NPC's own stat block. The VTT resolves them today as it always has (same book, then the core). |
+| 44 | Codex `IS` tags and relationship objects stay names | §25 defines them as caret names resolved by name; neither the spec nor the corpus writes a hash there. |

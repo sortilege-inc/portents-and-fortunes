@@ -1,6 +1,6 @@
 EXTENSION "Portents_Characters" {
     NAME "Portents & Fortunes — the player character"
-    VERSION "0.2.0"
+    VERSION "0.2.1"
     SPEC_VERSION "0.5"
     RELEASE_DATE "2026-09-23"
     DEPENDS_ON "L5R5e_Core_Core"
@@ -33,8 +33,8 @@ EXTENSION "Portents_Characters" {
             ^"Giri" STRING "Eyes and ears for his lord — the Togashi abbot Oharu, who has sent him east alongside a village being resettled under Seiya Mori's consolidation order, to observe in a religious capacity and report back to the temple. He is outside the daimyō's chain of command and responsible for moving no one. What he is meant to watch for was never specified."
             ^"Skills" LIST OF STRING ["Fitness 3", "Meditation 2", "Theology 2", "Martial Arts [Unarmed] 1", "Courtesy 1", "Survival 0", "Culture 0"]
             ^"Techniques" LIST OF #L5R350fG9hI1jK3lM5nO7p ^"Technique" [#wipC0ms8dqRk9zuBoXaerX ^"Earth Needs No Eyes", #lAQIjKFkZekzmFES1nowZn ^"Breaking Blow", #HPyhRH2w9P002W4dTymcYl ^"Lord Togashi's Insight"]
-            ^"Advantages" LIST OF #L5R263hI5jK7lM9nO1pQ3r ^"Advantage" [^"Portentous Birth", ^"Affect of Harmlessness", ^"Brushwork"]
-            ^"Disadvantages" LIST OF #L5R264sT6uV8wX0yZ2aB4c ^"Disadvantage" [^"Elemental Deficiency (Fire)", ^"Tip of the Tongue"]
+            ^"Advantages" LIST OF #L5R263hI5jK7lM9nO1pQ3r ^"Advantage" [#VtGG4mA3gym8wzlhbPWde8 ^"Portentous Birth", #d4joKnGux2q36R0L7nv0dE ^"Affect of Harmlessness", #wG9SV1FU94iO9j2HugJf3x ^"Brushwork"]
+            ^"Disadvantages" LIST OF #L5R264sT6uV8wX0yZ2aB4c ^"Disadvantage" [#ocx9KUG0GPag26Fk6SduZL ^"Elemental Deficiency (Fire)", #ap1yY0Fuo1k4JYA1bEG1hA ^"Tip of the Tongue"]
             ^"Equipment" LIST OF STRING ["Bō", "Common Clothes", "Traveling Pack", "Jade Tadpole", "Left Green Armband-sash", "150 zeni · starting wealth 3 koku"]
             ^"Bushido" DEF { ^"Paramount Tenet" STRING "Sincerity" ^"Less Significant Tenet" STRING "Duty" }
             ^"Experience" INTEGER 11
@@ -71,8 +71,8 @@ EXTENSION "Portents_Characters" {
             ^"Giri" STRING "Eyes and ears for his lord — the Togashi abbot Oharu, who has sent him east alongside a village being resettled under Seiya Mori's consolidation order, to observe in a religious capacity and report back to the temple. He is outside the daimyō's chain of command and responsible for moving no one. What he is meant to watch for was never specified."
             ^"Skills" LIST OF STRING ["Fitness 3", "Meditation 2", "Theology 2", "Martial Arts [Unarmed] 1", "Courtesy 1", "Survival 0", "Culture 0"]
             ^"Techniques" LIST OF #L5R350fG9hI1jK3lM5nO7p ^"Technique" [#wipC0ms8dqRk9zuBoXaerX ^"Earth Needs No Eyes", #lAQIjKFkZekzmFES1nowZn ^"Breaking Blow", #HPyhRH2w9P002W4dTymcYl ^"Lord Togashi's Insight"]
-            ^"Advantages" LIST OF #L5R263hI5jK7lM9nO1pQ3r ^"Advantage" [^"Portentous Birth", ^"Affect of Harmlessness", ^"Brushwork"]
-            ^"Disadvantages" LIST OF #L5R264sT6uV8wX0yZ2aB4c ^"Disadvantage" [^"Elemental Deficiency (Fire)", ^"Tip of the Tongue"]
+            ^"Advantages" LIST OF #L5R263hI5jK7lM9nO1pQ3r ^"Advantage" [#VtGG4mA3gym8wzlhbPWde8 ^"Portentous Birth", #d4joKnGux2q36R0L7nv0dE ^"Affect of Harmlessness", #wG9SV1FU94iO9j2HugJf3x ^"Brushwork"]
+            ^"Disadvantages" LIST OF #L5R264sT6uV8wX0yZ2aB4c ^"Disadvantage" [#ocx9KUG0GPag26Fk6SduZL ^"Elemental Deficiency (Fire)", #ap1yY0Fuo1k4JYA1bEG1hA ^"Tip of the Tongue"]
             ^"Equipment" LIST OF STRING ["Bō", "Common Clothes", "Traveling Pack", "Jade Tadpole", "Left Green Armband-sash", "150 zeni · starting wealth 3 koku"]
             ^"Bushido" DEF { ^"Paramount Tenet" STRING "Sincerity" ^"Less Significant Tenet" STRING "Duty" }
             ^"Experience" INTEGER 9
@@ -110,8 +110,8 @@ EXTENSION "Portents_Characters" {
             ^"Giri" STRING "Eyes and ears for his lord — the Togashi abbot Oharu, who has sent him east alongside a village being resettled under Seiya Mori's consolidation order, to observe in a religious capacity and report back to the temple. He is outside the daimyō's chain of command and responsible for moving no one. What he is meant to watch for was never specified. (The sheet's original field named Togashi Oharu as a provincial daimyō; that role belongs to Seiya Mori, and Oharu is the abbot.)"
             ^"Skills" LIST OF STRING ["Fitness 3", "Meditation 2", "Theology 2", "Martial Arts [Unarmed] 1", "Courtesy 1"]
             ^"Techniques" LIST OF #L5R350fG9hI1jK3lM5nO7p ^"Technique" [#wipC0ms8dqRk9zuBoXaerX ^"Earth Needs No Eyes", #HPyhRH2w9P002W4dTymcYl ^"Lord Togashi's Insight"]
-            ^"Advantages" LIST OF #L5R263hI5jK7lM9nO1pQ3r ^"Advantage" [^"Portentous Birth", ^"Affect of Harmlessness", ^"Brushwork"]
-            ^"Disadvantages" LIST OF #L5R264sT6uV8wX0yZ2aB4c ^"Disadvantage" [^"Elemental Deficiency (Fire)", ^"Tip of the Tongue"]
+            ^"Advantages" LIST OF #L5R263hI5jK7lM9nO1pQ3r ^"Advantage" [#VtGG4mA3gym8wzlhbPWde8 ^"Portentous Birth", #d4joKnGux2q36R0L7nv0dE ^"Affect of Harmlessness", #wG9SV1FU94iO9j2HugJf3x ^"Brushwork"]
+            ^"Disadvantages" LIST OF #L5R264sT6uV8wX0yZ2aB4c ^"Disadvantage" [#ocx9KUG0GPag26Fk6SduZL ^"Elemental Deficiency (Fire)", #ap1yY0Fuo1k4JYA1bEG1hA ^"Tip of the Tongue"]
             ^"Equipment" LIST OF STRING ["Bō", "Common Clothes", "Traveling Pack", "Jade Tadpole", "Left Green Armband-sash", "150 zeni · starting wealth 3 koku"]
             ^"Bushido" DEF { ^"Paramount Tenet" STRING "Sincerity" ^"Less Significant Tenet" STRING "Duty" }
             ^"Experience" INTEGER 6
