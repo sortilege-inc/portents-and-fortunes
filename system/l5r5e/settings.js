@@ -1,5 +1,5 @@
 // system/l5r5e/settings.js — the GM's Settings pane: one section per feature that needs this
-// browser's own configuration (the AI suggestions' key, the lore server's address). A feature
+// browser's own configuration (the AI suggestions' key, the lore server's address and token). A feature
 // adds its section with L5RSettings.section({ id, render(container, redraw) }); everything a
 // section saves is its own, in this browser's localStorage, and never enters the pack or a session.
 window.L5RSettings = (function () {
