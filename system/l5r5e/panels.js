@@ -201,6 +201,8 @@
         container.appendChild(el('div', { class: 'chiprow tight' }, [
           sc && (e.type === 'NPC' || e.type === 'Samurai') ? button('Put in ' + sc.name, () => State.commit('setSceneCast', [cur, Sys().castIds(cur).filter((x) => x !== e.id).concat([e.id])]), 'tiny') : null,
           el('a', { class: 'btn ghost tiny', href: './#book/' + encodeURIComponent(e.book) + '/' + encodeURIComponent(e.id), target: '_blank' }, ['In the reader']),
+          // the wiki, for inspiration (system/l5r5e/lore.js), when the GM has a lore server
+          window.L5RLore && window.L5RLore.configured() ? button('Find in lore', () => window.L5RLore.find(e.name), 'ghost tiny') : null,
         ]));
         if (rings && rings.vk === 'def' && (rings.fields || []).some((f) => f.value !== undefined)) {
           const r = npcRoller(e);

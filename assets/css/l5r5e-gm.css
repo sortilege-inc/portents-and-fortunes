@@ -369,3 +369,31 @@ body.advancing .pane-nav { display: none !important; }
 .set-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
 .set-row .text.wide { flex: 1; min-width: 14em; }
 .cond.ok { background: var(--jade); }
+
+/* ── Lore (system/l5r5e/lore.js) ── */
+.settings-section { margin-bottom: 10px; }
+.lore-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0 10px; }
+.lore-bar .text.wide { flex: 1; min-width: 14em; }
+.lore-cols { display: grid; gap: 14px; }
+.lore-cols.two { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.lore-col-h { border-bottom: 1px solid var(--edge); padding-bottom: 4px; margin-bottom: 6px; }
+.lore-results { padding-left: 1.2em; margin: 0; }
+.lore-results li { margin: 0 0 10px; }
+.lore-title { font-family: var(--disp); font-size: 18px; }
+.lore-snip { font-size: 14px; color: var(--ink-2); }
+.lore-layer { font-family: var(--caps); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-dim); margin-left: 4px; }
+.lore-badge { display: inline-block; font-family: var(--caps); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; padding: 0 5px; border: 1px solid var(--edge); color: var(--ink-soft); background: var(--paper); white-space: nowrap; }
+.lore-badge i { font-style: normal; opacity: .7; text-transform: none; letter-spacing: 0; }
+.lore-badge.lore-ffg { border-color: var(--jade); color: var(--jade); }
+.lore-badge.lore-aeg-legacy { border-color: var(--gold); color: var(--gold); }
+.lore-page h3 { margin: 8px 0 4px; }
+.lore-counter { background: var(--paper-2); border-left: 3px solid var(--gold); padding: 4px 8px; margin: 6px 0; font-size: 15px; }
+.lore-info { display: grid; grid-template-columns: max-content 1fr; gap: 0 10px; font-size: 14px; margin: 8px 0; }
+.lore-info dt { font-family: var(--caps); letter-spacing: .05em; color: var(--ink-dim); }
+.lore-info dd { margin: 0; }
+.lore-sec { border-top: 1px solid var(--edge-soft); padding: 4px 0; }
+.lore-sec summary { cursor: pointer; font-family: var(--disp); font-size: 17px; }
+.lore-sec p { font-size: 15px; margin: 6px 0; }
+.lore-rel { margin-top: 8px; }
+.lore-cmd { background: var(--paper-2); padding: 6px 8px; font-size: 13px; white-space: pre-wrap; }
+.lore-flash { background: var(--jade); color: #fff; font-size: 13px; padding: 2px 8px; margin-bottom: 6px; display: inline-block; }
