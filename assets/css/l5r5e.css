@@ -61,6 +61,28 @@ code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monosp
 .site-tab:hover { color: #fff; }
 .site-tab.active { color: #fff; border-bottom-color: var(--crimson); }
 .gm-link { font-family: var(--caps); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--gold-lit); text-decoration: none; }
+/* the site's tabs on a phone (engine/site.js): one row — the name, and a menu button naming the tab you
+   are on; open, the tabs as a full-width list (an instance's own group first, a line, then the books),
+   and the GM's table last */
+.site-menu-btn, .site-tab-sep { display: none; }
+@media (max-width: 640px) {
+  .site-head { padding: 8px 12px; gap: 8px; flex-wrap: wrap; }
+  .site-head .brand { flex: 1; min-width: 0; }
+  .site-head .brand-text { min-width: 0; }
+  .site-head .brand-title { font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+  .site-head .brand-sub { display: none; }
+  .site-menu-btn { display: inline-flex; align-items: center; gap: 8px; max-width: 55%; min-height: 40px; padding: 0 12px; background: var(--lacquer-2); color: #fff; border: 1px solid var(--lacquer-3); font-family: var(--caps); font-size: 14px; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+  .site-menu-cur { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .site-menu-icon { font-size: 16px; }
+  .site-head.menu-open .site-menu-btn { border-color: var(--crimson); }
+  .site-tabs { display: none; flex-basis: 100%; flex-direction: column; gap: 0; max-height: calc(100vh - 64px); overflow-y: auto; }
+  .site-head.menu-open .site-tabs { display: flex; }
+  .site-tab { padding: 12px 6px; font-size: 15px; border-bottom: 1px solid var(--lacquer-3); }
+  .site-tab.active { border-bottom-color: var(--lacquer-3); box-shadow: inset 3px 0 0 var(--crimson); padding-left: 12px; }
+  .site-tab-sep { display: block; height: 0; margin: 6px 0; border-top: 2px solid var(--crimson); opacity: .6; }
+  .gm-link { display: none; }
+  .site-head.menu-open .gm-link { display: block; flex-basis: 100%; padding: 12px 6px 14px; font-size: 15px; }
+}
 .site-main { max-width: 1320px; margin: 0 auto; padding: 18px 22px 60px; }
 .page { min-height: 60vh; }
 .masthead p { max-width: 60em; }
