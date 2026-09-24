@@ -17,7 +17,6 @@ No build step — hand-authored static HTML, meant for GitHub Pages.
 | `index.html` | Home — masthead + section grid |
 | `map/` | **Interactive map** — the Rokugan overview; click a clan's territory to descend into its own detailed regional map (pan/zoom). `map.js` holds the territory polygons + region config. |
 | `character/` | Togashi Norikage's narrative dossier |
-| `play/` | **Interactive L5R5e character sheet** — rings, skills, stances, techniques, honor/glory/status, live strife·fatigue·void trackers, and a Roll & Keep dice roller. Character data is the JSON in `play/index.html`; renderer + roller in `play/sheet.js`. |
 | `chronicle/` | Session-by-session record (scaffolded — play has not begun) |
 | `dramatis-personae/` | The cast known so far |
 | `atlas/` | Gazetteer of the Dragon lands (map-pin targets live here as `#anchors`) |
@@ -34,10 +33,12 @@ are marked *not yet charted*. The Dragon region carries location pins linked to 
 
 ## The character sheet
 
-`play/index.html` contains a `window.SHEET` JSON blob (derived from the Foundry VTT actor
-export). Rules text — techniques, distinctions/adversities/passions/anxieties, gear — is
-reproduced **verbatim**. The roller uses the official Ring (d6) and Skill (d12) faces;
-trackers persist in `localStorage`. Void stance correctly suppresses strife from kept dice.
+Norikage plays on the VTT's own sheet (`/gm/play.html` for the player, the GM's table at `/gm/`),
+built from `dsl/portents-norikage.actor` — his live sheet and his two archived ones (*Session Five*,
+*Session Three*), converted from the old sheet's records, which are kept byte for byte in
+`source/norikage-sheets/` and checked field by field by `source/check_norikage.py`. The old `play/`
+page is retired (PLAN.md M5); its saved trackers and roll log are imported once by
+`site/import-old-sheet.js`.
 
 ## Local preview
 

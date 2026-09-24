@@ -1,16 +1,16 @@
 EXTENSION "Portents_Characters" {
     NAME "Portents & Fortunes — the player character"
-    VERSION "0.1.1"
+    VERSION "0.2.0"
     SPEC_VERSION "0.5"
     RELEASE_DATE "2026-09-23"
     DEPENDS_ON "L5R5e_Core_Core"
 
-    # Togashi Norikage, an instance of the Samurai ACTOR in the corpus's pregen conventions.
-    # Converted once from the old site's sheet by campaign/source/convert_norikage.py; the three
-    # original sheets are kept byte for byte in campaign/source/norikage-sheets/. This file holds
-    # the fields the ACTOR declares; the stance, live tracks, XP ledger and archived versions are
-    # the sheet's (campaign/PLAN.md, M4 and M5).
+    # Togashi Norikage, an instance of the Samurai ACTOR in the corpus's pregen conventions, with his
+    # two archived sheets. Converted from campaign/source/norikage-sheets/ (the old site's sheets, byte
+    # for byte) by campaign/source/convert_norikage.py; campaign/source/check_norikage.py reads the
+    # built layer back against them field by field.
 
+    # The live sheet (sheet-data.json). Blood of the Kami's tattoo is read by campaign/site/blood-of-the-kami.js.
     #PFpcTogashiNorikage ^"Togashi Norikage" DEF {
         EXTENDS #L5R003xY4zA6bC8dE0fG2hI ^"Samurai"
         PROPERTIES {
@@ -38,9 +38,87 @@ EXTENSION "Portents_Characters" {
             ^"Equipment" LIST OF STRING ["Bō", "Common Clothes", "Traveling Pack", "Jade Tadpole", "Left Green Armband-sash", "150 zeni · starting wealth 3 koku"]
             ^"Bushido" DEF { ^"Paramount Tenet" STRING "Sincerity" ^"Less Significant Tenet" STRING "Duty" }
             ^"Experience" INTEGER 11
-            # Blood of the Kami (Togashi Tattooed Order school ability): his one mystical tattoo, its motif and
-            # the kihō linked to it, from his sheet (sheet-data.json: motif "spider", linkedKiho). Read by
-            # campaign/site/blood-of-the-kami.js, the campaign's own check hook (decision 28).
+            ^"Experience Spent" INTEGER 9
+            ^"Experience Ledger" LIST OF STRING ["3 · Breaking Blow · rank-one Fire kihō, in-curriculum · 26 Aug 2026", "6 · Water 1 → 2 · composure 8 → 10 · 26 Aug 2026"]
+            ^"Stance" STRING "Void"
+            ^"Mystical Tattoos" DEF { ^"Spider" STRING "Earth Needs No Eyes" }
+        }
+    }
+
+    # Archived: sheet-s5.json, with the label, date and between-sessions state SHEET_HISTORY gave it.
+    #PFpcTogashiNorikageS5 ^"Togashi Norikage (Session Five)" DEF {
+        EXTENDS #L5R003xY4zA6bC8dE0fG2hI ^"Samurai"
+        PROPERTIES {
+            ^"Version Of" #PFpcTogashiNorikage ^"Togashi Norikage"
+            ^"Version Label" STRING "Session Five · 9 XP spent"
+            ^"Version Date" STRING "9 Sep 2026"
+            ^"Name" STRING "Togashi Norikage" FIXED
+            ^"Clan" STRING "Dragon" FIXED
+            ^"Family" STRING "Togashi" FIXED
+            ^"School" STRING "Togashi Tattooed Order"
+            ^"School Rank" INTEGER 1
+            ^"Roles" LIST OF STRING ["Monk"]
+            ^"Rings" DEF { ^"Air" INTEGER 1 ^"Earth" INTEGER 3 ^"Fire" INTEGER 2 ^"Water" INTEGER 2 ^"Void" INTEGER 3 }
+            ^"Honor" INTEGER 52
+            ^"Glory" INTEGER 50
+            ^"Status" INTEGER 30
+            ^"Endurance" INTEGER 10
+            ^"Composure" INTEGER 10
+            ^"Focus" INTEGER 3
+            ^"Vigilance" INTEGER 1
+            ^"Void Points" INTEGER 3
+            ^"Ninjō" STRING "To study theology with the Phoenix. They seem to understand what is happening with the elemental imbalance."
+            ^"Giri" STRING "Eyes and ears for his lord — the Togashi abbot Oharu, who has sent him east alongside a village being resettled under Seiya Mori's consolidation order, to observe in a religious capacity and report back to the temple. He is outside the daimyō's chain of command and responsible for moving no one. What he is meant to watch for was never specified."
+            ^"Skills" LIST OF STRING ["Fitness 3", "Meditation 2", "Theology 2", "Martial Arts [Unarmed] 1", "Courtesy 1", "Survival 0", "Culture 0"]
+            ^"Techniques" LIST OF #L5R350fG9hI1jK3lM5nO7p ^"Technique" [#wipC0ms8dqRk9zuBoXaerX ^"Earth Needs No Eyes", #lAQIjKFkZekzmFES1nowZn ^"Breaking Blow", #HPyhRH2w9P002W4dTymcYl ^"Lord Togashi's Insight"]
+            ^"Advantages" LIST OF #L5R263hI5jK7lM9nO1pQ3r ^"Advantage" [^"Portentous Birth", ^"Affect of Harmlessness", ^"Brushwork"]
+            ^"Disadvantages" LIST OF #L5R264sT6uV8wX0yZ2aB4c ^"Disadvantage" [^"Elemental Deficiency (Fire)", ^"Tip of the Tongue"]
+            ^"Equipment" LIST OF STRING ["Bō", "Common Clothes", "Traveling Pack", "Jade Tadpole", "Left Green Armband-sash", "150 zeni · starting wealth 3 koku"]
+            ^"Bushido" DEF { ^"Paramount Tenet" STRING "Sincerity" ^"Less Significant Tenet" STRING "Duty" }
+            ^"Experience" INTEGER 9
+            ^"Experience Spent" INTEGER 9
+            ^"Stance" STRING "Void"
+            ^"Strife" INTEGER 0
+            ^"Fatigue" INTEGER 0
+            ^"Mystical Tattoos" DEF { ^"Spider" STRING "Earth Needs No Eyes" }
+        }
+    }
+
+    # Archived: sheet-s3.json, with the label, date and between-sessions state SHEET_HISTORY gave it.
+    #PFpcTogashiNorikageS3 ^"Togashi Norikage (Session Three)" DEF {
+        EXTENDS #L5R003xY4zA6bC8dE0fG2hI ^"Samurai"
+        PROPERTIES {
+            ^"Version Of" #PFpcTogashiNorikage ^"Togashi Norikage"
+            ^"Version Label" STRING "Session Three · 0 XP"
+            ^"Version Date" STRING "18 Aug 2026"
+            ^"Name" STRING "Togashi Norikage" FIXED
+            ^"Clan" STRING "Dragon" FIXED
+            ^"Family" STRING "Togashi" FIXED
+            ^"School" STRING "Togashi Tattooed Order"
+            ^"School Rank" INTEGER 1
+            ^"Roles" LIST OF STRING ["Monk"]
+            ^"Rings" DEF { ^"Air" INTEGER 1 ^"Earth" INTEGER 3 ^"Fire" INTEGER 2 ^"Water" INTEGER 1 ^"Void" INTEGER 3 }
+            ^"Honor" INTEGER 55
+            ^"Glory" INTEGER 50
+            ^"Status" INTEGER 30
+            ^"Endurance" INTEGER 10
+            ^"Composure" INTEGER 8
+            ^"Focus" INTEGER 3
+            ^"Vigilance" INTEGER 1
+            ^"Void Points" INTEGER 3
+            ^"Ninjō" STRING "To study theology with the Phoenix. They seem to understand what is happening with the elemental imbalance."
+            ^"Giri" STRING "Eyes and ears for his lord — the Togashi abbot Oharu, who has sent him east alongside a village being resettled under Seiya Mori's consolidation order, to observe in a religious capacity and report back to the temple. He is outside the daimyō's chain of command and responsible for moving no one. What he is meant to watch for was never specified. (The sheet's original field named Togashi Oharu as a provincial daimyō; that role belongs to Seiya Mori, and Oharu is the abbot.)"
+            ^"Skills" LIST OF STRING ["Fitness 3", "Meditation 2", "Theology 2", "Martial Arts [Unarmed] 1", "Courtesy 1"]
+            ^"Techniques" LIST OF #L5R350fG9hI1jK3lM5nO7p ^"Technique" [#wipC0ms8dqRk9zuBoXaerX ^"Earth Needs No Eyes", #HPyhRH2w9P002W4dTymcYl ^"Lord Togashi's Insight"]
+            ^"Advantages" LIST OF #L5R263hI5jK7lM9nO1pQ3r ^"Advantage" [^"Portentous Birth", ^"Affect of Harmlessness", ^"Brushwork"]
+            ^"Disadvantages" LIST OF #L5R264sT6uV8wX0yZ2aB4c ^"Disadvantage" [^"Elemental Deficiency (Fire)", ^"Tip of the Tongue"]
+            ^"Equipment" LIST OF STRING ["Bō", "Common Clothes", "Traveling Pack", "Jade Tadpole", "Left Green Armband-sash", "150 zeni · starting wealth 3 koku"]
+            ^"Bushido" DEF { ^"Paramount Tenet" STRING "Sincerity" ^"Less Significant Tenet" STRING "Duty" }
+            ^"Experience" INTEGER 6
+            ^"Experience Spent" INTEGER 0
+            ^"Stance" STRING "Void"
+            ^"Strife" INTEGER 0
+            ^"Fatigue" INTEGER 0
             ^"Mystical Tattoos" DEF { ^"Spider" STRING "Earth Needs No Eyes" }
         }
     }

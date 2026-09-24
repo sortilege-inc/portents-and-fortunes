@@ -23,6 +23,8 @@ window.VttConfig = {
     styles: [],
     stages: {
       data: ['campaign/data/index.js', 'campaign/site/portraits.js', 'campaign/site/blood-of-the-kami.js'],
+      gm: ['campaign/site/import-old-sheet.js'],
+      play: ['campaign/site/import-old-sheet.js'],
     },
   },
   worker: {

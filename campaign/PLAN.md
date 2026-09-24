@@ -192,6 +192,30 @@ in Fire; the Fire check **prompted** *Elemental Deficiency (Fire) — does it ap
 *Apply* entered its reroll; 0 console messages. O7's prompt fires on any check in the adversity's ring
 (the house rule's *"limited to checks made in Fire stance"* is the GM's Dismiss outside a conflict).
 
+**Weapons equipped or readied (owner, 2026-09-23)** — upstream I6 (`a1a028c`), pulled here: a weapon on
+the sheet is *equipped (sheathed)* or *readied* with a grip, the grip's hands counted against two; Strike
+uses the readied weapon the player names. Norikage's Bō is 2-hand only (*"2-hand: –"*).
+
+**M5 landed 2026-09-23 — Norikage on the VTT sheet** (run before H1 at the owner's word, decision 39).
+`convert_norikage.py` now reads the byte-for-byte record (`source/norikage-sheets/`: the three sheets and
+the old page's `SHEET_HISTORY`, `sheet-history.js`, copied byte-identical before `play/` went) and writes
+the live sheet and both archives as DEFs, each archive `^"Version Of"` the live one (upstream I7), with his
+stance, XP spent, ledger and tattoo. **`check_norikage.py`: 124 fields across the three sheets, 0 differ**
+(made to fail: Session Three's Honor 55 → 54 reported `social.honor old=55 built=54`, exit 1). Layer
+0 / 0 / 0; check_npcs 18 of 18. In the browser on 8733, Norikage from the picker (listed once): the picker
+shows *Current*, *Session Five · 9 XP spent · 9 Sep 2026*, *Session Three · 0 XP · 18 Aug 2026*; Current
+XP 11 / 9 with its two ledger lines; Session Five 9 / 9, Strife 0 / 10, Void 3 / 3; Session Three Water 1,
+Strife 0 / 8, Honor 55, XP 6 / 0, no *Breaking Blow* — each with his portrait and the banner; the rerolls
+*Portentous Birth · up to 2* on Fire, *· up to 1* on Water. **The one-time import**
+(`site/import-old-sheet.js`, gm and play stages): with the old page's keys seeded in this browser (test
+values, removed after), a fresh Norikage took Strife 4, Fatigue 2, Void 2, Water stance, Glory 51, Dazed,
+the Bō readied, Common Clothes, XP 11 / 9, and the old log's two entries oldest first, then *Imported from
+the old sheet: …*; a reload imported nothing again (log 23 → 23). The real keys live in the player's own
+browser at the site's origin; the import runs there the first time the player opens the VTT. **`play/`
+retired**: removed; the character pages and the GM notes link to `/gm/play.html`; the old Dramatis
+Personae no longer loads `play/l5rdata.js` (it already fell back without it; M7 rebuilds it). 0 console
+messages on the GM's page and the player's.
+
 ## Decision log
 
 | # | Decision | Why |
@@ -234,3 +258,6 @@ in Fire; the Fire check **prompted** *Elemental Deficiency (Fire) — does it ap
 | 36 | **Owner (2026-09-23): in "a TN 2 Skulduggery or Medicine (Fire 1) check" the Fire 1 applies to both skills.** Dark Tides' *Deduce When Suzaku Died* is now one check, both skills at TN 2, Fire 1 (titterpig-dsl-l5r5e `4670783`; upstream rebuilt `96765c7`, 31,572 strings 0/0/0) | Replaces decision 34's reading. No other check in either adventure has that shape (scanned). |
 | 37 | Blood of the Kami keys on Norikage's recorded tattoo (motif → kihō) and the technique's category *Kihō*; the bonus is his school rank, automatic on a success, nothing on a failure | The school ability's text; the linked kihō and motif from his Portents sheet (`sheet-data.json`: spider, *Earth Needs No Eyes*). |
 | 38 | M4 is complete: all 23 ported audit items (1–23) are upstream and pulled; 24–26 were decided not ported | M4a–M4d, each proven through the real controls (upstream PLAN I2–I5; this plan's M4a–M4d paragraphs). Next is H1 (hash the unhashed), then M5. |
+| 39 | **M5 ran before H1 (owner: "Then m5")**, reversing the plan's order | The plan put H1 first so the version history would be built on hashed references. M5's versions hold names and the layer's own hashes, not `u:` ids, so H1 remains a corpus-and-rebuild step with nothing of M5's to migrate but the layer's name references (still 22, now across the three sheets). |
+| 40 | Norikage's archived sheets are DSL (two DEFs `^"Version Of"` the live one), not pack state | O6: homebrew is DSL; the archives are records to check field by field, and the layer's gates cover them. Archives the table makes in play (*Archive this version…*) stay pack state. |
+| 41 | The one-time import takes the old sheet's trackers, standing, XP, conditions, gear and log; not its per-scene technique uses or Void claims | Those reset at the next scene anyway, and the old keys do not map onto the VTT's. |

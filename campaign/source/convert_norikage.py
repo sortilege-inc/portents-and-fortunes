@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 """
-convert_norikage.py — one-way conversion of Norikage's sheet (the old site's play/index.html) into
-the campaign's DSL layer, as an instance of the corpus's ACTOR "Samurai".
+convert_norikage.py — one-way conversion of Norikage's sheets into the campaign's DSL layer, as
+instances of the corpus's ACTOR "Samurai".
 
     python3 campaign/source/convert_norikage.py
 
-1. The three sheet blocks — the live one and the two archived versions — are copied BYTE FOR BYTE
-   into campaign/source/norikage-sheets/ (sheet-data.json, sheet-s5.json, sheet-s3.json). They are
-   the record every later check runs against.
-2. campaign/dsl/portents-norikage.actor carries the CURRENT sheet in every field the Samurai ACTOR
-   declares, in the corpus's pregen conventions (l5r5e-0.5-*-pregens.actor): skills as "Name N"
-   strings, techniques, advantages and disadvantages as references to the corpus's own entities
-   (by hash where the corpus hashes them, by name where it does not — the layer's names gate
-   checks them). What the ACTOR does not declare — the stance, the trackers' live values, the XP
-   ledger, the archived versions — is the sheet's to carry (campaign/PLAN.md, M4 and M5).
+The record is campaign/source/norikage-sheets/: the old site's three sheet blocks, copied BYTE FOR
+BYTE from its play/index.html (sheet-data.json — the live sheet; sheet-s5.json, sheet-s3.json — the
+archived ones) and its SHEET_HISTORY block (sheet-history.js — each archive's label, date and tracker
+state). play/ is retired (campaign/PLAN.md M5); these copies are what every check runs against.
+
+campaign/dsl/portents-norikage.actor carries each sheet in every field the Samurai ACTOR declares, in
+the corpus's pregen conventions (skills as "Name N" strings, techniques, advantages and disadvantages
+as references to the corpus's own entities — by hash where the corpus hashes them, by name where it
+does not, which the layer's names gate checks), and what the sheet adds: the stance, XP spent and its
+ledger, and the mystical tattoo Blood of the Kami links (decision 28). The two archives are their own
+DEFs, each ^"Version Of" the current one, with the label and date the old picker showed.
 """
 import json, os, re
 
@@ -32,21 +34,28 @@ def q(s):
     return '"' + s.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n") + '"'
 
 
-def main():
-    page = open(os.path.join(HERE, "campaign/play/index.html"), encoding="utf-8").read()
-    out_dir = os.path.join(HERE, "campaign/source/norikage-sheets")
-    os.makedirs(out_dir, exist_ok=True)
-    blocks = {}
-    for sid, body in re.findall(r'<script id="(sheet-[a-z0-9-]+)" type="application/json">\n?(.*?)</script>', page, re.S):
-        with open(os.path.join(out_dir, sid + ".json"), "w", encoding="utf-8") as fh:
-            fh.write(body)
-        blocks[sid] = body
-    s = json.loads(blocks["sheet-data"])
+SHEETS = os.path.join(HERE, "campaign/source/norikage-sheets")
+CURRENT_ID, CURRENT_NAME = "#PFpcTogashiNorikage", "Togashi Norikage"
 
+
+def history():
+    """Each archive's id, label, date and state, from the SHEET_HISTORY block as the old page printed it."""
+    src = open(os.path.join(SHEETS, "sheet-history.js"), encoding="utf-8").read()
+    out = []
+    for m in re.finditer(r'\{ id:"(\w+)", label:"([^"]*)", date:"([^"]*)",.*?state:\{ strife:(\d+), fatigue:(\d+), "void":(\d+), stance:"(\w+)" \}', src, re.S):
+        out.append({"id": m.group(1), "label": m.group(2).encode().decode("unicode_escape"), "date": m.group(3),
+                    "state": {"strife": int(m.group(4)), "fatigue": int(m.group(5)), "void": int(m.group(6)), "stance": m.group(7)}})
+    return out
+
+
+def fields(s, state=None):
     techs = []
+    tattoos = []
     for t in s["techniques"]:
-        if t.get("kind") == "school":
-            continue                      # the school ability comes with the School
+        if t.get("kind") == "school":      # the school ability comes with the School; its tattoo is his
+            if t.get("motif") and t.get("linkedKiho"):
+                tattoos.append((t["motif"].title(), t["linkedKiho"]))
+            continue
         ref = TECHNIQUES[t["name"]]
         h, nm = (ref if isinstance(ref, tuple) else (ref, t["name"]))
         techs.append('%s ^"%s"' % (h, nm))
@@ -69,7 +78,7 @@ def main():
         '^"Honor" INTEGER %d' % so["honor"], '^"Glory" INTEGER %d' % so["glory"], '^"Status" INTEGER %d' % so["status"],
         '^"Endurance" INTEGER %d' % d["endurance"], '^"Composure" INTEGER %d' % d["composure"],
         '^"Focus" INTEGER %d' % d["focus"], '^"Vigilance" INTEGER %d' % d["vigilance"],
-        '^"Void Points" INTEGER %d' % s["trackers"]["void"]["max"],
+        '^"Void Points" INTEGER %d' % (state["void"] if state else s["trackers"]["void"]["max"]),
         '^"Ninjō" STRING %s' % q(s["ninjo"]),
         '^"Giri" STRING %s' % q(s["giri"]),
         '^"Skills" LIST OF STRING [%s]' % ", ".join(q(x) for x in skills),
@@ -79,32 +88,55 @@ def main():
         '^"Equipment" LIST OF STRING [%s]' % ", ".join(q(x) for x in equipment),
         '^"Bushido" DEF { ^"Paramount Tenet" STRING %s ^"Less Significant Tenet" STRING %s }' % (q(s["bushido"]["paramount"]), q(s["bushido"]["less"])),
         '^"Experience" INTEGER %d' % s["xp"]["earned"],
+        # what the sheet adds to the ACTOR's fields
+        '^"Experience Spent" INTEGER %d' % s["xp"]["spent"],
     ]
-    text = """EXTENSION "Portents_Characters" {
-    NAME "Portents & Fortunes — the player character"
-    VERSION "0.1.0"
-    SPEC_VERSION "0.5"
-    RELEASE_DATE "2026-09-23"
-    DEPENDS_ON "L5R5e_Core_Core"
+    if s["xp"].get("spentOn"):
+        # a ledger line: cost · what · note · when, as the old sheet printed its columns
+        P.append('^"Experience Ledger" LIST OF STRING [%s]' % ", ".join(q(" · ".join(str(x) for x in [e["cost"], e["what"], e.get("note") or "", e.get("when") or ""])) for e in s["xp"]["spentOn"]))
+    P.append('^"Stance" STRING %s' % q((state["stance"] if state else s["stance"]).title()))
+    if state:
+        P += ['^"Strife" INTEGER %d' % state["strife"], '^"Fatigue" INTEGER %d' % state["fatigue"]]
+    if tattoos:
+        P.append('^"Mystical Tattoos" DEF { ' + " ".join('^"%s" STRING %s' % (m, q(k)) for m, k in tattoos) + " }")
+    return P
 
-    # Togashi Norikage, an instance of the Samurai ACTOR in the corpus's pregen conventions.
-    # Converted once from the old site's sheet by campaign/source/convert_norikage.py; the three
-    # original sheets are kept byte for byte in campaign/source/norikage-sheets/. This file holds
-    # the fields the ACTOR declares; the stance, live tracks, XP ledger and archived versions are
-    # the sheet's (campaign/PLAN.md, M4 and M5).
 
-    #PFpcTogashiNorikage ^"Togashi Norikage" DEF {
+def block(h, name, P, comment=None):
+    return ("    # %s\n" % comment if comment else "") + """    %s ^"%s" DEF {
         EXTENDS %s
         PROPERTIES {
 %s
         }
     }
-}
-""" % (SAMURAI, "\n".join("            " + p for p in P))
+""" % (h, name, SAMURAI, "\n".join("            " + p for p in P))
+
+
+def main():
+    cur = json.load(open(os.path.join(SHEETS, "sheet-data.json"), encoding="utf-8"))
+    blocks = [block(CURRENT_ID, CURRENT_NAME, fields(cur), "The live sheet (sheet-data.json). Blood of the Kami's tattoo is read by campaign/site/blood-of-the-kami.js.")]
+    for hv in history():
+        s = json.load(open(os.path.join(SHEETS, "sheet-%s.json" % hv["id"]), encoding="utf-8"))
+        P = ['^"Version Of" %s ^"%s"' % (CURRENT_ID, CURRENT_NAME), '^"Version Label" STRING %s' % q(hv["label"]), '^"Version Date" STRING %s' % q(hv["date"])] + fields(s, hv["state"])
+        blocks.append(block(CURRENT_ID + hv["id"].upper(), "%s (%s)" % (CURRENT_NAME, hv["label"].split(" · ")[0]), P,
+                            "Archived: sheet-%s.json, with the label, date and between-sessions state SHEET_HISTORY gave it." % hv["id"]))
+    text = """EXTENSION "Portents_Characters" {
+    NAME "Portents & Fortunes — the player character"
+    VERSION "0.2.0"
+    SPEC_VERSION "0.5"
+    RELEASE_DATE "2026-09-23"
+    DEPENDS_ON "L5R5e_Core_Core"
+
+    # Togashi Norikage, an instance of the Samurai ACTOR in the corpus's pregen conventions, with his
+    # two archived sheets. Converted from campaign/source/norikage-sheets/ (the old site's sheets, byte
+    # for byte) by campaign/source/convert_norikage.py; campaign/source/check_norikage.py reads the
+    # built layer back against them field by field.
+
+%s}
+""" % "\n".join(blocks)
     with open(os.path.join(HERE, "campaign/dsl/portents-norikage.actor"), "w", encoding="utf-8") as fh:
         fh.write(text)
-    print("kept %d sheet blocks byte for byte in campaign/source/norikage-sheets/ (%s)" % (len(blocks), ", ".join(sorted(blocks))))
-    print("wrote campaign/dsl/portents-norikage.actor: %d fields" % len(P))
+    print("wrote campaign/dsl/portents-norikage.actor: the live sheet and %d archived versions" % (len(blocks) - 1))
 
 
 if __name__ == "__main__":
