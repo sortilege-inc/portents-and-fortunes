@@ -279,10 +279,30 @@ window.VttState = (function () {
     }, 0);
   }
 
+  // ── the instance's seed ────────────────────────────────────────────
+  // VttConfig.defaultCampaign.seed names a pack file. What the instance's own campaign (the default
+  // one, or one under its name) has never had — a key with no value at all — is filled from it; a
+  // key the GM has set, even to nothing, is never touched. So an arc authored in the instance
+  // reaches a fresh browser and an existing one alike, once. Resolves to the keys it filled.
+  function seed() {
+    const d = CFG.defaultCampaign || {};
+    if (!d.seed || !(id === 'default' || state.campaign.name === d.name)) return Promise.resolve([]);
+    return fetch(d.seed, { cache: 'no-cache' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(d.seed + ': ' + r.status))))
+      .then((pack) => {
+        if (!pack || pack.kind !== PACK_KIND) throw new Error(d.seed + ' is not a campaign pack');
+        renameIds(pack);
+        const keys = Object.keys(pack).filter((k) => ['kind', 'version', 'exportedAt', 'ui', 'campaign'].indexOf(k) === -1 && state[k] === undefined);
+        keys.forEach((k) => (state[k] = pack[k]));
+        if (keys.length) save();
+        return keys;
+      });
+  }
+
   return {
     get state() { return state; },
     get id() { return id; },
-    commit, applyRemote, replaceShared, save, reload, ui, genId, renameIds,
+    commit, applyRemote, replaceShared, save, reload, ui, genId, renameIds, seed,
     listCampaigns, switchTo, create, remove,
     exportPack, importPack, downloadPack, PACK_KIND, PACK_VERSION,
   };
