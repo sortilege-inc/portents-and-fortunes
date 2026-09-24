@@ -77,11 +77,41 @@ window.VttState = (function () {
     return PREFIX + 'campaign:' + cid;
   }
 
+  // Ids a data rebuild renamed (a system's window.VttIdRenames: old id → new): every string and
+  // every key equal to an old id, anywhere in a document, becomes the new one. Applied wherever a
+  // document is read — this browser's copy, a pack, a room's — so a campaign saved before the rename
+  // keeps its scene casts, conditions and members. Returns how many it renamed.
+  function renameIds(doc) {
+    const map = window.VttIdRenames;
+    if (!map || !doc || typeof doc !== 'object') return 0;
+    let n = 0;
+    const walk = (x) => {
+      if (Array.isArray(x)) {
+        for (let i = 0; i < x.length; i++) {
+          if (typeof x[i] === 'string' && map[x[i]]) { x[i] = map[x[i]]; n++; } else if (x[i] && typeof x[i] === 'object') walk(x[i]);
+        }
+      } else if (x && typeof x === 'object') {
+        Object.keys(x).forEach((k) => {
+          let v = x[k];
+          if (typeof v === 'string' && map[v]) { v = map[v]; n++; } else if (v && typeof v === 'object') walk(v);
+          if (map[k]) { delete x[k]; x[map[k]] = v; n++; } else x[k] = v;
+        });
+      }
+    };
+    walk(doc);
+    return n;
+  }
+
   function load(cid) {
     try {
       const raw = localStorage.getItem(key(cid));
       if (raw) {
         const parsed = JSON.parse(raw);
+        const renamed = renameIds(parsed);
+        if (renamed) {
+          try { localStorage.setItem(key(cid), JSON.stringify(parsed)); } catch (e) { /* kept in memory */ }
+          if (window.console) console.info('[vtt] ' + renamed + ' renamed id(s) carried over in campaign ' + cid);
+        }
         return Object.assign(defaults(cid), parsed);
       }
     } catch (e) {
@@ -163,6 +193,7 @@ window.VttState = (function () {
   }
 
   function replaceShared(doc) {
+    renameIds(doc);
     Ops.SHARED_KEYS.forEach((k) => {
       if (doc[k] != null) state[k] = doc[k];
     });
@@ -221,6 +252,7 @@ window.VttState = (function () {
   function importPack(pack, opts) {
     if (!pack || pack.kind !== PACK_KIND) throw new Error('Not a campaign pack (kind ' + (pack && pack.kind) + ').');
     if (pack.version > PACK_VERSION) throw new Error('This pack was saved by a newer build (version ' + pack.version + ').');
+    renameIds(pack);
     const cid = (opts && opts.asNew) ? genId('c') : pack.campaign && pack.campaign.id ? pack.campaign.id : genId('c');
     id = cid;
     state = defaults(cid, pack.campaign && pack.campaign.name);
@@ -250,7 +282,7 @@ window.VttState = (function () {
   return {
     get state() { return state; },
     get id() { return id; },
-    commit, applyRemote, replaceShared, save, reload, ui, genId,
+    commit, applyRemote, replaceShared, save, reload, ui, genId, renameIds,
     listCampaigns, switchTo, create, remove,
     exportPack, importPack, downloadPack, PACK_KIND, PACK_VERSION,
   };
