@@ -29,6 +29,19 @@
     if (!m.versions.some((x) => x.id === version.id)) m.versions.push(version);
   }, (s, me, a) => a[0] === me);
 
+  // An advancement (the player's Advancement page): the character as it was is archived as a
+  // version, the advanced character becomes the current one, and the XP record moves with it.
+  // adv = { version: { id, label, date, character, live }, character, live }. A player may
+  // advance their own character.
+  Ops.register('advancePartyMember', (s, id, adv) => {
+    const m = (s.party || []).find((x) => x.id === id);
+    if (!m || !adv || !adv.character || !adv.version || !adv.version.id) return;
+    if (!m.versions) m.versions = [];
+    if (!m.versions.some((x) => x.id === adv.version.id)) m.versions.push(adv.version);
+    m.character = adv.character;
+    if (adv.live) m.live = Object.assign({}, m.live || {}, adv.live);
+  }, (s, me, a) => a[0] === me);
+
   // An NPC's conditions, as the GM marks them (the Inspector): { [entityId]: [names] }. Shared, so a
   // player engaged with the NPC sees them with their rules text (Portents O7).
   Ops.shared(['npcConditions']);
