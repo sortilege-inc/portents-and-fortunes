@@ -449,7 +449,9 @@ window.L5RData = (function () {
   const recordsOf = (test) => records().filter(test);
   const schools = () => recordsOf((r) => r.type === 'School');
   const npcs = () => recordsOf((r) => r.type === 'NPC');
-  const pregens = () => recordsOf((r) => r.type === 'Samurai' && r.kind === 'actor');
+  // a published character — not an archived sheet of one (`Version Of`, which the sheet gathers)
+  const pregens = () => recordsOf((r) => r.type === 'Samurai' && r.kind === 'actor' && !(r.fields || {})['Version Of']);
+  const versionsOf = (id) => recordsOf((r) => (r.fields || {})['Version Of'] === id);
   const clans = () => recordsOf((r) => r.type === 'Clan');
   const families = () => recordsOf((r) => r.type === 'Family');
   // A technique is printed two ways: nested under its category with a RANK line (the core),
@@ -511,7 +513,7 @@ window.L5RData = (function () {
     guidanceFor, guidanceLoose, correctionsFor, modified, blockNamed, allCorrections, reindex,
     chapterTitle, shortTitle, chapters, chapter, moduleList, module, scene, moduleId,
     slug, loreSections, loreFile, codexNode, codexEntities, relationsTo,
-    schools, npcs, pregens, clans, families, techniques, techniqueInfo, codexRecords,
+    schools, npcs, pregens, versionsOf, clans, families, techniques, techniqueInfo, codexRecords,
     search, excerpt, label,
   };
 })();

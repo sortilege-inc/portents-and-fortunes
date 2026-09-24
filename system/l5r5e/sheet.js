@@ -239,11 +239,14 @@ window.L5RSheet = (function () {
       byName.Experience ? el('div', { class: 'sheet-sec' }, [field('Experience'), field('Description')]) : null,
     ]);
     const rest = S.filter((s) => !used.has(s.name));
-    const undeclared = Object.keys(v).filter((k) => !byName[k] && k.charAt(0) !== '_');
+    // what the sheet already shows elsewhere (the stance, the XP record, a version's own label)
+    const SHOWN = ['Stance', 'Experience Spent', 'Experience Ledger', 'Version Of', 'Version Label', 'Version Date'];
+    const undeclared = Object.keys(v).filter((k) => !byName[k] && k.charAt(0) !== '_' && SHOWN.indexOf(k) === -1);
+    const plainValue = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? Object.keys(x).map((q) => q + ': ' + x[q]).join(' · ') : String(x));
     if (rest.length || undeclared.length) {
       sheet.appendChild(el('div', { class: 'sheet-sec' }, [el('h4', {}, ['Also on the sheet']),
         rest.map((s) => field(s.name)),
-        undeclared.map((k) => el('div', { class: 'prop' }, [el('div', { class: 'prop-k' }, [k]), el('div', { class: 'prop-v' }, [Array.isArray(v[k]) ? el('ul', { class: 'items' }, v[k].map((x) => el('li', {}, [E.span(String(x), 'core')]))) : E.span(String(v[k]), 'core')])])),
+        undeclared.map((k) => el('div', { class: 'prop' }, [el('div', { class: 'prop-k' }, [k]), el('div', { class: 'prop-v' }, [Array.isArray(v[k]) ? el('ul', { class: 'items' }, v[k].map((x) => el('li', {}, [E.span(plainValue(x), 'core')]))) : E.span(plainValue(v[k]), 'core')])])),
       ]));
     }
     if (v._abilities && v._abilities.length) sheet.appendChild(el('div', { class: 'sheet-sec' }, [el('h4', {}, ['As the book prints them']), v._abilities.map((a) => { const e = D.entity(a.id); return e ? E.render(e, { depth: 1 }) : null; })]));
@@ -297,7 +300,17 @@ window.L5RSheet = (function () {
     if (isViewingArchive(m)) { window.alert('An archived version is on screen. Return to Current to download the character.'); return false; }
     return download(m.character || blank(), m.live || {}, { versions: versionsOf(m), log: logOf(m).map((e) => Object.assign({}, e, { memberId: undefined })), portrait: m.portrait });
   }
-  const memberFromEntity = (e) => memberFrom(fromEntity(e), { kind: 'pregen', id: e.id, book: e.book });
+  // A character from the corpus (or an instance's layer) comes with its archived sheets: entities
+  // that are ^"Version Of" it, each with its ^"Version Label" and ^"Version Date", read-only, in the
+  // order printed; its printed ^"Stance" starts the live one.
+  function memberFromEntity(e) {
+    const v = fromEntity(e);
+    const versions = D.versionsOf(e.id).map((r) => D.entity(r.id)).filter(Boolean).map((ve) => {
+      const vv = fromEntity(ve);
+      return { id: ve.id, label: D.text(ve, 'Version Label') || ve.name, date: D.text(ve, 'Version Date') || null, character: vv, live: vv.Stance ? { stance: vv.Stance } : {}, source: 'printed' };
+    });
+    return memberFrom(v, { kind: 'pregen', id: e.id, book: e.book }, v.Stance ? { stance: v.Stance } : {}, { versions: versions.length ? versions : null });
+  }
 
   // ── play: the live values, the conditions, the checks ──
   // live = { Fatigue, Strife, voidPoints, stance, conditions: [] }
@@ -1054,7 +1067,9 @@ window.L5RSheet = (function () {
     const v = complete(m.character || {});
     const earned = lv.xpEarned != null ? lv.xpEarned : (v.Experience || 0);
     const spent = lv.xpSpent != null ? lv.xpSpent : (v['Experience Spent'] || 0);
-    return { earned, spent, available: earned - spent, ledger: lv.xpLedger || v._xpLedger || [] };
+    // a printed ledger (^"Experience Ledger"): "cost · what · note · when"
+    const printed = (v['Experience Ledger'] || []).map((x) => { const q = String(x).split(' · '); return { cost: parseInt(q[0], 10) || 0, what: q[1] || '', note: q[2] || null, when: q[3] || null }; });
+    return { earned, spent, available: earned - spent, ledger: lv.xpLedger || v._xpLedger || printed };
   }
   function xpBlock(m, ro) {
     const x = xp(m);
@@ -1129,7 +1144,7 @@ window.L5RSheet = (function () {
     if (isViewingArchive(m)) {
       const ver = versionsOf(m).find((x) => x.id === viewing[m.id]);
       const av = complete(ver.character || {});
-      const am = { id: m.id, name: m.name, character: ver.character, live: ver.live, portrait: m.portrait };
+      const am = { id: m.id, name: m.name, character: ver.character, live: ver.live, portrait: portraitOf(m, complete(m.character || {})) };
       const ad = derived(av);
       const box = el('div', { class: 'sheet live archived' });
       box.appendChild(header(am, av, versionPicker(m, redraw)));
