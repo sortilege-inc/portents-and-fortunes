@@ -277,6 +277,12 @@ window.L5REntity = (function () {
       const sub = subtitle(e);
       if (sub.length && !o.depth) box.appendChild(el('div', { class: 'muted small' }, [sub.join(' · '), ' · ', D.label(bid)]));
     }
+    // this character's printing of an entity defined elsewhere (EXTENDS its same-named DEF)
+    if (e.copyOf) {
+      const c = e.copyOf;
+      const go = (ev) => { ev.preventDefault(); D.ensure(c.book).then(() => open(c.hash)); };
+      box.appendChild(el('div', { class: 'muted small copyof' }, ['As printed here; defined in ', el('a', { class: 'ref', href: '#', onclick: go }, [c.name]), ' (' + D.label(c.book) + ')']));
+    }
     const strip = statStrip(e);
     if (strip) box.appendChild(strip);
     if (e.desc) box.appendChild(prose(e.desc, 'prose', bid));
