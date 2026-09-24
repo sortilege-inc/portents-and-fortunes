@@ -309,3 +309,9 @@ details.lore-full > summary { cursor: pointer; font-family: var(--caps); letter-
 .roll-note { color: var(--ink-2); }
 .logchip.note { border-color: var(--jade); }
 .prompt { background: var(--crimson-soft); padding: 2px 6px; }
+
+/* weapons: equipped (sheathed) or readied, with a grip */
+.weapon-row { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; margin: 2px 0 2px 8px; }
+.weapon-row.readied b { color: var(--crimson-deep); }
+.ref.tiny.on { border: 1px solid var(--crimson); color: var(--crimson-deep); background: var(--crimson-soft); }
+.gear { display: block; }

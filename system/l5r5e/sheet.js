@@ -239,11 +239,14 @@ window.L5RSheet = (function () {
       byName.Experience ? el('div', { class: 'sheet-sec' }, [field('Experience'), field('Description')]) : null,
     ]);
     const rest = S.filter((s) => !used.has(s.name));
-    const undeclared = Object.keys(v).filter((k) => !byName[k] && k.charAt(0) !== '_');
+    // what the sheet already shows elsewhere (the stance, the XP record, a version's own label)
+    const SHOWN = ['Stance', 'Experience Spent', 'Experience Ledger', 'Version Of', 'Version Label', 'Version Date'];
+    const undeclared = Object.keys(v).filter((k) => !byName[k] && k.charAt(0) !== '_' && SHOWN.indexOf(k) === -1);
+    const plainValue = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? Object.keys(x).map((q) => q + ': ' + x[q]).join(' · ') : String(x));
     if (rest.length || undeclared.length) {
       sheet.appendChild(el('div', { class: 'sheet-sec' }, [el('h4', {}, ['Also on the sheet']),
         rest.map((s) => field(s.name)),
-        undeclared.map((k) => el('div', { class: 'prop' }, [el('div', { class: 'prop-k' }, [k]), el('div', { class: 'prop-v' }, [Array.isArray(v[k]) ? el('ul', { class: 'items' }, v[k].map((x) => el('li', {}, [E.span(String(x), 'core')]))) : E.span(String(v[k]), 'core')])])),
+        undeclared.map((k) => el('div', { class: 'prop' }, [el('div', { class: 'prop-k' }, [k]), el('div', { class: 'prop-v' }, [Array.isArray(v[k]) ? el('ul', { class: 'items' }, v[k].map((x) => el('li', {}, [E.span(plainValue(x), 'core')]))) : E.span(plainValue(v[k]), 'core')])])),
       ]));
     }
     if (v._abilities && v._abilities.length) sheet.appendChild(el('div', { class: 'sheet-sec' }, [el('h4', {}, ['As the book prints them']), v._abilities.map((a) => { const e = D.entity(a.id); return e ? E.render(e, { depth: 1 }) : null; })]));
@@ -297,7 +300,17 @@ window.L5RSheet = (function () {
     if (isViewingArchive(m)) { window.alert('An archived version is on screen. Return to Current to download the character.'); return false; }
     return download(m.character || blank(), m.live || {}, { versions: versionsOf(m), log: logOf(m).map((e) => Object.assign({}, e, { memberId: undefined })), portrait: m.portrait });
   }
-  const memberFromEntity = (e) => memberFrom(fromEntity(e), { kind: 'pregen', id: e.id, book: e.book });
+  // A character from the corpus (or an instance's layer) comes with its archived sheets: entities
+  // that are ^"Version Of" it, each with its ^"Version Label" and ^"Version Date", read-only, in the
+  // order printed; its printed ^"Stance" starts the live one.
+  function memberFromEntity(e) {
+    const v = fromEntity(e);
+    const versions = D.versionsOf(e.id).map((r) => D.entity(r.id)).filter(Boolean).map((ve) => {
+      const vv = fromEntity(ve);
+      return { id: ve.id, label: D.text(ve, 'Version Label') || ve.name, date: D.text(ve, 'Version Date') || null, character: vv, live: vv.Stance ? { stance: vv.Stance } : {}, source: 'printed' };
+    });
+    return memberFrom(v, { kind: 'pregen', id: e.id, book: e.book }, v.Stance ? { stance: v.Stance } : {}, { versions: versions.length ? versions : null });
+  }
 
   // ── play: the live values, the conditions, the checks ──
   // live = { Fatigue, Strife, voidPoints, stance, conditions: [] }
@@ -651,7 +664,9 @@ window.L5RSheet = (function () {
   }
   const fromEntityW = (e) => ({ name: e.name, e, skill: D.text(e, 'Skill'), base: D.num(e, 'Base Damage'), deadliness: D.num(e, 'Deadliness'), range: D.text(e, 'Range') });
   function weaponsFor(v) {
-    const all = carried(v, kids('Weapon').filter((e) => D.text(e, 'Skill'))).map(fromEntityW).concat(printedWeapons(v), unarmed().map(fromEntityW));
+    const un = unarmed().map((e) => Object.assign(fromEntityW(e), { unarmed: true }));
+    const unNames = un.map((w) => norm(w.name));
+    const all = carried(v, kids('Weapon').filter((e) => D.text(e, 'Skill') && unNames.indexOf(norm(e.name)) === -1)).map(fromEntityW).concat(printedWeapons(v).filter((w) => unNames.indexOf(norm(w.name)) === -1), un);
     return all.filter((w, i) => all.findIndex((x) => norm(x.name) === norm(w.name)) === i);   // the sheet's own profile before the book's unarmed one
   }
   const armorFor = (v) => carried(v, kids('Armor'));
@@ -660,39 +675,95 @@ window.L5RSheet = (function () {
     return g ? g.split(/;\s*/).map((x) => { const mm = /^([^:]+):\s*(.*)$/.exec(x.trim()); return mm ? { name: mm[1].trim(), text: mm[2].trim(), damage: parseInt((/Damage \+(\d+)/.exec(mm[2]) || [0, 0])[1], 10), deadliness: parseInt((/Deadliness \+(\d+)/.exec(mm[2]) || [0, 0])[1], 10) } : null; }).filter(Boolean) : [];
   }
   const MARTIAL = () => skills().filter((k) => /^Martial Arts \[/.test(k.name)).map((k) => k.name);
+  // A carried weapon is sheathed or readied — "A weapon is considered sheathed if it is on a
+  // character's person, properly stowed for access but not yet readied for use" (sheathed_weapons);
+  // "they may choose to ready any number of weapons … that they can hold at once. For most
+  // characters, the maximum is one pair of 1-handed grip weapons (one in each hand) or a single
+  // 2-handed grip weapon … When a character readies a weapon, they must choose one of its grips"
+  // (readied_weapons). live.equip = { weapons: { [name]: { state, grip, skill } }, strikeWith, armor }.
+  // The unarmed profiles are always readied (unarmed_profiles), and hold no weapon hand.
+  const HANDS = 2;
+  const handsOf = (grip) => { const mm = /^(\d)-hand/.exec(grip || ''); return mm ? parseInt(mm[1], 10) : 1; };
+  // a printed profile prints no grips: the player says how it is held
+  const gripsOf = (w) => (w.e ? grips(w.e) : []).concat(w.e && grips(w.e).length ? [] : [{ name: '1-hand', text: 'as held', damage: 0, deadliness: 0 }, { name: '2-hand', text: 'as held', damage: 0, deadliness: 0 }]);
+  function equipOf(m) {
+    const eq = Object.assign({ weapons: {} }, (m.live || {}).equip || {});
+    if (eq.weapon && !eq.weapons[eq.weapon]) eq.weapons = Object.assign({}, eq.weapons, { [eq.weapon]: { state: 'readied', grip: eq.grip, skill: eq.skill } });   // M4d's single readied weapon
+    return eq;
+  }
+  function readiedList(m) {
+    const eq = equipOf(m);
+    const v = complete(m.character || {});
+    return weaponsFor(v).filter((w) => !w.unarmed && (eq.weapons[w.name] || {}).state === 'readied').map((w) => {
+      const st = eq.weapons[w.name];
+      const gs = gripsOf(w);
+      const g = gs.find((x) => x.name === st.grip) || gs[0] || null;
+      return Object.assign({}, w, { skill: w.skill || st.skill || null, grip: g, hands: handsOf(g && g.name) });
+    });
+  }
+  const handsUsed = (m) => readiedList(m).reduce((a, w) => a + w.hands, 0);
+  // the weapon a Strike uses: the one chosen among the readied (or an unarmed profile), else the first readied
   function readied(m) {
-    const eq = (m.live || {}).equip || {};
-    if (!eq.weapon) return null;
-    const w = weaponsFor(complete(m.character || {})).find((x) => x.name === eq.weapon);
-    if (!w) return null;
-    const gs = grips(w.e);
-    return Object.assign({}, w, { skill: w.skill || eq.skill || null, grip: gs.find((x) => x.name === eq.grip) || gs[0] || null });
+    const eq = equipOf(m);
+    const list = readiedList(m);
+    const un = unarmed().map(fromEntityW).map((w) => Object.assign(w, { unarmed: true, grip: null, hands: 0 }));
+    return list.find((w) => w.name === eq.strikeWith) || un.find((w) => w.name === eq.strikeWith) || list[0] || null;
   }
   function setEquip(m, patch, text) {
     const mm = memberNow(m.id, m);
-    State().commit('setPartyLive', [mm.id, { equip: Object.assign({}, (mm.live || {}).equip || {}, patch) }]);
-    logEvent(mm, text, 'gear');
+    const eq = equipOf(mm);
+    delete eq.weapon; delete eq.grip; delete eq.skill;
+    State().commit('setPartyLive', [mm.id, { equip: Object.assign(eq, patch) }]);
+    if (text) logEvent(mm, text, 'gear');
+  }
+  function setWeapon(m, name, patch, text) {
+    const eq = equipOf(memberNow(m.id, m));
+    setEquip(m, { weapons: Object.assign({}, eq.weapons, { [name]: Object.assign({}, eq.weapons[name] || { state: 'sheathed' }, patch) }) }, text);
   }
   function gearBlock(m, v) {
-    const eq = (m.live || {}).equip || {};
-    const ws = weaponsFor(v);
+    const eq = equipOf(m);
+    const used = handsUsed(m);
+    const carriedWs = weaponsFor(v).filter((w) => !w.unarmed);
+    const strike = readied(m);
+    const note = el('span', { class: 'muted small gear-note' });
+    const rows = carriedWs.map((w) => {
+      const st = eq.weapons[w.name] || { state: 'sheathed' };
+      const isReady = st.state === 'readied';
+      const gs = gripsOf(w);
+      const g = gs.find((x) => x.name === st.grip) || gs[0];
+      const fit = (grip) => used - (isReady ? handsOf(g && g.name) : 0) + handsOf(grip) <= HANDS;
+      const ready = () => {
+        const first = gs.find((x) => fit(x.name));
+        if (!first) { note.textContent = 'Ready ' + w.name + ': no hand is free — sheathe something first (' + used + ' of ' + HANDS + ' hands in use).'; return; }
+        setWeapon(m, w.name, { state: 'readied', grip: first.name }, 'Readies the ' + w.name + ' (' + first.name + ')');
+      };
+      const gsel = isReady && gs.length > 1 ? el('select', { class: 'scope tiny', title: 'Grip — how many hands it is held in' }, gs.map((x) => el('option', { value: x.name, selected: (g && g.name === x.name) || null, disabled: fit(x.name) ? null : true }, [x.name + (x.text && x.text !== '–' ? ': ' + x.text : '')]))) : null;
+      if (gsel) gsel.addEventListener('change', () => setWeapon(m, w.name, { grip: gsel.value }, 'Grips the ' + w.name + ' ' + gsel.value));
+      const ssel = w.printed ? el('select', { class: 'scope tiny', title: 'The skill this weapon uses (the sheet does not print it)' }, [el('option', { value: '' }, ['— its skill —'])].concat(MARTIAL().map((k) => el('option', { value: k, selected: st.skill === k || null }, [k])))) : null;
+      if (ssel) ssel.addEventListener('change', () => setWeapon(m, w.name, { skill: ssel.value || null }, w.name + ': ' + (ssel.value || 'no skill')));
+      const dmg = w.base + (isReady && g ? g.damage : 0), dead = w.deadliness + (isReady && g ? g.deadliness : 0);
+      return el('div', { class: 'weapon-row' + (isReady ? ' readied' : '') }, [
+        el('b', {}, [w.name]),
+        el('span', { class: 'chiprow tight' }, [
+          el('button', { class: 'ref tiny' + (!isReady ? ' on' : ''), type: 'button', title: 'On the person, stowed for access but not readied', onclick: () => { if (isReady) setWeapon(m, w.name, { state: 'sheathed' }, 'Sheathes the ' + w.name); } }, ['equipped (sheathed)']),
+          el('button', { class: 'ref tiny' + (isReady ? ' on' : ''), type: 'button', title: 'In hand, held with one of its grips', onclick: () => { if (!isReady) ready(); } }, ['readied']),
+        ]),
+        gsel, isReady && gs.length === 1 ? el('span', { class: 'small' }, [gs[0].name]) : null, ssel,
+        el('span', { class: 'muted small' }, [[w.skill || (w.printed ? 'skill as chosen' : null), 'range ' + w.range, 'damage ' + dmg, 'deadliness ' + dead].filter(Boolean).join(' · ')]),
+        isReady && readiedList(m).length > 1 ? el('label', { class: 'small' }, [el('input', { type: 'radio', name: 'strike-' + m.id, checked: (strike && strike.name === w.name) || null, onchange: () => setEquip(m, { strikeWith: w.name }, 'Strikes with the ' + w.name) }), ' Strike with it']) : null,
+      ]);
+    });
     const as = armorFor(v);
-    const r = readied(m);
-    const wsel = el('select', { class: 'scope tiny', title: 'The readied weapon' }, [el('option', { value: '' }, ['— no weapon readied —'])].concat(ws.map((e) => el('option', { value: e.name, selected: eq.weapon === e.name || null }, [e.name]))));
-    wsel.addEventListener('change', () => setEquip(m, { weapon: wsel.value || null, grip: null, skill: null }, wsel.value ? 'Readies ' + wsel.value : 'Readies no weapon'));
-    const gs = r && r.e ? grips(r.e) : [];
-    const ssel = r && r.printed ? el('select', { class: 'scope tiny', title: 'The skill this weapon uses (the sheet does not print it)' }, [el('option', { value: '' }, ['— its skill —'])].concat(MARTIAL().map((k) => el('option', { value: k, selected: eq.skill === k || null }, [k])))) : null;
-    if (ssel) ssel.addEventListener('change', () => setEquip(m, { skill: ssel.value || null }, r.name + ': ' + (ssel.value || 'no skill')));
-    const gsel = gs.length > 1 ? el('select', { class: 'scope tiny', title: 'Grip' }, gs.map((g) => el('option', { value: g.name, selected: (r.grip && r.grip.name === g.name) || null }, [g.name + ': ' + g.text]))) : null;
-    if (gsel) gsel.addEventListener('change', () => setEquip(m, { grip: gsel.value }, 'Grip: ' + gsel.value));
     const asel = el('select', { class: 'scope tiny', title: 'The armor worn' }, [el('option', { value: '' }, ['— no armor —'])].concat(as.map((e) => el('option', { value: e.name, selected: eq.armor === e.name || null }, [e.name]))));
     asel.addEventListener('change', () => setEquip(m, { armor: asel.value || null }, asel.value ? 'Wears ' + asel.value : 'Wears no armor'));
     const ae = eq.armor ? D.named(eq.armor, 'core') : null;
+    const un = unarmed();
     return el('div', { class: 'gear' }, [
-      el('span', { class: 'track-name' }, ['Gear']), wsel, gsel, ssel,
-      r ? el('span', { class: 'muted small' }, [[r.skill || (r.printed ? 'as printed' : null), 'range ' + r.range, 'damage ' + (r.base + (r.grip ? r.grip.damage : 0)), 'deadliness ' + (r.deadliness + (r.grip ? r.grip.deadliness : 0))].join(' · ')]) : null,
-      asel,
-      ae ? el('span', { class: 'muted small' }, ['resistance: physical ' + (D.num(ae, 'Physical Resistance') || 0) + (D.num(ae, 'Supernatural Resistance') != null ? ' · supernatural ' + D.num(ae, 'Supernatural Resistance') : '')]) : null,
+      el('div', { class: 'chiprow tight' }, [el('span', { class: 'track-name' }, ['Weapons']), el('span', { class: 'muted small' }, [used + ' of ' + HANDS + ' hands in use']), note]),
+      rows.length ? rows : el('div', { class: 'muted small' }, ['No weapon on the sheet that the corpus names.']),
+      un.length ? el('div', { class: 'weapon-row' }, [el('span', { class: 'muted small' }, ['Unarmed, always readied: ']), un.map((e) => el('label', { class: 'small' }, [el('input', { type: 'radio', name: 'strike-' + m.id, checked: (strike && strike.name === e.name) || null, onchange: () => setEquip(m, { strikeWith: e.name }, 'Strikes with a ' + e.name.toLowerCase()) }), ' ' + e.name + ' (' + D.num(e, 'Base Damage') + '/' + D.num(e, 'Deadliness') + ')  ']))]) : null,
+      el('div', { class: 'chiprow tight' }, [el('span', { class: 'track-name' }, ['Armor']), asel,
+        ae ? el('span', { class: 'muted small' }, ['resistance: physical ' + (D.num(ae, 'Physical Resistance') || 0) + (D.num(ae, 'Supernatural Resistance') != null ? ' · supernatural ' + D.num(ae, 'Supernatural Resistance') : '')]) : null]),
     ]);
   }
 
@@ -780,10 +851,10 @@ window.L5RSheet = (function () {
     if (stanceOfCheck(m, roll) === 'Void' && t.strife) out.push('Void stance: no strife from the (st) kept (' + t.strife + ')');
     if (tag.kind === 'strike') {
       const w = readied(mm);
-      if (!w) out.push('Strike: no weapon readied — ready one under Gear');
+      if (!w) out.push('Strike: no weapon readied — ready one under Weapons, or choose an unarmed profile');
       else if (t.success === true) {
         const g = w.grip ? w.grip.damage : 0;
-        out.push('Strike with the ' + w.name + ': ' + (w.base + g + t.bonus) + ' physical damage (base ' + w.base + (g ? ' + ' + g + ' ' + w.grip.name : '') + ' + ' + t.bonus + ' bonus success' + (t.bonus === 1 ? '' : 'es') + '); (op) (op): a critical strike, severity ' + (w.deadliness + (w.grip ? w.grip.deadliness : 0)) + ' (deadliness)');
+        out.push('Strike with the ' + w.name + (w.grip ? ' (' + w.grip.name + ')' : '') + ': ' + (w.base + g + t.bonus) + ' physical damage (base ' + w.base + (g ? ' + ' + g + ' ' + w.grip.name : '') + ' + ' + t.bonus + ' bonus success' + (t.bonus === 1 ? '' : 'es') + '); (op) (op): a critical strike, severity ' + (w.deadliness + (w.grip ? w.grip.deadliness : 0)) + ' (deadliness)');
       } else if (t.success === false) out.push('Strike with the ' + w.name + ': no damage');
     }
     if (tag.kind === 'initiative') {
@@ -996,7 +1067,9 @@ window.L5RSheet = (function () {
     const v = complete(m.character || {});
     const earned = lv.xpEarned != null ? lv.xpEarned : (v.Experience || 0);
     const spent = lv.xpSpent != null ? lv.xpSpent : (v['Experience Spent'] || 0);
-    return { earned, spent, available: earned - spent, ledger: lv.xpLedger || v._xpLedger || [] };
+    // a printed ledger (^"Experience Ledger"): "cost · what · note · when"
+    const printed = (v['Experience Ledger'] || []).map((x) => { const q = String(x).split(' · '); return { cost: parseInt(q[0], 10) || 0, what: q[1] || '', note: q[2] || null, when: q[3] || null }; });
+    return { earned, spent, available: earned - spent, ledger: lv.xpLedger || v._xpLedger || printed };
   }
   function xpBlock(m, ro) {
     const x = xp(m);
@@ -1071,7 +1144,7 @@ window.L5RSheet = (function () {
     if (isViewingArchive(m)) {
       const ver = versionsOf(m).find((x) => x.id === viewing[m.id]);
       const av = complete(ver.character || {});
-      const am = { id: m.id, name: m.name, character: ver.character, live: ver.live, portrait: m.portrait };
+      const am = { id: m.id, name: m.name, character: ver.character, live: ver.live, portrait: portraitOf(m, complete(m.character || {})) };
       const ad = derived(av);
       const box = el('div', { class: 'sheet live archived' });
       box.appendChild(header(am, av, versionPicker(m, redraw)));
