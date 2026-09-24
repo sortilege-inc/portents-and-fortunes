@@ -118,6 +118,9 @@ def main():
     check("STARTING_TECHNIQUES blocks", deep(lambda x: x.get("kw") == "STARTING_TECHNIQUES"), scan(corpus, r'^\s+STARTING_TECHNIQUES \{'))
     check("Ring Increase with a CHOOSE", deep(lambda x: x.get("name") == "Ring Increase" and any(b.get("kw") == "CHOOSE" for b in x.get("blocks", []))),
           scan_text(corpus, r'\^"Ring Increase" DEF \{[^{}]*?CHOOSE'))
+    # `CHOOSE DISTINCT 2 [ … ]` once split into an empty CHOOSE and a DISTINCT block
+    check("CHOOSE blocks that carry their list", deep(lambda x: x.get("kw") == "CHOOSE" and not any("l" in a for a in x.get("args", []))), 0)
+    check("CHOOSE DISTINCT, kept as one CHOOSE", deep(lambda x: x.get("kw") == "CHOOSE" and any(a.get("w") == "DISTINCT" for a in x.get("args", []))), scan(corpus, r'CHOOSE DISTINCT '))
     check("families with a Ring Increase CHOOSE", sum(1 for e in typed("Family") if any(b.get("kw") == "CHOOSE" for b in (prop(e, "Ring Increase") or {}).get("blocks", []))), len(typed("Family")))
     # a list of bare names, one per line, is that many names (the parser once read each pair as
     # a name and its type, and Crab had three families instead of five)
