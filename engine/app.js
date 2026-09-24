@@ -168,6 +168,7 @@
   // enter, leave }) — a courtesy to a player who opens /gm/ on the public site, not access control.
   // Passed once per tab (sessionStorage); "leave" goes back to the site.
   const gate = CFG.gmGate;
+  if (CFG.title) document.title = CFG.title + ' — the GM’s table';   // named before the gate, not after
   const GATE_KEY = (CFG.storagePrefix || 'sortilege-vtt') + ':gm-gate';
   let passed = !gate;
   try { passed = passed || sessionStorage.getItem(GATE_KEY) === '1'; } catch (e) { /* storage off: ask every load */ }
