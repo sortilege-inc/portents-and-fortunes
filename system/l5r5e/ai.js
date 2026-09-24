@@ -7,7 +7,7 @@
 // listed so the next one differs, and one retry when a simile guesses at a feeling. The prompt
 // text below is the archive's, verbatim.
 //
-// It is enabled from the GM's Settings pane (gm/): an Anthropic API key, a model, and a switch.
+// It is enabled from the GM's Settings pane (gm/; system/l5r5e/settings.js): an Anthropic API key, a model, and a switch.
 // All three live in this browser's localStorage only — nothing is committed, synced or sent
 // anywhere but api.anthropic.com — so the creator offers suggestions in the browser where the
 // GM set the key, and nowhere else. With no key, or the switch off, the creator shows no AI
@@ -525,30 +525,24 @@ window.L5RAI = (function () {
     });
   }
 
-  // ── the GM's Settings pane: the key, the model, the switch ──
-  function renderSettings(container) {
+  // ── the GM's Settings section (system/l5r5e/settings.js): the key, the model, the switch ──
+  function renderSettings(box, redraw) {
     const { el, button } = window.VttRender;
-    const draw = () => {
-      const s = settings();
-      container.innerHTML = '';
-      container.appendChild(el('h4', {}, ['Settings']));
-      container.appendChild(el('div', { class: 'paper' }, [
-        el('div', { class: 'guidance-k' }, ['AI suggestions in the character creator']),
-        el('p', { class: 'muted small' }, ['Off unless switched on here. With a key and the switch on, the creator’s narrative answers (giri, ninjō, the accomplishment and the rest) offer a Suggest button: it drafts an answer in the third person from the character so far and the book’s walkthrough of the question, or rewrites what the player typed. The key is stored in this browser only and sent only to api.anthropic.com — so suggestions appear in the creator in this browser, not on a player’s device.']),
-        el('label', { class: 'set-row' }, [el('input', { type: 'checkbox', checked: s.enabled || null, onchange: (ev) => { saveSettings({ enabled: ev.target.checked }); draw(); } }), ' Enable AI suggestions']),
-        el('div', { class: 'set-row' }, [el('span', { class: 'muted small' }, ['Anthropic API key']),
-          el('input', { type: 'password', class: 'text wide', autocomplete: 'off', placeholder: 'sk-ant-…', value: s.key || '', onchange: (ev) => { saveSettings({ key: ev.target.value.trim() }); draw(); } })]),
-        el('div', { class: 'set-row' }, [el('span', { class: 'muted small' }, ['Model']),
-          (() => { const sel = el('select', { class: 'scope' }, MODELS.map(([id, label]) => el('option', { value: id, selected: id === s.model || null }, [label]))); sel.addEventListener('change', () => saveSettings({ model: sel.value })); return sel; })()]),
-        el('div', { class: 'set-row' }, [
-          el('span', { class: 'cond' + (enabled() ? ' ok' : '') }, [enabled() ? 'On' : s.enabled ? 'On, but no key' : 'Off']),
-          s.key ? button('Forget the key', () => { saveSettings({ key: '', enabled: false }); draw(); }, 'ghost tiny') : null,
-        ]),
-      ]));
-    };
-    draw();
+    const s = settings();
+    box.appendChild(el('div', { class: 'guidance-k' }, ['AI suggestions in the character creator']));
+    box.appendChild(el('p', { class: 'muted small' }, ['Off unless switched on here. With a key and the switch on, the creator’s narrative answers (giri, ninjō, the accomplishment and the rest) offer a Suggest button: it drafts an answer in the third person from the character so far and the book’s walkthrough of the question, or rewrites what the player typed. The key is stored in this browser only and sent only to api.anthropic.com — so suggestions appear in the creator in this browser, not on a player’s device.']));
+    box.appendChild(el('label', { class: 'set-row' }, [el('input', { type: 'checkbox', checked: s.enabled || null, onchange: (ev) => { saveSettings({ enabled: ev.target.checked }); redraw(); } }), ' Enable AI suggestions']));
+    box.appendChild(el('div', { class: 'set-row' }, [el('span', { class: 'muted small' }, ['Anthropic API key']),
+      el('input', { type: 'password', class: 'text wide', autocomplete: 'off', placeholder: 'sk-ant-…', value: s.key || '', onchange: (ev) => { saveSettings({ key: ev.target.value.trim() }); redraw(); } })]));
+    const sel = el('select', { class: 'scope' }, MODELS.map(([id, label]) => el('option', { value: id, selected: id === s.model || null }, [label])));
+    sel.addEventListener('change', () => saveSettings({ model: sel.value }));
+    box.appendChild(el('div', { class: 'set-row' }, [el('span', { class: 'muted small' }, ['Model']), sel]));
+    box.appendChild(el('div', { class: 'set-row' }, [
+      el('span', { class: 'cond' + (enabled() ? ' ok' : '') }, [enabled() ? 'On' : s.enabled ? 'On, but no key' : 'Off']),
+      s.key ? button('Forget the key', () => { saveSettings({ key: '', enabled: false }); redraw(); }, 'ghost tiny') : null,
+    ]));
   }
-  if (window.VttPanels) window.VttPanels.register('settings', { label: 'Settings', render: renderSettings });
+  if (window.L5RSettings) window.L5RSettings.section({ id: 'ai', render: renderSettings });
 
   return { settings, saveSettings, enabled, suggest, FIELDS, MODELS };
 })();
