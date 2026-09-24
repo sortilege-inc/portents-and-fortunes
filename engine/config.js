@@ -10,15 +10,26 @@ window.VttConfig = {
   pages: { site: './', gm: 'gm/', table: 'gm/vtt.html', play: 'gm/play.html' },
   // what a fresh browser opens on until a campaign is created or restored: no adventure is
   // picked (the Adventure panel offers the sixteen), no book beyond what a view asks for.
-  // An instance may add `seed: 'campaign/pack/seed.json'` — a pack whose keys fill what its
-  // campaign has never had (its arc, its encounters), once (engine/state.js seed).
+  // An instance may add `seed: 'campaign/pack/seed.json'` — a pack that fills what its campaign
+  // has never had: a whole key, an entry (by id) in a list, a field (engine/state.js seed). What
+  // the GM has set, changed or removed is never touched.
   // An instance may also name the Notes pane's document (system/l5r5e/gm-panes.js):
-  //   notes: { src: 'campaign/docs/state.html', title: '…', class: 'pf-doc',
-  //            gate: { title: '…', text: '…', enter: 'Bow & Enter' } }
+  //   notes: { src: 'campaign/docs/state.html', title: '…', class: 'pf-doc' }
   // a .html src is the instance's own fragment, inserted as it is; anything else reads as Markdown.
+  // (The family standard is the GM's material in the GM tabs, in the pack — PLAYBOOK.md — so a
+  // Notes document is for an instance that has not moved there yet.)
   defaultCampaign: { name: 'A new campaign', modules: [], books: [] },
   // the three panels the GM page opens on (engine/app.js)
   defaultSlots: ['adventure', 'party', 'inspector'],
+  // Instance knobs, all off here:
+  //   ownAdventure: { title } — the campaign is its own adventure: its arc (Scenes) is what the
+  //     table, the cast and the current scene follow (system/l5r5e/table.js); pair it with
+  //     hidePanes: ['adventure'].
+  //   hidePanes: [ids] — GM panels the instance leaves out (engine/panels.js).
+  //   gmGate: { title, text, enter, leave } — the warning in front of /gm/ (engine/app.js).
+  //   siteBooks — whether the public site shows the books' tabs; an instance leaves it off, and
+  //     the GM turns them on per browser in Settings (engine/site.js).
+  siteBooks: true,
   // The Worker that holds player sessions. Served from localhost the app talks to
   // `wrangler dev`; deployed, to the URL below. Empty = sessions disabled until the owner
   // deploys (PLAN.md D3).

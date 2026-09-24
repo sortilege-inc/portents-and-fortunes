@@ -8,7 +8,8 @@
 //                                       NPCs (the Cast panel)
 //   party[].versions                    archived copies of a character (archivePartyVersion)
 //   npcConditions { [entityId]: [names] } an NPC's conditions, the GM's (setNpcConditions)
-//   gmNotes, arc, threads, encounters   the GM's own pack state (setGmNotes …), never shared
+//   gmNotes, arc, threads, encounters, gm   the GM's own pack state (setGmNotes …, setGm), never
+//                                       shared and never sent to the room (opts.local)
 (function (root, factory) {
   if (typeof module !== 'undefined' && module.exports) module.exports = factory(require('../../engine/ops.js'));
   else factory(root.VttOps);
@@ -53,10 +54,17 @@
   // The GM's own pack state (Portents M6, O8): free notes, the arc, open threads, saved encounters.
   // Never shared: no player may send them, none is in a player's view, and none is forwarded.
   const gmOnly = () => null;
-  Ops.register('setGmNotes', (s, text) => { s.gmNotes = String(text || ''); }, null, gmOnly);
-  Ops.register('setArc', (s, list) => { s.arc = (list || []).map((x) => Object.assign({}, x)); }, null, gmOnly);
-  Ops.register('setThreads', (s, list) => { s.threads = (list || []).map((x) => Object.assign({}, x)); }, null, gmOnly);
-  Ops.register('setEncounters', (s, list) => { s.encounters = JSON.parse(JSON.stringify(list || [])); }, null, gmOnly);
+  // the GM's own keys are never shared, so their ops never go to the session's room either
+  const LOCAL = { local: true };
+  Ops.register('setGmNotes', (s, text) => { s.gmNotes = String(text || ''); }, null, gmOnly, LOCAL);
+  Ops.register('setArc', (s, list) => { s.arc = JSON.parse(JSON.stringify(list || [])); }, null, gmOnly, LOCAL);
+  Ops.register('setThreads', (s, list) => { s.threads = JSON.parse(JSON.stringify(list || [])); }, null, gmOnly, LOCAL);
+  Ops.register('setEncounters', (s, list) => { s.encounters = JSON.parse(JSON.stringify(list || [])); }, null, gmOnly, LOCAL);
+  // the GM's own material (system/l5r5e/gm-text.js): gm[where] is a list of sections, or a note
+  Ops.register('setGm', (s, where, value) => {
+    if (!s.gm) s.gm = {};
+    s.gm[String(where)] = JSON.parse(JSON.stringify(value == null ? null : value));
+  }, null, gmOnly, LOCAL);
 
   return Ops;
 });
