@@ -132,57 +132,158 @@ body.play { display: block; }
 }
 
 /* ── the player's page on a phone (≤ 640px): the sheet in panes behind a bar at the bottom
-   (system/l5r5e/sheet.js panes), touch-sized controls, text no smaller than 13px, inputs at 16px
-   (a smaller input makes iOS zoom the page when it takes focus). Wider screens are untouched. ── */
+   (system/l5r5e/sheet.js panes; the player's copy is compact — steppers and toggles, no working),
+   one column edge to edge, touch-sized controls, inputs at 16px (smaller makes iOS zoom).
+   Wider screens are untouched. ── */
 .pane-nav, .mobile-only { display: none; }
 .play-menu > summary { display: none; }
-@media (max-width: 640px) {
-  body.play { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
-  .play-head { padding: 8px 12px; }
-  .play-head .brand-title { font-size: 20px; line-height: 1.15; }
-  .play-head .brand-sub { font-size: 11px; }
-  .play-main { padding: 8px; }
-  .play-card { padding: 12px; }
-  .play-menu > summary { display: flex; align-items: center; min-height: 44px; padding: 0 12px; border: 1px solid var(--edge); background: var(--paper); font-family: var(--caps); font-size: 14px; letter-spacing: .06em; cursor: pointer; }
-  .play-menu[open] > summary { margin-bottom: 8px; }
-  .play-menu .play-bar { display: grid; grid-template-columns: 1fr; gap: 8px; }
+/* the compact controls, wherever they appear */
+.stepper { display: inline-flex; align-items: center; gap: 0; }
+.stepper .step-k, .step-k { font-family: var(--caps); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); margin-right: 8px; }
+.stepper .step { width: 36px; height: 32px; border: 1px solid var(--edge); background: var(--paper); color: var(--crimson-deep); font-size: 18px; line-height: 1; cursor: pointer; }
+.stepper .step-v { min-width: 2.2em; text-align: center; font-family: var(--disp); font-size: 20px; border-top: 1px solid var(--edge); border-bottom: 1px solid var(--edge); height: 32px; display: inline-flex; align-items: center; justify-content: center; background: var(--paper-2); }
+.toggle { border: 1px solid var(--edge); background: var(--paper); font-family: var(--caps); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); padding: 4px 10px; cursor: pointer; }
+.toggle.on { border-color: var(--crimson); background: var(--crimson-soft); color: var(--crimson-deep); }
+.tn-pick { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.tn-btn { min-width: 34px; height: 32px; border: 1px solid var(--edge); background: var(--paper); font-family: var(--disp); font-size: 18px; cursor: pointer; }
+.tn-btn.on { border-color: var(--crimson); background: var(--crimson); color: #fff; }
+.roll-what { font-family: var(--disp); font-size: 22px; font-weight: 600; margin: 4px 0; }
+.roller-more > summary, details.fold > summary { font-family: var(--caps); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); cursor: pointer; padding: 6px 0; }
+.stake-pick { display: flex; align-items: center; gap: 4px; flex-basis: 100%; }
+.stake-pick[hidden] { display: none; }
+.conditions.compact .cond-toggle .x { opacity: .7; }
 
+@media (max-width: 640px) {
+  body.play { padding-bottom: calc(60px + env(safe-area-inset-bottom)); background: var(--paper-2); }
+  /* the header: one line */
+  .play-head { padding: 8px 12px; gap: 8px; }
+  .play-head .brand-mark { width: 22px; height: 22px; }
+  .play-head .brand-title { font-size: 18px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .play-head .brand-sub { display: none; }
+  .play-head .brand { min-width: 0; flex: 1; display: flex; align-items: center; gap: 8px; overflow: hidden; }
+  .play-head .brand-text { min-width: 0; overflow: hidden; }
+  .play-head .brand-title { display: block; }
+  .play-status { gap: 6px; font-size: 12px; flex: none; }
+  .play-status .chip { padding: 0 6px; font-size: 12px; }
+  .play-status .room-k { display: none; }
+  .play-status .btn { min-height: 32px; padding: 0 8px; }
+  /* one column, edge to edge: no card in a card */
+  .play-main { padding: 0; }
+  .play-card, .play-card.wide { padding: 0; border: 0; background: none; }
+  body.play .sheet.live { border: 0; padding: 0 14px 14px; background: none; }
+  .play-menu > summary { display: flex; align-items: center; justify-content: space-between; min-height: 40px; padding: 0 14px; font-family: var(--caps); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); border-bottom: 1px solid var(--edge); cursor: pointer; list-style: none; }
+  .play-menu > summary::-webkit-details-marker { display: none; }
+  .play-menu > summary::after { content: '⋯'; font-size: 20px; color: var(--ink-soft); }
+  .play-menu .play-bar { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--edge); }
+
+  /* the panes */
   body.play .sheet.live[data-show="play"] > [data-pane]:not([data-pane="play"]),
   body.play .sheet.live[data-show="roll"] > [data-pane]:not([data-pane="roll"]),
   body.play .sheet.live[data-show="gear"] > [data-pane]:not([data-pane="gear"]),
   body.play .sheet.live[data-show="sheet"] > [data-pane]:not([data-pane="sheet"]) { display: none; }
   body.play .mobile-only { display: block; }
+  body.play .sheet.live > [data-pane] { margin: 0; padding: 12px 0; border-bottom: 1px solid var(--edge); }
+  body.play .sheet.live > [data-pane]:last-of-type { border-bottom: 0; }
   body.play .pane-nav { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; background: var(--lacquer); border-top: 2px solid var(--crimson); padding-bottom: env(safe-area-inset-bottom); }
-  body.play .pane-nav button { flex: 1; min-height: 56px; background: none; border: 0; color: var(--paper-2); font-family: var(--caps); font-size: 15px; letter-spacing: .08em; text-transform: uppercase; }
+  body.play .pane-nav button { flex: 1; min-height: 54px; background: none; border: 0; color: #cdbf9f; font-family: var(--caps); font-size: 14px; letter-spacing: .1em; text-transform: uppercase; }
   body.play .pane-nav button.on { color: #fff; box-shadow: inset 0 3px 0 var(--crimson); background: var(--lacquer-2); }
 
-  /* touch targets */
-  body.play .sheet.live button, body.play .sheet.live .btn, body.play .play-main .btn,
-  body.play .sheet.live select { min-height: 44px; font-size: 15px; }
-  body.play .sheet.live input, body.play .sheet.live select, body.play .sheet.live textarea { font-size: 16px; }
-  body.play .sheet.live input.num { min-height: 40px; width: 4.2em; }
-  body.play .sheet.live input.text:not(.num) { min-height: 40px; }
-  body.play .sheet.live input[type=checkbox], body.play .sheet.live input[type=radio] { width: 22px; height: 22px; margin: 0 6px 0 0; }
-  body.play .sheet.live label { display: inline-flex; align-items: center; min-height: 44px; padding-right: 8px; }
-  body.play .sheet.live .track { flex-wrap: wrap; row-gap: 6px; }
-  body.play .sheet.live .track .track-name { flex: 0 0 100%; width: auto; }
-  body.play .sheet.live .track .boxes { flex: 1 1 100%; }
-  body.play .sheet.live .track .boxes + .muted { margin-left: auto; }
-  body.play .sheet.live .track button { min-width: 44px; }
-  body.play .sheet.live .cond-toggle { min-height: 40px; padding: 4px 10px; font-size: 13px; }
-  body.play .sheet.live .ring-btn { min-width: 52px; min-height: 52px; font-size: 13px; }
-  body.play .sheet.live .ring-btn .ring-ico { width: 30px; height: 30px; }
-  body.play .sheet.live .die img.face { width: 52px; height: 52px; }
-  body.play .sheet.live .tray-k { flex: 0 0 100%; }   /* "Ring dice" above its dice */
-  body.play .sheet.live .skill-row button { min-height: 40px; text-align: left; }
-  body.play .skill-pick { width: 100%; }
-  body.play .skill-pick-row { margin: 4px 0 8px; }
+  /* the head: portrait, name, the line under it */
+  body.play .sheet-head { display: flex; gap: 12px; align-items: center; }
+  body.play .sheet-head .head-text { flex: 1; min-width: 0; }
+  body.play .sheet-head .portrait { flex: 0 0 64px; width: 64px; height: 64px; object-fit: cover; object-position: top; border-radius: 50%; border: 2px solid var(--edge); }
+  body.play .sheet-head h2 { font-size: 24px; line-height: 1.1; margin: 0; display: flex; align-items: center; gap: 6px; }
+  body.play .sheet-head h2 .mon { width: 24px; height: 24px; }
+  body.play .sheet-head .muted.small { font-size: 13px; line-height: 1.3; }
+  body.play .sheet-head select { min-height: 34px; margin-top: 4px; }
 
-  /* the five rings in one row */
-  body.play .sheet.live .rings-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 100%; }
-  body.play .sheet.live .ring-tile { min-width: 0; padding: 4px 0; }
-  body.play .sheet.live .ring-tile .ring-ico { width: 28px; height: 28px; }
-  body.play .sheet.live .ring-tile .v { font-size: 22px; }
+  /* touch sizes: every control 44px, inputs 16px */
+  body.play .sheet.live button, body.play .sheet.live .btn, body.play .sheet.live select { min-height: 44px; font-size: 15px; }
+  body.play .sheet.live input, body.play .sheet.live select, body.play .sheet.live textarea { font-size: 16px; }
+  body.play .sheet.live input.text:not(.num) { min-height: 44px; flex: 1 1 10em; }
+  body.play .sheet.live .stepper .step { width: 44px; height: 44px; min-height: 44px; }
+  body.play .sheet.live .stepper .step-v { height: 44px; }
+  body.play .sheet.live .toggle { min-height: 44px; }
+  body.play .sheet.live .tn-btn { height: 44px; }
+  body.play .sheet.live input[type=checkbox], body.play .sheet.live input[type=radio] { width: 22px; height: 22px; margin: 0 8px 0 0; }
+  body.play .sheet.live label { display: inline-flex; align-items: center; min-height: 44px; }
+
+  /* the rings: one row of five */
+  body.play .sheet.live .rings-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; width: 100%; }
+  body.play .sheet.live .ring-tile { min-width: 0; padding: 6px 0 4px; border-radius: 6px; }
+  body.play .sheet.live .ring-tile .ring-ico { width: 26px; height: 26px; }
+  body.play .sheet.live .ring-tile .v { font-size: 24px; }
+
+  /* a tracker: NAME ····· 3 / 10, then [−] boxes [+] */
+  body.play .sheet.live .track { display: grid; grid-template-columns: 44px 1fr 44px; grid-template-areas: "name name value" "dec boxes inc"; align-items: center; gap: 6px 10px; margin: 6px 0 12px; }
+  body.play .sheet.live .track .track-name { grid-area: name; width: auto; }
+  body.play .sheet.live .track .track-v { grid-area: value; justify-self: end; font-family: var(--disp); font-size: 18px; color: var(--ink); white-space: nowrap; }
+  body.play .sheet.live .track .boxes { grid-area: boxes; gap: 4px; }
+  body.play .sheet.live .track .box { width: 20px; height: 20px; border-radius: 3px; }
+  body.play .sheet.live .track .dec { grid-area: dec; }
+  body.play .sheet.live .track .inc { grid-area: inc; }
+  body.play .sheet.live .track .dec, body.play .sheet.live .track .inc { width: 44px; font-size: 20px; padding: 0; }
+
+  /* conditions, passions, techniques, conflict: rows of wide buttons */
+  body.play .sheet.live .chiprow.tight { gap: 8px; }
+  body.play .sheet.live .cond-toggle { min-height: 40px; padding: 4px 12px; font-size: 13px; }
+  body.play .sheet.live .conditions .track-name { flex-basis: 100%; }
+  body.play .sheet.live .add-cond { flex: 1 1 10em; }
+  body.play .sheet.live .conflict.compact select { flex: 1 1 12em; }
+  body.play .sheet.live .trait { width: 100%; text-align: left; justify-content: flex-start; }
+
+  /* weapons */
+  body.play .sheet.live .weapon-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding: 8px 0; border-top: 1px dotted var(--edge); }
+  body.play .sheet.live .weapon-row > b { flex-basis: 100%; font-family: var(--disp); font-size: 20px; }
+  body.play .sheet.live .weapon-row .ref.tiny { font-family: var(--caps); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; border: 1px solid var(--edge); background: var(--paper); color: var(--ink-soft); padding: 0 12px; }
+  body.play .sheet.live .weapon-row .ref.tiny.on { border-color: var(--crimson); background: var(--crimson-soft); color: var(--crimson-deep); }
+  body.play .sheet.live .weapon-row.unarmed .step-k { flex-basis: 100%; }
+  body.play .sheet.live .gear select { flex: 1 1 10em; }
+
+  /* honor, glory, status, XP: label, stepper, action */
+  body.play .sheet.live .social-row.compact { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
+  body.play .sheet.live .social-row.compact .soc { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  body.play .sheet.live .social-row.compact .soc { justify-content: flex-start; text-align: left; margin: 0; }
+  body.play .sheet.live .social-row.compact .track-name { flex: 0 0 6.5em; text-align: left; }
+  body.play .sheet.live .xp-avail { font-family: var(--disp); font-size: 24px; }
+
+  /* the roller */
+  body.play .sheet.live .roller { border: 0; padding: 0; background: none; }
+  body.play .sheet.live .ring-pick { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  body.play .sheet.live .ring-btn { min-height: 56px; font-size: 12px; border: 1px solid var(--edge); background: var(--paper); border-radius: 6px; }
+  body.play .sheet.live .ring-btn.on { border-color: var(--crimson); background: var(--crimson-soft); }
+  body.play .sheet.live .roller-controls.compact { display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+  body.play .sheet.live .roller-controls.compact > * { width: 100%; }
+  body.play .sheet.live .tn-pick { display: grid; grid-template-columns: auto repeat(9, minmax(0, 1fr)); gap: 4px; }
+  body.play .sheet.live .tn-pick .tn-btn { min-width: 0; padding: 0; }
+  body.play .sheet.live .roll-what { text-align: left; }
+  body.play .sheet.live .techniques-in-play .tech-row { border: 1px solid var(--edge); background: var(--paper); padding: 4px 12px 8px; margin: 8px 0; border-radius: 4px; }
+  body.play .sheet.live .techniques-in-play .tech-row button { border: 0; background: none; padding: 0; min-height: 36px; width: 100%; text-align: left; color: var(--crimson-deep); }
+  body.play .sheet.live .techniques-in-play .tech-row .muted { display: block; }
+  body.play .sheet.live .roll-go { display: grid; grid-template-columns: auto 1fr; gap: 8px; }
+  body.play .sheet.live .roll-go .btn { min-height: 52px; font-size: 18px; letter-spacing: .12em; }
+  body.play .sheet.live .roller-more .chiprow { flex-direction: column; align-items: flex-start; }
+  body.play .sheet.live .roller-more .note { width: 100%; margin-top: 8px; }
+  body.play .sheet.live .roll-result .chiprow .btn { flex: 1; }
+  body.play .sheet.live .tray-k { flex: 0 0 100%; }
+  body.play .sheet.live .die img.face { width: 52px; height: 52px; }
+  body.play .sheet.live .roll-result .tally { font-size: 17px; margin: 8px 0; }
+  body.play .sheet.live .skill-pick { width: 100%; }
+  body.play .sheet.live .skill-row button { min-height: 40px; text-align: left; }
+
+  /* the log */
+  body.play .sheet.live .roll-log .roll-line { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; padding: 8px 0; border-top: 1px dotted var(--edge); }
+  body.play .sheet.live .roll-log .roll-who { flex-basis: 100%; font-family: var(--caps); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); }
+
+  /* the full sheet: two columns of fields become one */
+  body.play .sheet.live .sheet { border: 0; padding: 0; background: none; }
+  body.play .sheet.live .sheet .two-up { display: block; }
+  body.play .sheet.live .sheet .two-up > div:first-child, body.play .sheet.live .sheet .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+  body.play .sheet.live .sheet .prop { padding: 6px 0; border-bottom: 1px dotted var(--edge); }
+  body.play .sheet.live .sheet .two-up .rings-row { margin: 12px 0; }
+  body.play .sheet.live .sheet-sec { margin-top: 20px; }
+  body.play .sheet.live .skill-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dotted var(--edge); }
+  body.play .sheet.live .skill-row button { border: 0; background: none; padding: 0; color: var(--crimson-deep); font-size: 16px; }
 
   /* nothing smaller than 13px */
   body.play .sheet.live .small, body.play .sheet.live .tiny, body.play .sheet.live .muted.small,

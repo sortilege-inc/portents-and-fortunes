@@ -25,7 +25,7 @@
       return;
     }
     statusEl.appendChild(el('span', { class: 'chip' + (s.connected ? ' on' : '') }, [s.connected ? 'connected' : s.status]));
-    statusEl.appendChild(el('span', { class: 'muted' }, [' room ', el('b', {}, [s.info.code])]));
+    statusEl.appendChild(el('span', { class: 'muted' }, [el('span', { class: 'room-k' }, [' room ']), el('b', {}, [s.info.code])]));
     statusEl.appendChild(button('Leave', () => { Session.leave(); render(); }, 'ghost tiny'));
   }
 
@@ -128,7 +128,7 @@
     const clocks = (State.state.clocks || []).filter((c) => c.visible !== false);
     const strip = clocks.length ? el('div', { class: 'clock-strip' }, clocks.map((c) => el('div', { class: 'clock-row' }, [el('div', { class: 'track-head' }, [el('span', { class: 'track-name' }, [c.name]), el('span', { class: 'muted' }, [`${c.filled} / ${c.segments}`])]), el('div', { class: 'boxes clock' }, Array.from({ length: c.segments }, (_, i) => el('span', { class: 'box' + (i < c.filled ? ' on' : '') })))]))) : null;
     // on a phone the three fold into one line (assets/css/l5r5e-gm.css); wider, they stand open as before
-    const menu = el('details', { class: 'play-menu', open: (menuOpen != null ? menuOpen : !PHONE.matches) || null }, [el('summary', {}, [m.name + ' · table, file, release']), bar]);
+    const menu = el('details', { class: 'play-menu', open: (menuOpen != null ? menuOpen : !PHONE.matches) || null }, [el('summary', {}, ['Table · file · release']), bar]);
     menu.addEventListener('toggle', () => { menuOpen = menu.open; });
     return el('div', { class: 'play-card wide' }, [menu, strip, Sys.liveSheet(m, { player: true })]);
   }
@@ -156,8 +156,11 @@
   });
 
   render();
-  if (params.get('s') && !Session.current().active) {
-    Session.join(params.get('s'));
+  // a join link names its room: follow it, even from a room this browser is still in
+  const linked = params.get('s') && String(params.get('s')).toUpperCase();
+  if (linked && (!Session.current().active || Session.current().info.code !== linked)) {
+    if (Session.current().active) Session.leave();
+    Session.join(linked);
     render();
   }
 })();
