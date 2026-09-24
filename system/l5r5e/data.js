@@ -450,8 +450,8 @@ window.L5RData = (function () {
   const schools = () => recordsOf((r) => r.type === 'School');
   const npcs = () => recordsOf((r) => r.type === 'NPC');
   // a published character — not an archived sheet of one (`Version Of`, which the sheet gathers)
-  const pregens = () => recordsOf((r) => r.type === 'Samurai' && r.kind === 'actor' && !(r.fields || {})['Version Of']);
-  const versionsOf = (id) => recordsOf((r) => (r.fields || {})['Version Of'] === id);
+  const pregens = () => recordsOf((r) => r.type === 'Samurai' && r.kind === 'actor' && !r.versionOf);
+  const versionsOf = (id) => recordsOf((r) => r.versionOf === id);
   const clans = () => recordsOf((r) => r.type === 'Clan');
   const families = () => recordsOf((r) => r.type === 'Family');
   // A technique is printed two ways: nested under its category with a RANK line (the core),
