@@ -3,10 +3,9 @@
 The process this file recorded while Portents & Fortunes became the first instance of a Sortilege
 VTT is now the family's general guide:
 
-- **[`sortilege-vtt-teeth/INSTANCES.md`](https://github.com/sortilege-inc/sortilege-vtt-teeth/blob/main/INSTANCES.md)**
-  — the boundary, pulling upstream, where each kind of thing goes, standing an instance up,
-  deploying it, the hook.
-- **`sortilege-vtt-teeth/PLAYBOOK.md` §4** — the model in one paragraph.
+- **`INSTANCES.md`** in `~/Sortilege/VTT/` (beside the VTT repos, in none of them) — the boundary,
+  pulling upstream, where each kind of thing goes, standing an instance up, deploying it, the hook.
+- **`PLAYBOOK.md` §4**, beside it — the model in one paragraph.
 
 What stays here is what is Portents' own:
 
