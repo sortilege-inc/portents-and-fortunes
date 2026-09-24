@@ -473,6 +473,9 @@ window.L5RSheet = (function () {
     const charOf = () => complete(memberNow(m.id, m).character || {});
     const r = Dice.roller({
       compact: !!compact,
+      // compact: the skill is picked in the roller, and Void offered only while there is one to spend
+      skills: compact ? () => ({ groups: skillGroups().map((g) => ({ name: g.name, skills: g.skills.map((k) => k.name) })), have: charOf().Skills || {} }) : null,
+      voidAvailable: compact ? () => current(memberNow(m.id, m), 'Void Points') : null,
       preset: { ring: (m.live || {}).stance || 'Air', ringValue: v.Rings[(m.live || {}).stance || 'Air'], skill: null, skillRank: 0 },
       ringsOf: (ring) => charOf().Rings[ring],
       rerolls: (ring) => rerollModes(charOf(), ring),
@@ -1266,7 +1269,7 @@ window.L5RSheet = (function () {
     add(socialBlock(m, false, cp), 'gear');
     add(xpBlock(m, false, cp), 'gear');
     add(cp ? null : el('h4', {}, ['A check', el('span', { class: 'muted small' }, [' · pick a skill below, a ring, the TN'])]), 'roll');
-    if (o.player) add(skillPicker(v, roller), 'roll');
+    if (roller.refresh) roller.refresh();
     add(roller, 'roll');
     const onRoll = (skill, rank) => roller.set({ skill, skillRank: rank });
     add(render(Object.assign({}, v, { Honor: current(m, 'Honor'), Glory: current(m, 'Glory'), Status: current(m, 'Status') }), null, { onRoll, stance: lv.stance, compact: cp }), 'sheet');
@@ -1303,23 +1306,12 @@ window.L5RSheet = (function () {
       const set = roller.set;
       roller.set = (x) => {
         set(x);
-        document.querySelectorAll('.skill-pick').forEach((sp) => { sp.value = roller.skill() || ''; });
         if (paneOf[m.id] !== 'roll' && shown[m.id]) shown[m.id]('roll', true);
       };
       roller.panesWrapped = true;
     }
   }
-  // a check's skill, chosen where the check is made (the full sheet's skill rows are a pane away)
-  function skillPicker(v, roller) {
-    const have = v.Skills || {};
-    const sel = el('select', { class: 'scope skill-pick', 'aria-label': 'Skill' }, [
-      el('option', { value: '' }, ['Skill…']),
-      skillGroups().map((g) => el('optgroup', { label: g.name }, g.skills.map((k) => el('option', { value: k.name }, [k.name + ' ' + (have[k.name] || 0)])))),
-    ]);
-    sel.value = (roller.skill && roller.skill()) || '';
-    sel.addEventListener('change', () => { if (sel.value) roller.set({ skill: sel.value, skillRank: have[sel.value] || 0 }); });
-    return el('div', { class: 'skill-pick-row mobile-only' }, [sel]);
-  }
+
   // a character's log: what its file brought (earlier sessions), then this table's entries
   function logOf(m) {
     const here = (((State().state || {}).log) || []).filter((x) => (x.kind === 'roll' || x.kind === 'event') && x.memberId === m.id);
