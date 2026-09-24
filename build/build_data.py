@@ -347,6 +347,12 @@ class Build:
             if k == "DESCRIPTION" and "desc" not in rec and len(x["args"]) == 1 and x["args"][0]["k"] == "str" and x.get("body") is None:
                 rec["desc"] = x["args"][0]["v"]
                 return
+            # `EXTENDS #h ^"<its own name>"`: a character's printing of an entity defined elsewhere
+            # (an NPC's copy of a core technique, a reprint) — a link to that entity, not a type
+            if k == "EXTENDS" and "type" not in rec and x.get("body") is None and len(x["args"]) == 2 \
+                    and arg(x, "hash") and arg(x, "caret") == rec["name"]:
+                rec["copyOf"] = {"hash": arg(x, "hash"), "name": arg(x, "caret")}
+                return
             if k == "EXTENDS" and "type" not in rec and x.get("body") is None:
                 rec["type"] = arg(x, "caret")
                 if arg(x, "hash"):
@@ -571,6 +577,10 @@ def main():
         books_out.append((b, chapters, roots))
 
     entities = build.entities
+    # a copy names the book its original lives in, so a link to it can load that book first
+    for e in entities.values():
+        if e.get("copyOf"):
+            e["copyOf"]["book"] = entities[e["copyOf"]["hash"]]["book"]
     records = records_of(entities)
 
     index_books = []
