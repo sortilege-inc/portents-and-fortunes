@@ -1,0 +1,87 @@
+[
+ {
+  "id": "pf-thread-moon-cults",
+  "old": "[SOURCE] `writ-of-wilds-dragon-clan.lore` — **Refuge of the Three Sisters**, in the mountains called the Dragon's Teeth, *a rarity in Rokugan—a shrine devoted to Onnatangu, Lord Moon.*",
+  "new": "[SOURCE] `writ-of-wilds-dragon-clan.lore` — *Located in the mountains known as the Dragon's Teeth, the Refuge of the Three Sisters is rarity in Rokugan—a shrine devoted to Onnatangu, Lord Moon.*"
+ },
+ {
+  "id": "pf-thread-moon-cults",
+  "old": "Three women — adolescent, matron, crone — answer any question in riddles, *but misfortune befalls those who dare ask.*",
+  "new": "Three women — adolescent, matron, crone. *The Sisters will answer any question put to them but will do so in riddles. The answer will nonetheless be true, but misfortune befalls any who dare ask.*"
+ },
+ {
+  "id": "pf-thread-moon-cults",
+  "old": "cults are *at best fringe elements, and at worst blasphemies deserving of eradication*, are *secretive in the extreme*, and *can operate at all levels of society.*",
+  "new": "cults *are generally considered at best to be fringe elements, and at worst blasphemies deserving of eradication.* *cults of any type tend to be secretive in the extreme. Clandestine cultists can operate at all levels of society*."
+ },
+ {
+  "id": "pf-thread-moon-cults",
+  "old": " Cults to him *seek to empower him and hasten his judgment upon his children.*",
+  "new": ""
+ },
+ {
+  "id": "pf-thread-moon-cults",
+  "old": "*“Now, moon people have a crescent-shaped birthmark on their—”*",
+  "new": "*Now, moon people have a crescent-shaped birthmark on their—*"
+ },
+ {
+  "id": "pf-thread-yobanjin",
+  "old": "[SOURCE] `writ-of-wilds-wilderness.lore` — **Yobanjin Mura**",
+  "new": "[SOURCE] `writ-of-wilds-peoples.lore` — **Yobanjin Mura**"
+ },
+ {
+  "id": "pf-thread-yobanjin",
+  "old": "*in a thousand years its signal has never been lit.*",
+  "new": "*So inhospitable is the northern terrain, that in a thousand years, its ancient mirror has never reflected a single beacon fire, and its warning smoke signals have never been lit.*"
+ },
+ {
+  "id": "pf-premise",
+  "old": "[SOURCE] `writ-of-wilds-wilderness.lore` — Wrath of the Kami is an active volcano at the center of Kinenkan province, causing tremors felt as far as the Centipede lands. *Its annual winter eruption is so dependable that the Agasha consider it a troubling omen if it fails to erupt.*",
+  "new": "[SOURCE] `writ-of-wilds-peoples.lore` — Wrath of the Kami is an active volcano at the center of Kinenkan province, causing tremors felt as far as the Centipede lands. *Each winter, the volcano erupts, staining the snows with ash. So dependable is this event, that the Agasha consider it a troubling omen if the volcano does not erupt.*"
+ },
+ {
+  "id": "pf-premise-his-ninjo-is-harder-than-it-looks",
+  "old": "*The Phoenix have not yet revealed this to the other clans for political reasons.*",
+  "new": "*For now, the Phoenix have chosen not to reveal this to the other clans.*"
+ },
+ {
+  "id": "pf-disturbance",
+  "old": "one leading theory of localized imbalance is the displacement of elemental spirits: *kami taken from their enshrined places bring their elemental phenomena elsewhere, manifesting as natural disasters or unusual weather. Kami may be displaced when shrines fall into disrepair, when they are offended, or when encroaching spirits force them to flee.*",
+  "new": "*One prevailing theory is the displacement of elemental spirits. Kami who are enshrined in one place, but then dislocated and moved to another, bring their elemental phenomenon with them. This has explained imbalances that manifested as natural disasters or unusual weather.* *If a shrine falls into disrepair, of if the kami are offended by improper offerings or behavior, they might leave to seek a new home. Encroaching spirits might also displace the kami.*"
+ },
+ {
+  "id": "pf-disturbance-the-pressure-loop",
+  "old": "the Kaito, deployed to investigate the imbalance, have been *discovering many neglected or corrupted shrines.*",
+  "new": "the Kaito, deployed to investigate the imbalance: *They have found that many shrines have been neglected and even possibly corrupted, but so far the root cause of all of this has yet to be revealed.*"
+ },
+ {
+  "id": "pf-white-flower",
+  "old": "[SOURCE] `path-of-waves-hirosaka.lore` — villages are prime recruitment targets precisely because *daimyō take little interest in what villagers do as long as they pay taxes.*",
+  "new": "[SOURCE] `path-of-waves-twin-blessings.lore` — *Villages—especially the most isolated and rural—are prime targets for the sect to recruit from. Daimyō take little interest in what villagers do as long as they pay the rice tax, so Perfect Land indoctrination and training are easy to keep secret*."
+ },
+ {
+  "id": "pf-white-flower",
+  "old": "the Agasha are *less concerned about the Perfect Land Sect than other Dragon families, viewing it as a practical rather than spiritual problem.*",
+  "new": "*Interestingly, the Agasha are less concerned about the burgeoning Perfect Land Sect than their cousins in the other Dragon families. They acknowledge it as a problem, but one that is of concern more because of its practical impacts on the clan*."
+ },
+ {
+  "id": "pf-seiya-fusae",
+  "old": "where instruction is *surprisingly unfocused by Rokugani standards, with students encouraged to follow their interests.*",
+  "new": "where *the training here is surprisingly unfocused by Rokugani standards, with students being encouraged to focus on particular areas that interest them, rather that conforming to a rigid syllabus.*"
+ },
+ {
+  "id": "pf-juri-teaches-the-perfect-land-sect",
+  "old": "[SOURCE] `enlightenment.lore` — *The Phoenix are known",
+  "new": "[SOURCE] `emerald-empire-enlightenment.lore` — *The Phoenix are known"
+ },
+ {
+  "id": "pf-juri-teaches-the-perfect-land-sect",
+  "old": "[SOURCE] `enlightenment.lore` — the half that frightens",
+  "new": "[SOURCE] `emerald-empire-enlightenment.lore` — the half that frightens"
+ },
+ {
+  "id": "pf-thread-yokai",
+  "old": "[SOURCE] `celestial-realms-phoenix-clan.lore`, **The Lost Shrine** — an abandoned shrine near Beiden Pass, lost to administrative errors. Its neglected spirit transformed into a yokai with an affinity for spiders; approaching within an hour's walk causes mounting strife; the Forgotten Spirit appears as a pony-sized black spider to anyone passing the torii, demanding worship and attacking if refused.",
+  "new": "[SOURCE] Celestial Realms p. 42 (not yet in the corpus) — *its spirit has become enraged by centuries of neglect, transforming into a dangerous, malevolent type of yōkai.* *For reasons that are unclear, this spirit either has an innate affinity for spiders or has developed the affinity over time; spiders are attracted to the Lost Shrine, draping the trees around it with their webs.*"
+ }
+]

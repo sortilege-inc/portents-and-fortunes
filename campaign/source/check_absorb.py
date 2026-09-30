@@ -5,7 +5,10 @@ the house-rules DSL, for §10. Independent of absorb_state.py: it reads the HTML
 expressions, not that script's parser, and the seed's Markdown by stripping its marks.
 
     git show 540d3fa:campaign/docs/state.html > /tmp/state.html
-    python3 campaign/source/check_absorb.py /tmp/state.html      # exit 0 = every block matches
+    git show 786aa9b:campaign/pack/seed.json > /tmp/seed-at-move.json   # the seed as the move wrote it
+    python3 campaign/source/check_absorb.py /tmp/state.html /tmp/seed-at-move.json   # exit 0 = every block matches
+
+(The live seed has been corrected since — decision 74 — so the gate reads the seed of the move.)
 
 Allowed differences, and only these: the masthead and its tag legend, the two h2 headings, the
 as-of line and the prep's first sentence (all four describe the document, not the campaign); the
@@ -66,7 +69,7 @@ def plain(md):
 
 def main(src):
     doc, order = doc_blocks(src)
-    seed = json.loads((ROOT / 'campaign/pack/seed.json').read_text())
+    seed = json.loads(Path(sys.argv[2] if len(sys.argv) > 2 else ROOT / 'campaign/pack/seed.json').read_text())
     gm = seed['gm']
     got = {}
 

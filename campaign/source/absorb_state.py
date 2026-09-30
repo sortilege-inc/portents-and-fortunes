@@ -3,7 +3,9 @@
 the campaign pack's GM material — gm.{overview, places, people, pc, rules, threadsNote, questions},
 threads and the arc — written into campaign/pack/seed.json, which fills the GM's campaign once
 (engine/state.js seed). After the move the pack is the source; this script is kept as the record of
-how the text was carried, and is run only against the state.html in git history:
+how the text was carried. **Do not re-run it over the live seed:** the seed has been corrected since
+(decision 74: quotes made verbatim, sources re-cited), and a re-run would write the old text back.
+It was run against the state.html in git history:
 
     git show 540d3fa:campaign/docs/state.html > /tmp/state.html
     python3 campaign/source/absorb_state.py /tmp/state.html

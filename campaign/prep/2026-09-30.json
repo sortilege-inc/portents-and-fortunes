@@ -1,0 +1,76 @@
+{
+ "arc": [
+  {
+   "id": "scene-road-tengu",
+   "title": "A tengu on the road",
+   "session": "The road to the Three Sisters",
+   "text": "[SET] A tengu meets them on the road to the Three Sisters.\n\n[OPEN] What it wants of them, and whether it takes them to an aerie shrine.\n\n[SOURCE] `writ-of-wilds-peoples.lore` — *Although one's role in society may be ever changing, a tengu aerie is run much like a monastery, with set schedules, rituals, and meditation at the heart of daily living.*\n\n[SOURCE] `writ-of-wilds-peoples.lore`, a folk tale of the Northern Mountains — *She did not speak a word before she disappeared and left a single jet-black feather in her wake.*",
+   "played": false
+  },
+  {
+   "id": "scene-road-lost-shrine",
+   "title": "A lost shrine on the way",
+   "session": "The road to the Three Sisters",
+   "text": "[SET] On the road to the Three Sisters stands a shrine the world has forgotten.\n\n[OPEN] Whose shrine it was. Kisshōten is the likeliest; Tenjin is the other Fortune in play.",
+   "sections": [
+    {
+     "id": "scene-road-lost-shrine-published",
+     "title": "The published lost shrine",
+     "text": "[SOURCE] Celestial Realms p. 42 (not yet in the corpus) — *Built sometime before the eighth century, the Lost Shrine is located in the foothills of the Spine of the World Mountains in central Rokugan, near Beiden Pass.*\n\n[SOURCE] Celestial Realms p. 43 (not yet in the corpus) — the strife laid on anyone approaching it is *A Mounting Sense of Dread*; its spirit is *The Forgotten Spirit*, with its adversary profile on the same page."
+    },
+    {
+     "id": "scene-road-lost-shrine-kisshoten",
+     "title": "Kisshōten",
+     "text": "[SOURCE] `children-of-five-winds-fox-clan.lore` — *Kisshōten, the Fortune of Happiness and Fertility*.\n\n[SOURCE] `errata-faq-kisshoten.lore` — *Kisshōten is widely considered one of the Eight Great Fortunes, though some in Rokugan disagree.*"
+    },
+    {
+     "id": "scene-road-lost-shrine-tenjin",
+     "title": "Tenjin",
+     "text": "[SOURCE] `emerald-empire-religion.lore` — *Tenjin, the Fortune of Stories and Secrets, accepts a personal secret written on a folded paper slip that is burned at the altar*.\n\n[SOURCE] `courts-of-stone-castles.lore` — at Beiden, *the town's chief feature is a shrine and temple to Tenjin, the Lesser Fortune of Stories and Secrets.*\n\n[OPEN] Where Tenjin enters."
+    }
+   ],
+   "played": false
+  },
+  {
+   "id": "scene-road-moon",
+   "title": "Something crosses to the moon",
+   "session": "The road to the Three Sisters",
+   "text": "[SET] On the road Norikage sees something a believer would take for the moon people crossing.\n\n[OPEN] What it is, when, and whether anyone sees it with him.\n\n[SOURCE] Celestial Realms p. 47 (not yet in the corpus) — *Some Rokugani theorize that they do so in heavenly ships similar to kobune, and that the shooting stars sometimes seen in the night sky are these ships as they descend to Ningen-dō. Others believe that when the moon touches the horizon, the moon people are simply able to walk from one place to the other.*",
+   "played": false
+  }
+ ],
+ "threads": [
+  {
+   "id": "pf-thread-reporting",
+   "title": "Reporting the six deaths",
+   "open": true,
+   "text": "[SET] Whether he reports the killings at the seidō, and to whom, is his to decide.\n\n[NOTE] Three people have a claim on the report: Togashi Oharu, whose observer he is; Seiya Mori, who governs the province for the Agasha; and Kitsuki Sadao, of the Dragon's investigating family, at White Flower on the night he arrives.\n\n[SOURCE] `core-creating-a-character.lore` — *the samurai of the Kitsuki family are most well-known for their keen perception and their investigative techniques that rely upon physical evidence.*\n\n[SOURCE] `writ-of-wilds-dragon-clan.lore` — *Many Kitsuki will subsequently return to the Shrine to Fukurokujin, some of them many times in their life, to seek the Fortune's guidance in unraveling complex matters of investigation.*"
+  }
+ ],
+ "gm": {
+  "people": [
+   {
+    "id": "pf-shun",
+    "title": "Shun, Inspired Moon Cultist",
+    "text": "[SOURCE] Celestial Realms p. 48 (not yet in the corpus) — *Shun is an enigmatic peasant.* *Shun is charming but pushy, and considers herself to be the savior of those who lack her insight.* Her ability, *The Gifts of the Moon's Light*, her conflict ranks and the adventure seed *The Man from the Moon* are on the same page.\n\n[OPEN] Where she is met, and whether she has anything to do with the six deaths."
+   },
+   {
+    "id": "pf-moon-mark",
+    "title": "Someone with the moon's mark",
+    "text": "[SET] An NPC to come carries one of the marks believers read as a moon person's.\n\n[OPEN] Who.\n\n[SOURCE] Celestial Realms p. 47 (not yet in the corpus) — *Those with large, splotchy birthmarks are most obvious, as these are similar to the various dark patches observed on the face of the moon. However, other believers claim that people with eyes of two different colors, or with pale skin and hair and pinkish eyes, are also moon people.*"
+   }
+  ],
+  "places": [
+   {
+    "id": "pf-isawa-mori",
+    "title": "The Isawa Mori",
+    "text": "[SET] A longer-term destination.\n\n[SOURCE] `celestial-realms-gm-tools.ttrpg` — *Some of these, such as a particular place in Otosan Uchi and some locations in the Isawa Mori, have had shrines built in or near them and are revered for their seemingly permanent connection.*\n\n[SOURCE] `celestial-realms-cosmology.lore` — *Senkyō: The enchanted country, a place of sentient animals and shapeshifting tricksters.*\n\n[SOURCE] `children-of-five-winds-fox-clan.lore` — *Kitsune are fox spirits from Chikushō-dō, the Realm of Animals, which is part of Senkyō.*\n\n[OPEN] The kitsune trickster: who, and where they are met."
+   },
+   {
+    "id": "pf-north",
+    "title": "North of the Dragon: the Yobanjin",
+    "text": "[SET] A longer-term destination.\n\n[SOURCE] `writ-of-wilds-peoples.lore` — *These are the herds of the Woolen Hooves people, who take their name from their unique steeds.* They trade *with the remote denizens of the Dragon Clan, who have proven rather accepting of them.*"
+   }
+  ]
+ }
+}
