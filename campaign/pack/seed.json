@@ -76,7 +76,14 @@
    "title": "A tengu on the road",
    "session": "Session Eight",
    "text": "[SET 30 Sep] On the way down to White Flower, after a wrong fork, a stranger on a rock above the path — Airi, a tengu in a man's guise (Cast › Airi) — flew them by the hand up the face of the mountain to an aerie shrine said to be **Kisshōten's retreat**. On the right day, it is said, Tengoku can be seen from it.\n\n[SET 30 Sep] The shrine is not Rokugani: an archway that is not a torii but serves as one, unworked stone with ornaments added, an altar growing out of the rock, about four feet by two. Juri burned incense, improvising. Norikage offered a blessing that asked for nothing, and the tengu said: \"Your children will be blessed.\" He unmasked in tears and his strife cleared.\n\n[SET 30 Sep] They spent the night on the ledge (Scenes › Something crosses to the moon). At dawn the tengu flew them down over the treetops to a mile from White Flower.\n\n[SOURCE] `writ-of-wilds-peoples.lore` — *Although one's role in society may be ever changing, a tengu aerie is run much like a monastery, with set schedules, rituals, and meditation at the heart of daily living.*\n\n[SOURCE] `writ-of-wilds-peoples.lore`, a folk tale of the Northern Mountains — *She did not speak a word before she disappeared and left a single jet-black feather in her wake.*",
-   "played": true
+   "played": true,
+   "sections": [
+    {
+     "id": "scene-road-tengu-kisshoten",
+     "title": "Kisshōten",
+     "text": "[SOURCE] `children-of-five-winds-fox-clan.lore` — *Kisshōten, the Fortune of Happiness and Fertility*.\n\n[SOURCE] `errata-faq-kisshoten.lore` — *Kisshōten is widely considered one of the Eight Great Fortunes, though some in Rokugan disagree.*"
+    }
+   ]
   },
   {
    "id": "scene-road-moon",
@@ -119,17 +126,12 @@
    "id": "scene-road-lost-shrine",
    "title": "A lost shrine on the way",
    "session": "The road to the Three Sisters",
-   "text": "[SET] On the road to the Three Sisters stands a shrine the world has forgotten.\n\n[OPEN] Whose shrine it was. Kisshōten is the likeliest; Tenjin is the other Fortune in play.",
+   "text": "[SET] On the road to the Three Sisters stands a shrine the world has forgotten.\n\n[OPEN] Whose shrine it was.",
    "sections": [
     {
      "id": "scene-road-lost-shrine-published",
      "title": "The published lost shrine",
      "text": "[SOURCE] Celestial Realms p. 42 (not yet in the corpus) — *Built sometime before the eighth century, the Lost Shrine is located in the foothills of the Spine of the World Mountains in central Rokugan, near Beiden Pass.*\n\n[SOURCE] Celestial Realms p. 43 (not yet in the corpus) — the strife laid on anyone approaching it is *A Mounting Sense of Dread*; its spirit is *The Forgotten Spirit*, with its adversary profile on the same page."
-    },
-    {
-     "id": "scene-road-lost-shrine-kisshoten",
-     "title": "Kisshōten",
-     "text": "[SOURCE] `children-of-five-winds-fox-clan.lore` — *Kisshōten, the Fortune of Happiness and Fertility*.\n\n[SOURCE] `errata-faq-kisshoten.lore` — *Kisshōten is widely considered one of the Eight Great Fortunes, though some in Rokugan disagree.*"
     },
     {
      "id": "scene-road-lost-shrine-tenjin",

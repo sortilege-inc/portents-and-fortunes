@@ -7,13 +7,20 @@
 .bel-h{ font-family:var(--disp); font-weight:700; font-size:1.24rem; color:var(--sumi); margin:1.4rem 0 0.4rem; }
 .said{ font-family:var(--disp); font-size:1.22rem; font-style:italic; color:var(--sumi); line-height:1.5; border-left:3px solid var(--crimson); padding:0.2rem 0 0.2rem 0.9rem; margin:1.3rem 0; }
 .said cite{ display:block; font-family:var(--caps); font-style:normal; text-transform:uppercase; letter-spacing:0.1em; font-size:0.64rem; color:var(--ink-soft); margin-top:0.35rem; }
-.roll-rec{ background:var(--paper-2); border:1px solid var(--gold-soft); border-left:3px solid var(--gold); border-radius:5px; padding:0.8rem 1rem; margin:1.1rem 0; }
-.rr-h{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.12em; font-size:0.7rem; color:var(--gold); margin-bottom:0.5rem; }
-.rr-line{ display:flex; gap:0.7rem; padding:0.22rem 0; border-bottom:1px dotted var(--edge-soft); font-size:0.92rem; }
-.rr-line:last-child{ border-bottom:0; }
-.rr-k{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.06em; font-size:0.66rem; color:var(--ink-soft); min-width:7.5rem; flex-shrink:0; padding-top:0.15rem; }
-.rr-v{ color:var(--ink); }
-.rr-v b{ color:var(--sumi); }
-.verb{ font-size:0.9rem; color:var(--ink-2); font-style:italic; background:var(--paper); border:1px dashed var(--gold-soft); border-radius:4px; padding:0.5rem 0.7rem; margin:0.5rem 0 0; }
+.roll-rec{ background:var(--paper-2); border:1px solid var(--gold-soft); border-left:3px solid var(--gold); border-radius:5px; padding:0.6rem 0.95rem 0.5rem; margin:1.1rem 0; font-family:var(--serif); font-size:0.86em; line-height:1.5; }
+/* every rule under .roll-rec: dramatis.css styles .rr-v too (a ring's number, large and bold) */
+.roll-rec .rr-h{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.12em; font-size:0.8em; font-weight:500; color:var(--gold); margin-bottom:0.3rem; }
+.roll-rec .rr-line{ display:flex; align-items:baseline; gap:0.8rem; padding:0.3rem 0; border-bottom:1px dotted var(--edge-soft); }
+.roll-rec .rr-line:last-child{ border-bottom:0; }
+.roll-rec .rr-k{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.07em; font-size:0.78em; color:var(--ink-soft); min-width:6.2rem; flex-shrink:0; }
+.roll-rec .rr-v{ font-family:var(--serif); font-weight:400; font-size:1em; line-height:1.5; color:var(--ink); }
+.roll-rec .rr-v b{ font-weight:500; color:var(--sumi); }
+.roll-rec .rr-ring{ width:1.45em; height:1.45em; vertical-align:-0.42em; margin-right:0.4em; }
+.roll-rec .rr-die{ width:1.3em; height:1.3em; vertical-align:-0.32em; margin:0 0.22em 0 0.04em; }
+.roll-rec .rr-die.st{ width:1em; height:1em; vertical-align:-0.16em; }
+.roll-rec .rr-out{ font-family:var(--caps); text-transform:uppercase; letter-spacing:0.08em; font-size:0.86em; font-weight:600; border-radius:3px; padding:0.05em 0.45em; }
+.roll-rec .rr-out.ok{ color:#2f6b45; background:rgba(63,143,90,0.14); }
+.roll-rec .rr-out.no{ color:var(--crimson); background:rgba(182,36,50,0.1); }
+.roll-rec .verb{ font-size:0.96em; color:var(--ink-2); font-style:italic; background:var(--paper); border:1px dashed var(--gold-soft); border-radius:4px; padding:0.5rem 0.7rem; margin:0.5rem 0 0; }
+@media (max-width:560px){ .roll-rec .rr-line{ flex-direction:column; gap:0.05rem; } }
 .tablenote{ font-size:0.9rem; color:var(--ink-soft); background:rgba(154,123,63,0.08); border-radius:5px; padding:0.7rem 0.9rem; margin-top:1.6rem; }
-.sym.su{ color:#3f8f5a; font-weight:700; } .sym.op{ color:#c08a1e; font-weight:700; } .sym.st{ color:#b0642a; font-weight:700; }
