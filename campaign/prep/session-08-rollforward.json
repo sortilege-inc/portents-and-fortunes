@@ -81,5 +81,11 @@
     "text": "[SET 30 Sep] A tengu, known as Ari, who says he has no clan. His guise: a man of about forty sitting on a rock above a path, with a gnarled staff nearly straight and a large pack under a blanket worn like a cloak, his steps awkward. The pack is his wings, twelve or fifteen feet across. His hands are thin and wrinkled. He carries people through the air by the hand.\n\n[SET 30 Sep] Norikage called him brother. He told Norikage that his children will be blessed, and, asked whether what he cannot understand troubles him: \"I seek to understand what I may, but when things elude me, I make my peace with it, and I try again the following day.\"\n\n[OPEN] Where his aerie is, and whether he is seen again."
    }
   ]
- }
+ },
+ "append": [
+  {
+   "id": "pf-kaito-juri",
+   "text": "[YOURS] **Kaito Juri and Togashi Norikage are the likely lovers**, and the likely parents of the children the tengu blessed."
+  }
+ ]
 }
