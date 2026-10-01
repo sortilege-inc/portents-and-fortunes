@@ -1,0 +1,85 @@
+{
+ "replace": [
+  {
+   "id": "scene-road-tengu",
+   "old": "[SET] A tengu meets them on the road to the Three Sisters.\n\n[OPEN] What it wants of them, and whether it takes them to an aerie shrine.\n\n[SOURCE] `writ-of-wilds-peoples.lore` — *Although one's role in society may be ever changing, a tengu aerie is run much like a monastery, with set schedules, rituals, and meditation at the heart of daily living.*\n\n[SOURCE] `writ-of-wilds-peoples.lore`, a folk tale of the Northern Mountains — *She did not speak a word before she disappeared and left a single jet-black feather in her wake.*",
+   "new": "[SET 30 Sep] On the way down to White Flower, after a wrong fork, a stranger on a rock above the path — Ari, a tengu in a man's guise (Cast › Ari) — flew them by the hand up the face of the mountain to an aerie shrine said to be **Kisshōten's retreat**. On the right day, it is said, Tengoku can be seen from it.\n\n[SET 30 Sep] The shrine is not Rokugani: an archway that is not a torii but serves as one, unworked stone with ornaments added, an altar growing out of the rock, about four feet by two. Juri burned incense, improvising. Norikage offered a blessing that asked for nothing, and the tengu said: \"Your children will be blessed.\" He unmasked in tears and his strife cleared.\n\n[SET 30 Sep] They spent the night on the ledge (Scenes › Something crosses to the moon). At dawn the tengu flew them down over the treetops to a mile from White Flower.\n\n[SOURCE] `writ-of-wilds-peoples.lore` — *Although one's role in society may be ever changing, a tengu aerie is run much like a monastery, with set schedules, rituals, and meditation at the heart of daily living.*\n\n[SOURCE] `writ-of-wilds-peoples.lore`, a folk tale of the Northern Mountains — *She did not speak a word before she disappeared and left a single jet-black feather in her wake.*"
+  },
+  {
+   "id": "scene-road-moon",
+   "old": "[SET] On the road Norikage sees something a believer would take for the moon people crossing.\n\n[OPEN] What it is, when, and whether anyone sees it with him.\n\n[SOURCE] Celestial Realms p. 47 (not yet in the corpus) — *Some Rokugani theorize that they do so in heavenly ships similar to kobune, and that the shooting stars sometimes seen in the night sky are these ships as they descend to Ningen-dō. Others believe that when the moon touches the horizon, the moon people are simply able to walk from one place to the other.*",
+   "new": "[SET 30 Sep] From the tengu's ledge, after sunset, Norikage saw a shadow like a ship sail across a large yellow moon and come down on a peak more east than south, a day or two off the road to White Flower. Juri, woken, looked — her eyes rolled back — and said: \"We should leave the moon children be.\" The Three Sisters are not moon children; those who come from the moon are.\n\n[SET 30 Sep] What she used was **Sight beyond Existence**, at magnitude 2 (`celestial-realms-mechanics.ttrpg`).\n\n[SOURCE] Celestial Realms p. 47 (not yet in the corpus) — *Some Rokugani theorize that they do so in heavenly ships similar to kobune, and that the shooting stars sometimes seen in the night sky are these ships as they descend to Ningen-dō. Others believe that when the moon touches the horizon, the moon people are simply able to walk from one place to the other.*"
+  },
+  {
+   "id": "scene-s8-white-flower",
+   "old": "[SET 23 Sep] They reach White Flower around nightfall. He wants the village told so that the dead can be buried properly, a safe night, and rest. The scene’s end halves his fatigue to 5; a night’s rest takes twice his Water off it.",
+   "new": "[SET 30 Sep] They reach White Flower in the early morning, after a night without sleep on the tengu's ledge: fatigue 4 of 10, 1 strife, one Void point. A young man carrying water sees him first, drops his yoke and runs, crying that it is the yokai (Threads › Yokai).\n\n[SET 23 Sep] He wants the village told, so that the dead can be buried properly, and somewhere safe to rest."
+  },
+  {
+   "id": "scene-s8-white-flower",
+   "old": "White Flower at nightfall: he comes",
+   "new": "White Flower in the morning: he comes",
+   "field": "summary"
+  },
+  {
+   "id": "*",
+   "old": "[NOTE] Four XP unspent.",
+   "new": "[NOTE] One XP unspent."
+  },
+  {
+   "id": "pf-norikage-stands",
+   "old": "[SET 23 Sep] **Thirteen XP earned, nine spent**, and four unspent — two for Session Seven.",
+   "new": "[SET 30 Sep] **Fifteen XP earned, fourteen spent**, one unspent. Session Eight's spend: Survival 0 → 1 (2) and Way of the Earthquake (3). Eleven count toward the twenty for school rank two."
+  },
+  {
+   "id": "pf-thread-yokai",
+   "old": "[OPEN] Where the story goes, and how it is told. The track they fled along is the one to White Flower.",
+   "new": "[SET 30 Sep] **White Flower has heard it.** The morning he arrives, a young man carrying water sees him, drops his yoke and runs, crying \"It's the yokai!\"\n\n[OPEN] Who brought the story to White Flower, and how it is told there."
+  },
+  {
+   "id": "pf-thread-moon-cults",
+   "old": "[OPEN] What she means to ask the Sisters, or take from them.",
+   "new": "[SET 30 Sep] **A ship crossed the moon** and came down on a peak more east than south of the tengu's ledge above White Flower, a day or two off that road. Juri: \"We should leave the moon children be.\" (Scenes › Something crosses to the moon)\n\n[OPEN] What is on the peak, and whether he goes.\n\n[OPEN] What she means to ask the Sisters, or take from them."
+  }
+ ],
+ "set": [
+  {
+   "id": "scene-road-tengu",
+   "fields": {
+    "title": "A tengu on the road",
+    "session": "Session Eight",
+    "played": true
+   }
+  },
+  {
+   "id": "scene-road-moon",
+   "fields": {
+    "session": "Session Eight",
+    "played": true
+   }
+  },
+  {
+   "id": "scene-s8-white-flower",
+   "fields": {
+    "title": "White Flower in the morning"
+   }
+  }
+ ],
+ "arcOrder": [
+  "scene-s7-coming-down",
+  "scene-s7-ambush",
+  "scene-road-tengu",
+  "scene-road-moon",
+  "scene-s8-white-flower",
+  "scene-road-lost-shrine"
+ ],
+ "add": {
+  "people": [
+   {
+    "id": "pf-ari",
+    "title": "Ari, a tengu",
+    "text": "[SET 30 Sep] A tengu, known as Ari, who says he has no clan. His guise: a man of about forty sitting on a rock above a path, with a gnarled staff nearly straight and a large pack under a blanket worn like a cloak, his steps awkward. The pack is his wings, twelve or fifteen feet across. His hands are thin and wrinkled. He carries people through the air by the hand.\n\n[SET 30 Sep] Norikage called him brother. He told Norikage that his children will be blessed, and, asked whether what he cannot understand troubles him: \"I seek to understand what I may, but when things elude me, I make my peace with it, and I try again the following day.\"\n\n[OPEN] Where his aerie is, and whether he is seen again."
+   }
+  ]
+ }
+}

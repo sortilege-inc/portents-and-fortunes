@@ -1,0 +1,36 @@
+{
+ "what": "Norikage at the end of Session Eight (30 Sep 2026): the Foundry actor saved when the session ended (its game fields only), and the XP the transcript gives — six to spend, two on Survival 0 → 1 and three on Way of the Earthquake, 14 of 15 spent.",
+ "rings": {
+  "Earth": 3,
+  "Air": 1,
+  "Water": 2,
+  "Fire": 2,
+  "Void": 3
+ },
+ "skills": {
+  "Fitness": 3,
+  "Martial Arts [Unarmed]": 1,
+  "Meditation": 2,
+  "Theology": 2,
+  "Courtesy": 1,
+  "Survival": 1
+ },
+ "techniques": [
+  "Lord Togashi's Insight",
+  "Earth Needs No Eyes",
+  "Blood of the Kami",
+  "Breaking Blow",
+  "Way of the Earthquake"
+ ],
+ "school_ability": "Blood of the Kami",
+ "xp": {
+  "earned": 15,
+  "spent": 14
+ },
+ "at_end": {
+  "fatigue": 4,
+  "strife": 1,
+  "void": 1,
+  "stance": "void"
+ }
+}

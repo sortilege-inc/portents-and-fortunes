@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 """
+**Do not re-run it:** the live sheet has advanced since (Session Eight, decision 76) and is edited in
+campaign/dsl/portents-norikage.actor; a re-run would write the Session Seven sheet back over it.
+
 convert_norikage.py — one-way conversion of Norikage's sheets into the campaign's DSL layer, as
 instances of the corpus's ACTOR "Samurai".
 

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-check_norikage.py — the conversion's proof for Norikage: each of his three sheets, read back from the
-BUILT layer (campaign/data/campaign.js), field by field against the old site's own record
-(campaign/source/norikage-sheets/: sheet-data.json, sheet-s5.json, sheet-s3.json, and the archives'
-labels, dates and state in sheet-history.js).
+check_norikage.py — the proof for Norikage: each of his sheets, read back from the BUILT layer
+(campaign/data/campaign.js), field by field against its record. The archives against the old site's
+own sheets (campaign/source/norikage-sheets/: sheet-data.json is the Session Seven archive since
+Session Eight, sheet-s5.json, sheet-s3.json, and the labels, dates and state in sheet-history.js);
+the live sheet against the record of the session it is as of (session-08.json).
 
     python3 campaign/source/check_norikage.py
 
@@ -111,6 +112,34 @@ def compare(label, s, P, state=None, hv=None):
     return len(rows), len(bad)
 
 
+# the Session Seven archive: the old site's live sheet, with the between-sessions baseline the old
+# page's other archives carry (sheet-history.js)
+S7 = {"id": "s7", "label": "Session Seven · 9 XP spent", "date": "23 Sep 2026", "state": {"strife": 0, "fatigue": 0, "void": 3, "stance": "void"}}
+
+
+def compare_live(rec, P):
+    """The live sheet against the record of the session it is as of (session-08.json)."""
+    rows = []
+    def eq(field, old, new):
+        rows.append((field, old, new, old == new))
+    for r, v in rec["rings"].items():
+        eq("rings." + r.lower(), v, (P.get("Rings") or {}).get(r))
+    have = {x.rsplit(" ", 1)[0]: int(x.rsplit(" ", 1)[1]) for x in P.get("Skills") or []}
+    eq("skills (ranked)", rec["skills"], {k: v for k, v in have.items() if v})
+    eq("techniques", sorted(t for t in rec["techniques"] if t != rec["school_ability"]), sorted(P.get("Techniques") or []))
+    eq("xp.earned", rec["xp"]["earned"], P.get("Experience"))
+    eq("xp.spent", rec["xp"]["spent"], P.get("Experience Spent"))
+    eq("xp ledger sums to spent", rec["xp"]["spent"], sum(int(x.split(" · ")[0]) for x in P.get("Experience Ledger") or []))
+    portraits = open(os.path.join(HERE, "campaign/site/portraits.js"), encoding="utf-8").read()
+    eq("portrait (portraits.js)", True, ("'%s':" % CURRENT_ID) in portraits)
+    bad = [r for r in rows if not r[3]]
+    print("== Current (session-08.json): %d fields, %d differ" % (len(rows), len(bad)))
+    for f, o, n, ok in rows:
+        if not ok:
+            print("   DIFFERS  %-34s record=%r  built=%r" % (f, o, n))
+    return len(rows), len(bad)
+
+
 def main():
     E = built()
     by_id = {h: e for h, e in E.items()}
@@ -119,7 +148,10 @@ def main():
     extra = sorted(set(s) - {"name", "clan", "family", "school", "rank", "role", "rings", "derived", "stance", "social", "xp", "skills", "bushido", "ninjo", "giri", "money", "techniques", "peculiarities"} - set(NOT_CARRIED))
     if extra:
         print("fields of the old sheet this check does not know: %s" % extra); sys.exit(1)
-    n, b = compare("Current (sheet-data.json)", s, props(by_id[CURRENT_ID]))
+    # the old site's live sheet is, since Session Eight, the Session Seven archive (decision 76)
+    n, b = compare("Session Seven (sheet-data.json)", s, props(by_id[CURRENT_ID + "S7"]), S7["state"], S7)
+    total += n; bad += b
+    n, b = compare_live(json.load(open(os.path.join(SHEETS, "session-08.json"), encoding="utf-8")), props(by_id[CURRENT_ID]))
     total += n; bad += b
     for hv in history():
         s = json.load(open(os.path.join(SHEETS, "sheet-%s.json" % hv["id"]), encoding="utf-8"))
@@ -127,7 +159,7 @@ def main():
         total += n; bad += b
     for k, why in NOT_CARRIED.items():
         print("   not a field of the sheet: %-10s %s" % (k, why))
-    print("check_norikage: %s — %d fields compared across 3 sheets, %d differ" % ("OK" if not bad else "FAILED", total, bad))
+    print("check_norikage: %s — %d fields compared across 4 sheets, %d differ" % ("OK" if not bad else "FAILED", total, bad))
     sys.exit(1 if bad else 0)
 
 
