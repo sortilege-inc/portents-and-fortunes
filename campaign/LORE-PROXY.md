@@ -71,4 +71,19 @@ The old token stops working as soon as the service restarts.
 ## Install from scratch
 
 On a new machine: follow the header of `tools/l5r-lore.service` in l5r-lore. Then enable Funnel
-for the tailnet: `tailscale funnel --bg 8797` prints the admin link the first time.
+for the tailnet: `tailscale funnel --bg 8797` prints the admin link the first time. Switching it on
+needs root once: `sudo tailscale set --operator=$USER`.
+
+The public DNS record can lag. If `dig +short helheim.tail926c54.ts.net @ns1.dnsimple.com` is
+still empty after ten minutes, turn the funnel off and on (`tailscale funnel --https=443 off`, then
+`tailscale funnel --bg 8797`). On 30 Sep the record appeared about four minutes after that. Test from
+this machine through the public address, since its own DNS answers with the tailnet one:
+`curl --resolve helheim.tail926c54.ts.net:443:<that IP> …`.
+
+## Proven, 30 Sep 2026
+
+Through the public address (208.111.34.11), not the tailnet: `/health` with no token gave 401, with
+a wrong token 401, and with the token 200, `{"ok": true, "embeddings": true, "ollama": true,
+"pages": 46109}`. The CORS preflight from `https://portents.sortilege.online` gave 204, allowing
+that origin and the `authorization` header. A search for *Togashi* returned *Togashi*, *Togashi*
+and *Togashi-no-Kami*.
